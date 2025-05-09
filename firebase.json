@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "source": "flutter_application",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-west1"
+    }
+  }
+}
