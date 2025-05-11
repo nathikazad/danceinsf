@@ -10,7 +10,7 @@ final routerProvider = Provider((ref) {
   // final authState = ref.watch(authProvider).state;
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/events',
     // refreshListenable: ref.watch(authProvider),
     // redirect: (context, state) {
     //   final isLoggedIn = authState.user != null;
