@@ -82,4 +82,72 @@ class WeekNavigator extends StatelessWidget {
       ),
     );
   }
-}
+  
+  static void updateVisibleDate(
+    ScrollController scrollController,
+    Map<DateTime, GlobalKey> dateKeys,
+    Function(DateTime) onDateUpdate,
+  ) {
+    if (!scrollController.hasClients) return;
+
+    DateTime? closestDate;
+
+    for (final entry in dateKeys.entries) {
+      final key = entry.value;
+      final context = key.currentContext;
+      if (context == null) continue;
+
+      final RenderBox box = context.findRenderObject() as RenderBox;
+      final position = box.localToGlobal(Offset.zero);
+      final startY = position.dy;
+      
+      // Check if our reference point (topThreshold) falls within this card's bounds
+      if (startY > 0) {
+        closestDate = entry.key;
+        break;
+      }
+    }
+
+    if (closestDate != null) {
+      onDateUpdate(closestDate);
+    }
+  }
+
+  static void scrollToClosestDate(
+    ScrollController scrollController,
+    Map<DateTime, GlobalKey> dateKeys,
+    DateTime targetDate,
+  ) {
+    if (!scrollController.hasClients) return;
+
+    // Find the closest date key
+    DateTime? closestDate;
+    int? minDistance;
+
+    for (final entry in dateKeys.entries) {
+      final key = entry.value;
+      final context = key.currentContext;
+      if (context == null) continue;
+      
+      // Calculate distance from target date
+      final daysDifference = entry.key.difference(targetDate).inDays.abs();
+      
+      if (minDistance == null || daysDifference < minDistance) {
+        minDistance = daysDifference;
+        closestDate = entry.key;
+      }
+    }
+
+    if (closestDate != null) {
+      final key = dateKeys[closestDate]!;
+      final context = key.currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+} 

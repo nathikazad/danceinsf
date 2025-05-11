@@ -27,71 +27,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
     super.dispose();
   }
 
-  void _updateVisibleDate() {
-    if (!_scrollController.hasClients) return;
-
-    DateTime? closestDate;
-
-    for (final entry in _dateKeys.entries) {
-      final key = entry.value;
-      final context = key.currentContext;
-      if (context == null) continue;
-
-      final RenderBox box = context.findRenderObject() as RenderBox;
-      final position = box.localToGlobal(Offset.zero);
-      final startY = position.dy;
-      
-      // Check if our reference point (topThreshold) falls within this card's bounds
-      if (startY > 0) {
-        closestDate = entry.key;
-        break;
-      }
-    }
-
-    if (closestDate != null) {
-      setState(() {
-        _selectedWeekday = closestDate!.weekday;
-        _weekStart = closestDate.subtract(Duration(days: (closestDate.weekday - 1) % 7));
-      });
-    }
-  }
-
-  void _scrollToClosestDate(DateTime targetDate) {
-    if (!_scrollController.hasClients) return;
-
-    // Find the closest date key
-    DateTime? closestDate;
-    int? minDistance;
-
-    for (final entry in _dateKeys.entries) {
-      final key = entry.value;
-      final context = key.currentContext;
-      if (context == null) continue;
-
-      // final RenderBox box = context.findRenderObject() as RenderBox;
-      // final position = box.localToGlobal(Offset.zero);
-      // final startY = position.dy;
-      
-      // Calculate distance from target date
-      final daysDifference = entry.key.difference(targetDate).inDays.abs();
-      
-      if (minDistance == null || daysDifference < minDistance) {
-        minDistance = daysDifference;
-        closestDate = entry.key;
-      }
-    }
-
-    if (closestDate != null) {
-      final key = _dateKeys[closestDate]!;
-      final context = key.currentContext;
-      if (context != null) {
-        Scrollable.ensureVisible(
-          context,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    }
+  void _handleDateUpdate(DateTime date) {
+    setState(() {
+      _selectedWeekday = date.weekday;
+      _weekStart = date.subtract(Duration(days: (date.weekday - 1) % 7));
+    });
   }
 
   @override
@@ -121,17 +61,14 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 _weekStart = newWeekStart;
                 _selectedWeekday = 1; // Set to Monday
               });
-              // Find the closest date key to scroll to
-              final targetDate = newWeekStart; // Since we're going to Monday, we can use weekStart directly
-              _scrollToClosestDate(targetDate);
+              WeekNavigator.scrollToClosestDate(_scrollController, _dateKeys, newWeekStart);
             },
             onDaySelected: (weekday) {
               setState(() {
                 _selectedWeekday = weekday;
               });
-              // Find the closest date key to scroll to
               final targetDate = _weekStart!.add(Duration(days: weekday - 1));
-              _scrollToClosestDate(targetDate);
+              WeekNavigator.scrollToClosestDate(_scrollController, _dateKeys, targetDate);
             },
           ),
           const Divider(height: 1, thickness: 1),
@@ -162,7 +99,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 return NotificationListener<ScrollNotification>(
                   onNotification: (notification) {
                     if (notification is ScrollUpdateNotification) {
-                      _updateVisibleDate();
+                      WeekNavigator.updateVisibleDate(
+                        _scrollController,
+                        _dateKeys,
+                        _handleDateUpdate,
+                      );
                     }
                     return true;
                   },
@@ -172,7 +113,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                     itemCount: dateKeys.length,
                     itemBuilder: (context, dateIndex) {
                       final date = dateKeys[dateIndex];
-                      final occs = grouped[date]!;
+                      final eventInstances = grouped[date]!;
                       
                       // Create or get key for this date
                       _dateKeys[date] = _dateKeys[date] ?? GlobalKey();
@@ -188,11 +129,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ),
-                          ...occs.map((occurrence) {
+                          ...eventInstances.map((occurrence) {
                             final event = occurrence.event;
                             return EventCard(
                               event: event,
-                              isFirst: occs.first == occurrence,
+                              isFirst: eventInstances.first == occurrence,
                             );
                           }).toList(),
                           if (dateIndex != dateKeys.length - 1)
