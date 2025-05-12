@@ -7,6 +7,7 @@ import '../auth.dart';
 import '../models/event.dart';
 import '../controllers/event_controller.dart';
 import 'package:intl/intl.dart';
+import '../widget/app_drawer.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
@@ -44,12 +45,15 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       appBar: AppBar(
         title: const Text('Dance Events'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authProvider).signOut(),
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
           ),
         ],
       ),
+      endDrawer: const AppDrawer(),
       body: Column(
         children: [
           WeekNavigator(
