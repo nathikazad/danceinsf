@@ -21,61 +21,63 @@ class EventsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('EEEE, MMM d');
-    return eventsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: Text('Error: ${error.toString()}'),
-      ),
-      data: (eventInstances) {
-        final startDate = DateTime.now();
-        final endDate = DateTime.now().add(const Duration(days: 30));
-        final filteredInstances = eventInstances.where((occ) =>
-          occ.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
-          occ.date.isBefore(endDate.add(const Duration(days: 1)))
-        ).toList();
-        final groupedInstances = Event.groupOccurrencesByDate(filteredInstances);
-        final dateKeys = groupedInstances.keys.toList()..sort();
-        if (dateKeys.isEmpty) {
-          return const Center(
-            child: Text('No events found in the next 7 days'),
-          );
-        }
-        return NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            if (notification is ScrollUpdateNotification) {
-              weekNavigatorController.updateVisibleDate(handleDateUpdate);
-            }
-            if (notification is ScrollEndNotification) {
-              final scrollController = weekNavigatorController.scrollController;
-              if (scrollController.position.pixels == 0) {
-                print('Top reached');
-                onRangeUpdate(true);
-              } else if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-                print('Bottom reached');
-                onRangeUpdate(false);
+    return Expanded(
+      child: eventsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(
+          child: Text('Error: ${error.toString()}'),
+        ),
+        data: (eventInstances) {
+          final startDate = DateTime.now();
+          final endDate = DateTime.now().add(const Duration(days: 30));
+          final filteredInstances = eventInstances.where((occ) =>
+            occ.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
+            occ.date.isBefore(endDate.add(const Duration(days: 1)))
+          ).toList();
+          final groupedInstances = Event.groupOccurrencesByDate(filteredInstances);
+          final dateKeys = groupedInstances.keys.toList()..sort();
+          if (dateKeys.isEmpty) {
+            return const Center(
+              child: Text('No events found in the next 7 days'),
+            );
+          }
+          return NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollUpdateNotification) {
+                weekNavigatorController.updateVisibleDate(handleDateUpdate);
               }
-            }
-            return true;
-          },
-          child: ListView.builder(
-            controller: weekNavigatorController.scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount: dateKeys.length,
-            itemBuilder: (context, dateIndex) {
-              final date = dateKeys[dateIndex];
-              final eventInstancesForDate = groupedInstances[date]!;
-              weekNavigatorController.dateKeys[date] = weekNavigatorController.dateKeys[date] ?? GlobalKey();
-              return GroupedEventsForDate(
-                date: date,
-                eventInstancesForDate: eventInstancesForDate,
-                dateFormat: dateFormat,
-                isLast: dateIndex == dateKeys.length - 1,
-                keyForDate: weekNavigatorController.dateKeys[date]!,
-              );
+              if (notification is ScrollEndNotification) {
+                final scrollController = weekNavigatorController.scrollController;
+                if (scrollController.position.pixels == 0) {
+                  print('Top reached');
+                  onRangeUpdate(true);
+                } else if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+                  print('Bottom reached');
+                  onRangeUpdate(false);
+                }
+              }
+              return true;
             },
-          ),
-        );
-      },
+            child: ListView.builder(
+              controller: weekNavigatorController.scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: dateKeys.length,
+              itemBuilder: (context, dateIndex) {
+                final date = dateKeys[dateIndex];
+                final eventInstancesForDate = groupedInstances[date]!;
+                weekNavigatorController.dateKeys[date] = weekNavigatorController.dateKeys[date] ?? GlobalKey();
+                return GroupedEventsForDate(
+                  date: date,
+                  eventInstancesForDate: eventInstancesForDate,
+                  dateFormat: dateFormat,
+                  isLast: dateIndex == dateKeys.length - 1,
+                  keyForDate: weekNavigatorController.dateKeys[date]!,
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
