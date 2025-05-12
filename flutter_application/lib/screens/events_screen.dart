@@ -18,12 +18,11 @@ class EventsScreen extends ConsumerStatefulWidget {
 class _EventsScreenState extends ConsumerState<EventsScreen> {
   DateTime? _weekStart;
   int _selectedWeekday = DateTime.now().weekday;
-  final ScrollController _scrollController = ScrollController();
-  final Map<DateTime, GlobalKey> _dateKeys = {};
+  final _weekNavigatorController = WeekNavigatorController();
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _weekNavigatorController.dispose();
     super.dispose();
   }
 
@@ -61,14 +60,14 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 _weekStart = newWeekStart;
                 _selectedWeekday = 1; // Set to Monday
               });
-              WeekNavigator.scrollToClosestDate(_scrollController, _dateKeys, newWeekStart);
+              _weekNavigatorController.scrollToClosestDate(newWeekStart);
             },
             onDaySelected: (weekday) {
               setState(() {
                 _selectedWeekday = weekday;
               });
               final targetDate = _weekStart!.add(Duration(days: weekday - 1));
-              WeekNavigator.scrollToClosestDate(_scrollController, _dateKeys, targetDate);
+              _weekNavigatorController.scrollToClosestDate(targetDate);
             },
           ),
           const Divider(height: 1, thickness: 1),
@@ -78,17 +77,17 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               error: (error, stackTrace) => Center(
                 child: Text('Error: ${error.toString()}'),
               ),
-              data: (occurrences) {
+              data: (eventInstances) {
                 final startDate = DateTime.now();
                 final endDate = DateTime.now().add(const Duration(days: 30));
                 
-                final filteredOccurrences = occurrences.where((occ) =>
+                final filteredInstances = eventInstances.where((occ) =>
                   occ.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
                   occ.date.isBefore(endDate.add(const Duration(days: 1)))
                 ).toList();
                 
-                final grouped = Event.groupOccurrencesByDate(filteredOccurrences);
-                final dateKeys = grouped.keys.toList()..sort();
+                final groupedInstances = Event.groupOccurrencesByDate(filteredInstances);
+                final dateKeys = groupedInstances.keys.toList()..sort();
 
                 if (dateKeys.isEmpty) {
                   return const Center(
@@ -99,27 +98,23 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 return NotificationListener<ScrollNotification>(
                   onNotification: (notification) {
                     if (notification is ScrollUpdateNotification) {
-                      WeekNavigator.updateVisibleDate(
-                        _scrollController,
-                        _dateKeys,
-                        _handleDateUpdate,
-                      );
+                      _weekNavigatorController.updateVisibleDate(_handleDateUpdate);
                     }
                     return true;
                   },
                   child: ListView.builder(
-                    controller: _scrollController,
+                    controller: _weekNavigatorController.scrollController,
                     padding: const EdgeInsets.all(16),
                     itemCount: dateKeys.length,
                     itemBuilder: (context, dateIndex) {
                       final date = dateKeys[dateIndex];
-                      final eventInstances = grouped[date]!;
+                      final eventInstancesForDate = groupedInstances[date]!;
                       
                       // Create or get key for this date
-                      _dateKeys[date] = _dateKeys[date] ?? GlobalKey();
+                      _weekNavigatorController.dateKeys[date] = _weekNavigatorController.dateKeys[date] ?? GlobalKey();
                       
                       return Column(
-                        key: _dateKeys[date],
+                        key: _weekNavigatorController.dateKeys[date],
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
@@ -129,11 +124,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ),
-                          ...eventInstances.map((occurrence) {
+                          ...eventInstancesForDate.map((occurrence) {
                             final event = occurrence.event;
                             return EventCard(
                               event: event,
-                              isFirst: eventInstances.first == occurrence,
+                              isFirst: eventInstancesForDate.first == occurrence,
                             );
                           }).toList(),
                           if (dateIndex != dateKeys.length - 1)
