@@ -75,11 +75,12 @@ class WeekNavigator extends StatelessWidget {
   final int selectedWeekday;
   final Function(DateTime) onWeekChanged;
   final Function(int) onDaySelected;
-
+  final Set<int> daysWithEventsForCurrentWeek;
   const WeekNavigator({
     super.key,
     required this.weekStart,
     required this.selectedWeekday,
+    required this.daysWithEventsForCurrentWeek,
     required this.onWeekChanged,
     required this.onDaySelected,
   });
@@ -121,15 +122,16 @@ class WeekNavigator extends StatelessWidget {
               children: List.generate(7, (index) {
                 final weekday = index + 1;
                 final isSelected = weekday == selectedWeekday;
+                final hasEvents = daysWithEventsForCurrentWeek.contains(weekday);
                 return SizedBox(
                   width: 32,
                   child: ElevatedButton(
-                    onPressed: () => onDaySelected(weekday),
+                    onPressed: () => hasEvents ? onDaySelected(weekday) : null,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(32, 32),
-                      backgroundColor: isSelected ? Colors.blue : null,
-                      foregroundColor: isSelected ? Colors.white : null,
+                      backgroundColor: isSelected ? Colors.blue : (hasEvents ? null : Colors.grey[200]),
+                      foregroundColor: isSelected ? Colors.white : (hasEvents ? null : Colors.grey[400]),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -138,7 +140,7 @@ class WeekNavigator extends StatelessWidget {
                       weekDays[index],
                       style: TextStyle(
                         fontSize: 14,
-                        color: isSelected ? Colors.white : null,
+                        color: isSelected ? Colors.white : (hasEvents ? null : Colors.grey[400]),
                       ),
                     ),
                   ),

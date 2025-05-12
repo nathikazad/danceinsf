@@ -23,13 +23,13 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   String _selectedType = 'Socials';
   // List<String> _selectedFilters = ['Salsa', 'Once', 'San Francisco'];
 
-  // Add state for filter modal
-  final List<String> _styles = ['Salsa', 'Bachata'];
-  final List<String> _frequencies = ['Once', 'Weekly', 'Monthly'];
   String? _selectedStyle;
   String? _selectedFrequency;
   String? _selectedCity;
   final List<String> _cities = ['San Francisco', 'San Jose', 'Oakland'];
+
+  // Add this variable
+  Set<int> daysWithEventsForCurrentWeek = {};
 
   @override
   void dispose() {
@@ -41,6 +41,28 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
     setState(() {
       _selectedWeekday = date.weekday;
       _weekStart = date.subtract(Duration(days: (date.weekday - 1) % 7));
+      _computeDaysWithEventsForCurrentWeek();
+    });
+  }
+
+  // Add this method
+  void _computeDaysWithEventsForCurrentWeek() {
+    final eventsAsync = ref.read(eventControllerProvider);
+    final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
+    final weekEnd = weekStart.add(const Duration(days: 6));
+    Set<int> days = {};
+    if (eventsAsync.hasValue) {
+      final events = eventsAsync.value!;
+      for (final event in events) {
+        final eventDate = event.date;
+        if (eventDate.isAfter(weekStart.subtract(const Duration(days: 1))) &&
+            eventDate.isBefore(weekEnd.add(const Duration(days: 1)))) {
+          days.add(eventDate.weekday);
+        }
+      }
+    }
+    setState(() {
+      daysWithEventsForCurrentWeek = days;
     });
   }
 
@@ -53,12 +75,6 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       ),
       builder: (context) {
         return FilterModalWidget(
-          styles: _styles,
-          frequencies: _frequencies,
-          cities: _cities,
-          initialStyle: _selectedStyle,
-          initialFrequency: _selectedFrequency,
-          initialCity: _selectedCity,
           onApply: ({style, frequency, city}) {
             setState(() {
               _selectedStyle = style;
@@ -104,10 +120,12 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           WeekNavigator(
             weekStart: weekStart,
             selectedWeekday: _selectedWeekday,
+            daysWithEventsForCurrentWeek: daysWithEventsForCurrentWeek,
             onWeekChanged: (newWeekStart) {
               setState(() {
                 _weekStart = newWeekStart;
                 _selectedWeekday = 1; // Set to Monday
+                _computeDaysWithEventsForCurrentWeek();
               });
               _weekNavigatorController.scrollToClosestDate(newWeekStart);
             },
