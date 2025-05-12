@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/widget/event_card.dart';
+import 'package:flutter_application/widget/event_list.dart';
 import 'package:flutter_application/widget/week_navigator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../auth.dart';
-import '../models/event.dart';
 import '../controllers/event_controller.dart';
-import 'package:intl/intl.dart';
 import '../widget/app_drawer.dart';
-
+import '../widget/event_filters.dart';
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
 
@@ -20,6 +17,18 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   DateTime? _weekStart;
   int _selectedWeekday = DateTime.now().weekday;
   final _weekNavigatorController = WeekNavigatorController();
+
+  // Add state for event type and filters
+  String _selectedType = 'Socials';
+  List<String> _selectedFilters = ['Salsa', 'Once', 'San Francisco'];
+
+  // Add state for filter modal
+  final List<String> _styles = ['Salsa', 'Bachata'];
+  final List<String> _frequencies = ['Once', 'Weekly', 'Monthly'];
+  String? _selectedStyle;
+  String? _selectedFrequency;
+  String? _selectedCity;
+  final List<String> _cities = ['San Francisco', 'San Jose', 'Oakland'];
 
   @override
   void dispose() {
@@ -34,13 +43,37 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
     });
   }
 
+  void _showFilterModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return FilterModalWidget(
+          styles: _styles,
+          frequencies: _frequencies,
+          cities: _cities,
+          initialStyle: _selectedStyle,
+          initialFrequency: _selectedFrequency,
+          initialCity: _selectedCity,
+          onApply: ({style, frequency, city}) {
+            setState(() {
+              _selectedStyle = style;
+              _selectedFrequency = frequency;
+              _selectedCity = city;
+            });
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(eventControllerProvider);
-    final dateFormat = DateFormat('EEEE, MMM d');
-
     final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dance Events'),
@@ -56,6 +89,22 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       endDrawer: const AppDrawer(),
       body: Column(
         children: [
+          TopBar(
+            selectedType: _selectedType,
+            onTypeSelected: (type) => setState(() => _selectedType = type),
+            onFilterPressed: () => _showFilterModal(context),
+            onAddPressed: () => context.push('/add-event'),
+          ),
+          if (_selectedFilters.isNotEmpty)
+            SelectedFiltersRow(
+              filters: _selectedFilters,
+              onFilterRemoved: (filter) => setState(() => _selectedFilters.remove(filter)),
+            ),
+          SearchBar(
+            onChanged: (value) {
+              // TODO: implement search logic
+            },
+          ),
           WeekNavigator(
             weekStart: weekStart,
             selectedWeekday: _selectedWeekday,
@@ -76,73 +125,10 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           ),
           const Divider(height: 1, thickness: 1),
           Expanded(
-            child: eventsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => Center(
-                child: Text('Error: ${error.toString()}'),
-              ),
-              data: (eventInstances) {
-                final startDate = DateTime.now();
-                final endDate = DateTime.now().add(const Duration(days: 30));
-                
-                final filteredInstances = eventInstances.where((occ) =>
-                  occ.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
-                  occ.date.isBefore(endDate.add(const Duration(days: 1)))
-                ).toList();
-                
-                final groupedInstances = Event.groupOccurrencesByDate(filteredInstances);
-                final dateKeys = groupedInstances.keys.toList()..sort();
-
-                if (dateKeys.isEmpty) {
-                  return const Center(
-                    child: Text('No events found in the next 7 days'),
-                  );
-                }
-
-                return NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    if (notification is ScrollUpdateNotification) {
-                      _weekNavigatorController.updateVisibleDate(_handleDateUpdate);
-                    }
-                    return true;
-                  },
-                  child: ListView.builder(
-                    controller: _weekNavigatorController.scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: dateKeys.length,
-                    itemBuilder: (context, dateIndex) {
-                      final date = dateKeys[dateIndex];
-                      final eventInstancesForDate = groupedInstances[date]!;
-                      
-                      // Create or get key for this date
-                      _weekNavigatorController.dateKeys[date] = _weekNavigatorController.dateKeys[date] ?? GlobalKey();
-                      
-                      return Column(
-                        key: _weekNavigatorController.dateKeys[date],
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              dateFormat.format(date),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                          ),
-                          ...eventInstancesForDate.map((occurrence) {
-                            final event = occurrence.event;
-                            return EventCard(
-                              event: event,
-                              isFirst: eventInstancesForDate.first == occurrence,
-                            );
-                          }).toList(),
-                          if (dateIndex != dateKeys.length - 1)
-                            const Divider(height: 32, thickness: 3, color: Colors.grey),
-                        ],
-                      );
-                    },
-                  ),
-                );
-              },
+            child: EventsList(
+              eventsAsync: eventsAsync,
+              weekNavigatorController: _weekNavigatorController,
+              handleDateUpdate: _handleDateUpdate,
             ),
           ),
         ],
@@ -153,4 +139,108 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       ),
     );
   }
-} 
+}
+
+// TopBar widget
+class TopBar extends StatelessWidget {
+  final String selectedType;
+  final ValueChanged<String> onTypeSelected;
+  final VoidCallback onFilterPressed;
+  final VoidCallback onAddPressed;
+  const TopBar({
+    super.key,
+    required this.selectedType,
+    required this.onTypeSelected,
+    required this.onFilterPressed,
+    required this.onAddPressed,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.tune),
+            onPressed: onFilterPressed,
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ChoiceChip(
+                  label: const Text('Socials'),
+                  selected: selectedType == 'Socials',
+                  onSelected: (selected) {
+                    if (selected) onTypeSelected('Socials');
+                  },
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('Classes'),
+                  selected: selectedType == 'Classes',
+                  onSelected: (selected) {
+                    if (selected) onTypeSelected('Classes');
+                  },
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: onAddPressed,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// SelectedFiltersRow widget
+class SelectedFiltersRow extends StatelessWidget {
+  final List<String> filters;
+  final ValueChanged<String> onFilterRemoved;
+  const SelectedFiltersRow({
+    super.key,
+    required this.filters,
+    required this.onFilterRemoved,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Wrap(
+        spacing: 8,
+        children: filters.map((filter) => Chip(
+          label: Text(filter),
+          deleteIcon: const Icon(Icons.close, size: 18),
+          onDeleted: () => onFilterRemoved(filter),
+        )).toList(),
+      ),
+    );
+  }
+}
+
+// SearchBar widget
+class SearchBar extends StatelessWidget {
+  final ValueChanged<String> onChanged;
+  const SearchBar({super.key, required this.onChanged});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search',
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+        ),
+        onChanged: onChanged,
+      ),
+    );
+  }
+}
