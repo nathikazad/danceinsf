@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application/widget/event_list.dart';
 import 'package:flutter_application/widget/week_navigator.dart';
@@ -20,7 +21,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
   // Add state for event type and filters
   String _selectedType = 'Socials';
-  List<String> _selectedFilters = ['Salsa', 'Once', 'San Francisco'];
+  // List<String> _selectedFilters = ['Salsa', 'Once', 'San Francisco'];
 
   // Add state for filter modal
   final List<String> _styles = ['Salsa', 'Bachata'];
@@ -95,16 +96,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
             onFilterPressed: () => _showFilterModal(context),
             onAddPressed: () => context.push('/add-event'),
           ),
-          if (_selectedFilters.isNotEmpty)
-            SelectedFiltersRow(
-              filters: _selectedFilters,
-              onFilterRemoved: (filter) => setState(() => _selectedFilters.remove(filter)),
-            ),
-          SearchBar(
-            onChanged: (value) {
-              // TODO: implement search logic
-            },
-          ),
+          // if (_selectedFilters.isNotEmpty)
+          //   SelectedFiltersRow(
+          //     filters: _selectedFilters,
+          //     onFilterRemoved: (filter) => setState(() => _selectedFilters.remove(filter)),
+          //   ),
           WeekNavigator(
             weekStart: weekStart,
             selectedWeekday: _selectedWeekday,
@@ -165,25 +161,10 @@ class TopBar extends StatelessWidget {
             onPressed: onFilterPressed,
           ),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ChoiceChip(
-                  label: const Text('Socials'),
-                  selected: selectedType == 'Socials',
-                  onSelected: (selected) {
-                    if (selected) onTypeSelected('Socials');
-                  },
-                ),
-                const SizedBox(width: 8),
-                ChoiceChip(
-                  label: const Text('Classes'),
-                  selected: selectedType == 'Classes',
-                  onSelected: (selected) {
-                    if (selected) onTypeSelected('Classes');
-                  },
-                ),
-              ],
+            child: SearchBar(
+              onChanged: (value) {
+                // TODO: implement search logic
+              },
             ),
           ),
           IconButton(
@@ -228,16 +209,16 @@ class SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: TextField(
         decoration: InputDecoration(
           hintText: 'Search',
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: const Icon(Icons.search, size: 20),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
           ),
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         ),
         onChanged: onChanged,
       ),

@@ -24,7 +24,7 @@ class WeekNavigatorController {
       final startY = position.dy;
       
       // Check if our reference point (topThreshold) falls within this card's bounds
-      if (startY > 0) {
+      if (startY > 60) {
         closestDate = entry.key;
         break;
       }
