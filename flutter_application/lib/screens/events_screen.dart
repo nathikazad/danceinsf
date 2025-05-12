@@ -117,7 +117,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               setState(() {
                 _selectedWeekday = weekday;
               });
-              final targetDate = _weekStart!.add(Duration(days: weekday - 1));
+              final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
+              final targetDate = weekStart.add(Duration(days: weekday - 1));
               _weekNavigatorController.scrollToClosestDate(targetDate);
             },
           ),
