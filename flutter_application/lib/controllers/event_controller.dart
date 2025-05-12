@@ -14,7 +14,7 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
 
   final _supabase = Supabase.instance.client;
 
-  Future<void> fetchEvents() async {
+  Future<void> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
     try {
       state = const AsyncValue.loading();
       

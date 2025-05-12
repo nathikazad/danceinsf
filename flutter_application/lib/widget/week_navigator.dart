@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/event.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class WeekNavigatorController {
@@ -7,6 +9,23 @@ class WeekNavigatorController {
 
   void dispose() {
     scrollController.dispose();
+  }
+
+  Set<int> computeDaysWithEvents(AsyncValue<List<EventOccurrence>> eventsAsync, DateTime weekStart) {
+    final weekEnd = weekStart.add(const Duration(days: 6));
+    Set<int> days = {};
+    
+    if (eventsAsync.hasValue) {
+      final events = eventsAsync.value!;
+      for (final event in events) {
+        final eventDate = event.date;
+        if (eventDate.isAfter(weekStart.subtract(const Duration(days: 1))) &&
+            eventDate.isBefore(weekEnd.add(const Duration(days: 1)))) {
+          days.add(eventDate.weekday);
+        }
+      }
+    }
+    return days;
   }
 
   void updateVisibleDate(Function(DateTime) onDateUpdate) {

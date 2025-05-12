@@ -10,11 +10,13 @@ class EventsList extends StatelessWidget {
   final AsyncValue<List<EventOccurrence>> eventsAsync;
   final WeekNavigatorController weekNavigatorController;
   final void Function(DateTime) handleDateUpdate;
+  final void Function(bool) onRangeUpdate;
   const EventsList({
     super.key,
     required this.eventsAsync,
     required this.weekNavigatorController,
     required this.handleDateUpdate,
+    required this.onRangeUpdate,
   });
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,16 @@ class EventsList extends StatelessWidget {
           onNotification: (notification) {
             if (notification is ScrollUpdateNotification) {
               weekNavigatorController.updateVisibleDate(handleDateUpdate);
+            }
+            if (notification is ScrollEndNotification) {
+              final scrollController = weekNavigatorController.scrollController;
+              if (scrollController.position.pixels == 0) {
+                print('Top reached');
+                onRangeUpdate(true);
+              } else if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+                print('Bottom reached');
+                onRangeUpdate(false);
+              }
             }
             return true;
           },

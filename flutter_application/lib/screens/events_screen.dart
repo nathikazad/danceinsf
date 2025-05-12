@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application/widget/event_list.dart';
 import 'package:flutter_application/widget/week_navigator.dart';
@@ -31,6 +30,20 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   // Add this variable
   Set<int> daysWithEventsForCurrentWeek = {};
 
+  // Add state for date range
+  DateTime _startDate = DateTime.now();
+  int _daysWindow = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initial fetch
+    ref.read(eventControllerProvider.notifier).fetchEvents(
+      startDate: _startDate,
+      windowDays: _daysWindow,
+    );
+  }
+
   @override
   void dispose() {
     _weekNavigatorController.dispose();
@@ -46,24 +59,10 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   }
 
   // Add this method
-  void _computeDaysWithEventsForCurrentWeek() {
+  Set<int> _computeDaysWithEventsForCurrentWeek() {
     final eventsAsync = ref.read(eventControllerProvider);
     final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
-    final weekEnd = weekStart.add(const Duration(days: 6));
-    Set<int> days = {};
-    if (eventsAsync.hasValue) {
-      final events = eventsAsync.value!;
-      for (final event in events) {
-        final eventDate = event.date;
-        if (eventDate.isAfter(weekStart.subtract(const Duration(days: 1))) &&
-            eventDate.isBefore(weekEnd.add(const Duration(days: 1)))) {
-          days.add(eventDate.weekday);
-        }
-      }
-    }
-    setState(() {
-      daysWithEventsForCurrentWeek = days;
-    });
+    return _weekNavigatorController.computeDaysWithEvents(eventsAsync, weekStart);
   }
 
   void _showFilterModal(BuildContext context) {
@@ -84,6 +83,23 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           },
         );
       },
+    );
+  }
+
+  void _handleRangeUpdate(bool isTop) {
+    setState(() {
+      if (isTop) {
+        // When reaching top, extend range backwards
+        _startDate = _startDate.subtract(Duration(days: _daysWindow));
+      } else {
+        // When reaching bottom, extend range forwards
+        _daysWindow += 30;
+      }
+    });
+    // Fetch events with new range
+    ref.read(eventControllerProvider.notifier).fetchEvents(
+      startDate: _startDate,
+      windowDays: _daysWindow,
     );
   }
 
@@ -120,7 +136,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           WeekNavigator(
             weekStart: weekStart,
             selectedWeekday: _selectedWeekday,
-            daysWithEventsForCurrentWeek: daysWithEventsForCurrentWeek,
+            daysWithEventsForCurrentWeek: _computeDaysWithEventsForCurrentWeek(),
             onWeekChanged: (newWeekStart) {
               setState(() {
                 _weekStart = newWeekStart;
@@ -143,6 +159,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               eventsAsync: eventsAsync,
               weekNavigatorController: _weekNavigatorController,
               handleDateUpdate: _handleDateUpdate,
+              onRangeUpdate: _handleRangeUpdate,
             ),
           ),
         ],

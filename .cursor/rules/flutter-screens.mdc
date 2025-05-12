@@ -1,0 +1,137 @@
+---
+description: 
+globs: *.dart
+alwaysApply: false
+---
+# Flutter Screen Organization Guidelines
+
+## Screen Structure
+1. Each screen should be a StatefulWidget or ConsumerStatefulWidget (if using Riverpod)
+2. The main screen widget should be in the `screens` directory
+3. Break down complex screens into smaller, reusable widgets in the `widget` directory
+4. Keep the main screen's build method clean and focused on layout structure
+5. Always use Go Router for navigation between screens (see Navigation section below)
+
+## Navigation
+1. Use Go Router for navigation:
+   - Import `package:go_router/go_router.dart`
+   - Use `context.push('/route')` for pushing new screens
+   - Use `context.pop()` for returning to previous screen
+   - Use `context.go('/route')` for replacing current screen
+
+2. Navigation Patterns:
+   - Keep route names consistent and descriptive
+   - Use route parameters for passing data between screens
+   - Handle deep links and web URLs appropriately
+   - Use nested routes for complex navigation hierarchies
+
+## Widget Organization
+1. Extract large, self-contained widgets into separate files in the `widget` directory
+2. Common widget types to extract:
+   - App bars and navigation elements
+   - Drawers and modals
+   - Complex form sections
+   - Reusable UI components
+3. Widget files should be named descriptively (e.g., `app_drawer.dart`, `event_filters.dart`)
+
+## Code Structure
+1. State Management:
+   - Use ConsumerStatefulWidget for Riverpod integration
+   - Keep state variables at the top of the state class
+   - Group related state variables together
+   - Initialize state in initState()
+
+2. Methods Organization:
+   - Group related methods together
+   - Place event handlers near the widgets that use them
+   - Extract complex logic into separate methods
+   - Use clear, descriptive method names
+
+3. Build Method:
+   - Keep the build method focused on layout structure
+   - Use clear widget hierarchy
+   - Extract complex widget trees into separate methods or widgets
+   - Use const constructors where possible
+
+## Best Practices
+1. Widget Extraction:
+   - Extract widgets that are used in multiple places
+   - Extract widgets that have their own state
+   - Extract widgets that are complex enough to warrant their own file
+
+2. File Organization:
+   - Keep related widgets in the same directory
+   - Use consistent naming conventions
+   - Group related functionality together
+
+3. Code Style:
+   - Use clear, descriptive names
+   - Add comments for complex logic
+   - Keep methods focused and single-purpose
+   - Use proper indentation and formatting
+
+## Example Structure
+```dart
+// screens/example_screen.dart
+class ExampleScreen extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<ExampleScreen> createState() => _ExampleScreenState();
+}
+
+class _ExampleScreenState extends ConsumerState<ExampleScreen> {
+  // State variables
+  // ...
+
+  // Lifecycle methods
+  @override
+  void initState() {
+    super.initState();
+    // Initialization
+  }
+
+  // Event handlers
+  void _handleEvent() {
+    // Event handling logic
+  }
+
+  // Helper methods
+  Widget _buildSection() {
+    // Section building logic
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(...),
+      drawer: const AppDrawer(),
+      body: Column(
+        children: [
+          TopBar(...),
+          ContentSection(...),
+          // Other widgets
+        ],
+      ),
+    );
+  }
+}
+```
+
+## Widget File Example
+```dart
+// widget/example_widget.dart
+class ExampleWidget extends StatelessWidget {
+  final String title;
+  final VoidCallback onPressed;
+
+  const ExampleWidget({
+    required this.title,
+    required this.onPressed,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return // Widget implementation
+  }
+}
+```
