@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_application/controllers/event_controller.dart';
+
+import 'package:flutter_application/widget/app_drawer.dart';
 import 'package:flutter_application/widget/event_filters/event_filters_widget.dart';
 import 'package:flutter_application/widget/event_list.dart';
 import 'package:flutter_application/widget/week_navigator.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../controllers/event_controller.dart';
-import '../widget/app_drawer.dart';
-import '../widget/event_filters/event_filters_controller.dart';
-import '../models/event.dart';
+
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});

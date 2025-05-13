@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_application/widget/event_filters/event_filters_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+export 'package:flutter_application/widget/event_filters/event_search_bar.dart';
+export 'package:flutter_application/widget/event_filters/event_filters_controller.dart';
 
 class FilterModalWidget extends ConsumerStatefulWidget {
   final FilterController controller;
@@ -198,37 +200,3 @@ class CityFilterSection extends StatelessWidget {
     );
   }
 }
-
-class EventSearchBar extends StatelessWidget {
-  final String initialValue;
-  final ValueChanged<String> onChanged;
-  
-  const EventSearchBar({
-    super.key, 
-    required this.onChanged,
-    this.initialValue = '',
-  });
-  
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: TextField(
-        controller: TextEditingController(text: initialValue),
-        decoration: InputDecoration(
-          hintText: 'Search',
-          prefixIcon: const Icon(Icons.search, size: 20),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        ),
-        onChanged: (value) {
-          final String valueCopy = String.fromCharCodes(value.runes);
-          onChanged(valueCopy);
-        },
-      ),
-    );
-  }
-} 
