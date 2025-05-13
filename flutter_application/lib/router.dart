@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/screens/first_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './auth.dart';
@@ -11,7 +12,7 @@ final routerProvider = Provider((ref) {
   // final authState = ref.watch(authProvider).state;
 
   return GoRouter(
-    initialLocation: '/events',
+    initialLocation: '/first-screen',
     // refreshListenable: ref.watch(authProvider),
     // redirect: (context, state) {
     //   final isLoggedIn = authState.user != null;
@@ -40,6 +41,12 @@ final routerProvider = Provider((ref) {
         builder: (context, state) {
           final eventId = state.pathParameters['eventId']!;
           return ViewEventScreen(eventId: eventId);
+        },
+      ),
+      GoRoute(
+        path: '/first-screen',
+        builder: (context, state) {
+          return const FirstScreen();
         },
       ),
     ],
