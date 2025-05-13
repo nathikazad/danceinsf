@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/widget/event_filters/event_filters_controller.dart';
+import 'package:flutter_application/widgets/list_event_widgets/event_filters/event_filters_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-export 'package:flutter_application/widget/event_filters/event_search_bar.dart';
-export 'package:flutter_application/widget/event_filters/event_filters_controller.dart';
+export 'package:flutter_application/widgets/list_event_widgets/event_filters/event_search_bar.dart';
+export 'package:flutter_application/widgets/list_event_widgets/event_filters/event_filters_controller.dart';
 
 class FilterModalWidget extends ConsumerStatefulWidget {
   final FilterController controller;

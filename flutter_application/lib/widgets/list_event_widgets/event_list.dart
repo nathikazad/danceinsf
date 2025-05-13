@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
 import 'package:go_router/go_router.dart';
-import '../models/event.dart';
+import '../../../models/event.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_application/widget/week_navigator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 

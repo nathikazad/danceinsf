@@ -6,10 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application/controllers/event_controller.dart';
 
-import 'package:flutter_application/widget/app_drawer.dart';
-import 'package:flutter_application/widget/event_filters/event_filters_widget.dart';
-import 'package:flutter_application/widget/event_list.dart';
-import 'package:flutter_application/widget/week_navigator.dart';
+import 'package:flutter_application/widgets/list_event_widgets/app_drawer.dart';
+import 'package:flutter_application/widgets/list_event_widgets/event_filters/event_filters_widget.dart';
+import 'package:flutter_application/widgets/list_event_widgets/event_list.dart';
+import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
 
 
 final eventControllerProvider = Provider<EventController>((ref) => EventController());

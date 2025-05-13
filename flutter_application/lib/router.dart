@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './auth.dart';
 import './screens/splash_screen.dart';
-import './screens/events_screen.dart';
+import 'screens/list_events_screen.dart';
 import './screens/add_event_screen.dart';
 import './screens/view_event_screen.dart';
 
