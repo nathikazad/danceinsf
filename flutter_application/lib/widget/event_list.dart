@@ -167,11 +167,11 @@ class EventCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.location_on, size: 18),
                       const SizedBox(width: 4),
-                      Text(location.address, style: const TextStyle(fontSize: 15)),
+                      Text(location.venueName, style: const TextStyle(fontSize: 15)),
                     ],
                   ),
                   Text(
-                    'San Francisco', // Placeholder for city
+                    location.city, // Placeholder for city
                     style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                 ],
@@ -184,10 +184,15 @@ class EventCard extends StatelessWidget {
                   '${start.format(context)} to ${end.format(context)}',
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  '2415', // Placeholder for price
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                const SizedBox(height: 4),
+                Text(
+                  '${event.cost == 0.0 ? 'Free' : '\$${event.cost}'}',
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${event.rating == null ? '' : '${event.rating} (${event.ratingCount} reviews)'}',
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
             ),

@@ -18,18 +18,38 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
     try {
       state = const AsyncValue.loading();
       
-      // Fetch events and their instances
+      // First fetch events and their instances
       final eventsResponse = await _supabase
           .from('events')
           .select('*, event_instances(*)')
           .eq('is_archived', false)
           .order('start_date');
 
-      // print('Fetched events: $eventsResponse');
+      // Get all event IDs
+      final eventIds = eventsResponse.map((e) => e['event_id'] as String).toList();
+
+      // Get ratings for these events using the function
+      final ratingsResponse = await _supabase
+          .rpc('get_event_ratings', params: {'event_ids': eventIds});
+
+      // Create a map of event_id to ratings for easy lookup
+      final ratingsMap = {
+        for (var rating in ratingsResponse)
+          rating['event_id']: {
+            'average_rating': rating['average_rating'],
+            'rating_count': rating['rating_count'],
+          }
+      };
 
       final List<EventOccurrence> occurrences = [];
+
+      bool isFirst = true;
       
       for (final eventData in eventsResponse) {
+        if (isFirst) {
+          print('First event: ${eventData['name']} ${eventData['default_start_time']} ${eventData['default_end_time']}');
+          isFirst = false;
+        }
         try {
           // Convert dynamic lists to List<String>
           final eventTypes = (eventData['event_type'] as List<dynamic>).map((e) => e.toString()).toList();
@@ -37,16 +57,20 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
           final weeklyDays = (eventData['weekly_days'] as List<dynamic>?)?.map((e) => e.toString()).toList();
           final monthlyPattern = (eventData['monthly_pattern'] as List<dynamic>?)?.map((e) => e.toString()).toList();
 
+          // Get rating data from the map
+          final ratingData = ratingsMap[eventData['event_id']];
+          final rating = ratingData?['average_rating'] as double?;
+          final ratingCount = ratingData?['rating_count'] as int? ?? 0;
+
           final event = Event(
             name: eventData['name'],
             type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
             style: eventCategories.contains('Salsa') ? DanceStyle.salsa : DanceStyle.bachata,
             frequency: _parseFrequency(eventData['recurrence_type']),
             location: Location(
-              address: eventData['default_venue_name'] ?? '',
-              url: eventData['default_google_maps_link'],
-              latitude: 0,
-              longitude: 0,
+              venueName: eventData['default_venue_name'] ?? '',
+              city: eventData['default_city'] ?? '',
+              url: eventData['default_google_maps_link'] ?? '',
             ),
             linkToEvent: eventData['default_ticket_link'] ?? '',
             schedule: _createSchedulePattern(
@@ -55,8 +79,12 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
               weeklyDays,
               monthlyPattern,
             ),
-            startTime: _parseTimeOfDay(eventData['default_start_time']),
-            endTime: _parseTimeOfDay(eventData['default_end_time']),
+            startTime: _parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
+            endTime: _parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
+            cost: eventData['default_cost'],
+            description: eventData['default_description'],
+            rating: ratingCount > 0 ? rating : null,
+            ratingCount: ratingCount,
           );
 
           // Add instances
@@ -68,6 +96,14 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
             occurrences.add(EventOccurrence(
               event: event,
               date: instanceDate,
+              venueName: instance['venue_name'],
+              city: instance['city'],
+              url: instance['google_maps_link'],
+              ticketLink: instance['ticket_link'],
+              startTime: _parseTimeOfDay(instance['start_time']),
+              endTime: _parseTimeOfDay(instance['end_time']),
+              cost: instance['cost'],
+              description: instance['description'],
             ));
           }
         } catch (e, stackTrace) {
@@ -138,50 +174,20 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
   }
 
   int _parseDayOfWeek(String day) {
-    final normalizedDay = day.toLowerCase().trim();
-    switch (normalizedDay) {
-      case 'm':
-      case 'mon':
-      case 'monday':
-        return 0;
-      case 't':
-      case 'tue':
-      case 'tuesday':
-        return 1;
-      case 'w':
-      case 'wed':
-      case 'wednesday':
-        return 2;
-      case 'th':
-      case 'thu':
-      case 'thursday':
-        return 3;
-      case 'f':
-      case 'fri':
-      case 'friday':
-        return 4;
-      case 'sa':
-      case 'sat':
-      case 'saturday':
-        return 5;
-      case 'su':
-      case 'sun':
-      case 'sunday':
-        return 6;
-      default:
-        return 0;
-    }
+    const dayMap = {
+      'm': 0, 't': 1, 'w': 2, 'th': 3, 'f': 4, 'sa': 5, 'su': 6
+    };
+    return dayMap[day.toLowerCase().trim()] ?? 0;
   }
 
-  TimeOfDay _parseTimeOfDay(String? timeStr) {
-    if (timeStr == null) return const TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay? _parseTimeOfDay(String? timeStr) {
+    if (timeStr == null) return null;
     
     final parts = timeStr.split(':');
-    if (parts.length != 2) return const TimeOfDay(hour: 0, minute: 0);
+    if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
     
     final hour = int.tryParse(parts[0]) ?? 0;
     final minute = int.tryParse(parts[1]) ?? 0;
-    
     return TimeOfDay(hour: hour, minute: minute);
   }
 } 

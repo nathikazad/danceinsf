@@ -4,21 +4,25 @@ class FilterState {
   List<String> selectedStyles = [];
   List<String> selectedFrequencies = [];
   List<String> selectedCities = [];
+  String searchText = '';
 
   void updateFilters({
     List<String>? styles,
     List<String>? frequencies,
     List<String>? cities,
+    String? search,
   }) {
     if (styles != null) selectedStyles = styles;
     if (frequencies != null) selectedFrequencies = frequencies;
     if (cities != null) selectedCities = cities;
+    if (search != null) searchText = search;
   }
 
   void resetFilters() {
     selectedStyles = [];
     selectedFrequencies = [];
     selectedCities = [];
+    searchText = '';
   }
 }
 
@@ -92,6 +96,15 @@ class _FilterModalWidgetState extends State<FilterModalWidget> {
                   child: const Text('Apply'),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            EventSearchBar(
+              initialValue: widget.filterState.searchText,
+              onChanged: (value) {
+                setState(() {
+                  widget.filterState.searchText = value;
+                });
+              },
             ),
             const SizedBox(height: 16),
             StyleFilterSection(
@@ -235,6 +248,37 @@ class CityFilterSection extends StatelessWidget {
           )).toList(),
         ),
       ],
+    );
+  }
+}
+
+class EventSearchBar extends StatelessWidget {
+  final String initialValue;
+  final ValueChanged<String> onChanged;
+  
+  const EventSearchBar({
+    super.key, 
+    required this.onChanged,
+    this.initialValue = '',
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: TextField(
+        controller: TextEditingController(text: initialValue),
+        decoration: InputDecoration(
+          hintText: 'Search',
+          prefixIcon: const Icon(Icons.search, size: 20),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        ),
+        onChanged: onChanged,
+      ),
     );
   }
 } 

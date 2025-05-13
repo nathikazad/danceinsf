@@ -81,27 +81,51 @@ class SchedulePattern {
 }
 
 class Location {
-  final String address;
+  final String venueName;
+  final String city;
   final String? url;
-  final double latitude;
-  final double longitude;
 
   Location({
-    required this.address,
+    required this.venueName,
+    required this.city,
     this.url,
-    required this.latitude,
-    required this.longitude,
   });
 }
 
 class EventOccurrence {
   final Event event;
   final DateTime date;
+  final String venueName;
+  final String city;
+  final String? url;
+  final String? linkToEvent;
+  final String? ticketLink;
+  final TimeOfDay startTime;
+  final TimeOfDay endTime;
+  final double cost;
+  final String? description;
 
   EventOccurrence({
     required this.event,
     required this.date,
-  });
+    String? venueName,
+    String? city,
+    String? url,
+    String? linkToEvent,
+    String? ticketLink,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
+    double? cost,
+    String? description,
+  }) : venueName = venueName ?? event.location.venueName,
+       city = city ?? event.location.city,
+       url = url ?? event.location.url,
+       linkToEvent = linkToEvent ?? event.linkToEvent,
+       ticketLink = ticketLink ?? event.linkToEvent,
+       startTime = startTime ?? event.startTime,
+       endTime = endTime ?? event.endTime,
+       cost = cost ?? event.cost,
+       description = description ?? event.description;
 
   // Helper method to get just the date part (without time)
   DateTime get dateOnly => DateTime(date.year, date.month, date.day);
@@ -113,10 +137,14 @@ class Event {
   final DanceStyle style;
   final Frequency frequency;
   final Location location;
-  final String linkToEvent;
+  final String? linkToEvent;
   final SchedulePattern schedule;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
+  final double cost;
+  final String? description;
+  final double? rating;
+  final int? ratingCount;
 
   Event({
     required this.name,
@@ -124,59 +152,18 @@ class Event {
     required this.style,
     required this.frequency,
     required this.location,
-    required this.linkToEvent,
     required this.schedule,
     required this.startTime,
     required this.endTime,
+    this.linkToEvent,
+    this.cost = 0.0,
+    this.description,
+    this.rating,
+    this.ratingCount,
   });
 
-  factory Event.generateRandom(int index) {
-    final random = DateTime.now().add(Duration(days: index));
-    final frequency = Frequency.values[index % Frequency.values.length];
-    
-    SchedulePattern schedule;
-    switch (frequency) {
-      case Frequency.once:
-        schedule = SchedulePattern.once(random);
-        break;
-      case Frequency.weekly:
-        schedule = SchedulePattern.weekly(DayOfWeek.values[index % DayOfWeek.values.length]);
-        break;
-      case Frequency.monthly:
-        schedule = SchedulePattern.monthly(
-          DayOfWeek.values[index % DayOfWeek.values.length],
-          (index % 5) + 1, // Random week 1-5
-        );
-        break;
-    }
 
-    final rand = Random(index);
-    int startHour = 12 + rand.nextInt(10); // 12 (noon) to 26 (2am next day)
-    int duration = 1 + rand.nextInt(4); // 1 to 4 hours
-    int endHour = startHour + duration;
-    if (endHour >= 24) endHour -= 24; // wrap around for after midnight
 
-    return Event(
-      name: 'Dance Event ${index + 1}',
-      type: EventType.values[index % EventType.values.length],
-      style: DanceStyle.values[index % DanceStyle.values.length],
-      frequency: frequency,
-      location: Location(
-        address: '123 Dance Street, San Francisco, CA',
-        url: 'https://maps.google.com',
-        latitude: 37.7749,
-        longitude: -122.4194,
-      ),
-      linkToEvent: 'https://example.com/event${index + 1}',
-      schedule: schedule,
-      startTime: TimeOfDay(hour: startHour, minute: 0),
-      endTime: TimeOfDay(hour: endHour, minute: 0),
-    );
-  }
-
-  static List<Event> generateEvents(int count) {
-    return List.generate(count, (index) => Event.generateRandom(index));
-  }
 
   static List<EventOccurrence> expandEvents(List<Event> events, DateTime startDate, DateTime endDate) {
     List<EventOccurrence> occurrences = [];

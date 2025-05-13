@@ -72,10 +72,10 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       }
     });
     // Fetch events with new range
-    ref.read(eventControllerProvider.notifier).fetchEvents(
-      startDate: _startDate,
-      windowDays: _daysWindow,
-    );
+    // ref.read(eventControllerProvider.notifier).fetchEvents(
+    //   startDate: _startDate,
+    //   windowDays: _daysWindow,
+    // );
   }
 
   @override
@@ -100,6 +100,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           TopBar(
             onFilterPressed: () => FilterModalWidget.show(context, _filterState, _applyFilters),
             onAddPressed: () => context.push('/add-event'),
+            filterState: _filterState,
+            onApplyFilters: _applyFilters,
           ),
           WeekNavigator(
             weekStart: weekStart,
@@ -148,11 +150,15 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 class TopBar extends StatelessWidget {
   final VoidCallback onFilterPressed;
   final VoidCallback onAddPressed;
+  final FilterState filterState;
+  final VoidCallback onApplyFilters;
   
   const TopBar({
     super.key,
     required this.onFilterPressed,
     required this.onAddPressed,
+    required this.filterState,
+    required this.onApplyFilters,
   });
   
   @override
@@ -166,9 +172,11 @@ class TopBar extends StatelessWidget {
             onPressed: onFilterPressed,
           ),
           Expanded(
-            child: SearchBar(
+            child: EventSearchBar(
+              initialValue: filterState.searchText,
               onChanged: (value) {
-                // TODO: implement search logic
+                filterState.searchText = value;
+                onApplyFilters();
               },
             ),
           ),
@@ -177,31 +185,6 @@ class TopBar extends StatelessWidget {
             onPressed: onAddPressed,
           ),
         ],
-      ),
-    );
-  }
-}
-
-// SearchBar widget
-class SearchBar extends StatelessWidget {
-  final ValueChanged<String> onChanged;
-  const SearchBar({super.key, required this.onChanged});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search',
-          prefixIcon: const Icon(Icons.search, size: 20),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        ),
-        onChanged: onChanged,
       ),
     );
   }
