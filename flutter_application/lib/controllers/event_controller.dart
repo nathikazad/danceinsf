@@ -10,56 +10,6 @@ class EventController {
   List<String> _toStringList(dynamic list) =>
       (list as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
 
-  // DRY: Build Event from map and rating info
-  Event _eventFromMap(Map eventData, {double? rating, int ratingCount = 0}) {
-    final eventTypes = _toStringList(eventData['event_type']);
-    final eventCategories = _toStringList(eventData['event_category']);
-    final weeklyDays = _toStringList(eventData['weekly_days']);
-    final monthlyPattern = _toStringList(eventData['monthly_pattern']);
-
-    return Event(
-      name: eventData['name'],
-      type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
-      style: eventCategories.contains('Salsa') ? DanceStyle.salsa : DanceStyle.bachata,
-      frequency: _parseFrequency(eventData['recurrence_type']),
-      location: Location(
-        venueName: eventData['default_venue_name'] ?? '',
-        city: eventData['default_city'] ?? '',
-        url: eventData['default_google_maps_link'] ?? '',
-      ),
-      linkToEvent: eventData['default_ticket_link'] ?? '',
-      schedule: _createSchedulePattern(
-        eventData['recurrence_type'],
-        DateTime.parse(eventData['start_date']),
-        weeklyDays,
-        monthlyPattern,
-      ),
-      startTime: _parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
-      endTime: _parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
-      cost: eventData['default_cost'],
-      description: eventData['default_description'],
-      rating: ratingCount > 0 ? rating : null,
-      ratingCount: ratingCount,
-    );
-  }
-
-  EventOccurrence eventOccurrenceFromMap(Map instance, Event event, {List<EventRating>? ratings}) {
-    return EventOccurrence(
-      event: event,
-      date: DateTime.parse(instance['instance_date']),
-      venueName: instance['venue_name'],
-      city: instance['city'],
-      url: instance['google_maps_link'],
-      ticketLink: instance['ticket_link'],
-      startTime: _parseTimeOfDay(instance['start_time']),
-      endTime: _parseTimeOfDay(instance['end_time']),
-      cost: instance['cost'],
-      description: instance['description'],
-      ratings: ratings,
-      isCancelled: instance['is_cancelled'] == true,
-    );
-  }
-
   Future<List<EventOccurrence>> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
     try {
       // First fetch events and their instances
@@ -165,6 +115,57 @@ class EventController {
       print('Stack trace: $stackTrace');
       rethrow;
     }
+  }
+
+  // DRY: Build Event from map and rating info
+  Event _eventFromMap(Map eventData, {double? rating, int ratingCount = 0}) {
+    final eventTypes = _toStringList(eventData['event_type']);
+    final eventCategories = _toStringList(eventData['event_category']);
+    final weeklyDays = _toStringList(eventData['weekly_days']);
+    final monthlyPattern = _toStringList(eventData['monthly_pattern']);
+
+    return Event(
+      eventId: eventData['event_id'],
+      name: eventData['name'],
+      type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
+      style: eventCategories.contains('Salsa') ? DanceStyle.salsa : DanceStyle.bachata,
+      frequency: _parseFrequency(eventData['recurrence_type']),
+      location: Location(
+        venueName: eventData['default_venue_name'] ?? '',
+        city: eventData['default_city'] ?? '',
+        url: eventData['default_google_maps_link'] ?? '',
+      ),
+      linkToEvent: eventData['default_ticket_link'] ?? '',
+      schedule: _createSchedulePattern(
+        eventData['recurrence_type'],
+        DateTime.parse(eventData['start_date']),
+        weeklyDays,
+        monthlyPattern,
+      ),
+      startTime: _parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
+      endTime: _parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
+      cost: eventData['default_cost'],
+      description: eventData['default_description'],
+      rating: ratingCount > 0 ? rating : null,
+      ratingCount: ratingCount,
+    );
+  }
+
+  EventOccurrence eventOccurrenceFromMap(Map instance, Event event, {List<EventRating>? ratings}) {
+    return EventOccurrence(
+      event: event,
+      date: DateTime.parse(instance['instance_date']),
+      venueName: instance['venue_name'],
+      city: instance['city'],
+      url: instance['google_maps_link'],
+      ticketLink: instance['ticket_link'],
+      startTime: _parseTimeOfDay(instance['start_time']),
+      endTime: _parseTimeOfDay(instance['end_time']),
+      cost: instance['cost'],
+      description: instance['description'],
+      ratings: ratings,
+      isCancelled: instance['is_cancelled'] == true,
+    );
   }
 
   Frequency _parseFrequency(String? recurrenceType) {

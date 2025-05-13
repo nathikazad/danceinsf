@@ -5,6 +5,7 @@ import './auth.dart';
 import './screens/splash_screen.dart';
 import './screens/events_screen.dart';
 import './screens/add_event_screen.dart';
+import './screens/view_event_screen.dart';
 
 final routerProvider = Provider((ref) {
   // final authState = ref.watch(authProvider).state;
@@ -33,6 +34,13 @@ final routerProvider = Provider((ref) {
       GoRoute(
         path: '/add-event',
         builder: (context, state) => const AddEventScreen(),
+      ),
+      GoRoute(
+        path: '/event/:eventId',
+        builder: (context, state) {
+          final eventId = state.pathParameters['eventId']!;
+          return ViewEventScreen(eventId: eventId);
+        },
       ),
     ],
   );

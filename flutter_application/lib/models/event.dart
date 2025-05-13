@@ -150,6 +150,7 @@ class EventOccurrence {
 }
 
 class Event {
+  final String eventId;
   final String name;
   final EventType type;
   final DanceStyle style;
@@ -165,6 +166,7 @@ class Event {
   final int? ratingCount;
 
   Event({
+    required this.eventId,
     required this.name,
     required this.type,
     required this.style,
