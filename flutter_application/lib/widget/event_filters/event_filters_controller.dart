@@ -40,8 +40,8 @@ class FilterController extends ChangeNotifier {
   }
 
   List<EventInstance> filterEvents(List<EventInstance> events) {
-    return events.where((occurrence) {
-      final event = occurrence.event;
+    return events.where((eventInstance) {
+      final event = eventInstance.event;
       
       // Filter by search text
       if (searchText.isNotEmpty) {
@@ -87,7 +87,7 @@ class FilterController extends ChangeNotifier {
 
       // Filter by city
       if (selectedCities.isNotEmpty) {
-        if (!selectedCities.contains(occurrence.city)) {
+        if (!selectedCities.contains(eventInstance.city)) {
           return false;
         }
       }

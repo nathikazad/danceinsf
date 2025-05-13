@@ -77,6 +77,28 @@ class SchedulePattern {
       weekOfMonth: weekOfMonth,
     );
   }
+
+  String get dayOfWeekString {
+    return dayOfWeek?.toString().split('.').last ?? '';
+  }
+
+  String get weekOfMonthString {
+    switch (weekOfMonth) {
+      case 1:
+        return 'First';
+      case 2:
+        return 'Second';
+      case 3:
+        return 'Third';
+      case 4:
+        return 'Fourth';
+      case 5:
+        return 'Last';
+      default:
+        return '';
+    }
+  }
+  
 }
 
 class Location {
@@ -184,14 +206,9 @@ class Event {
     this.ratingCount,
   });
 
-  /// Groups event occurrences by date and sorts them by time within each date.
-  /// Returns a Map where:
-  /// - Key is the date (DateTime with time set to 00:00:00)
-  /// - Value is a list of EventOccurrences for that date, sorted by start time
-  static Map<DateTime, List<EventInstance>> groupOccurrencesByDate(List<EventInstance> occurrences) {
-    // First, sort all occurrences by date and time
-    occurrences.sort((a, b) {
-      // First compare by date
+  
+  static Map<DateTime, List<EventInstance>> groupEventInstancesByDate(List<EventInstance> eventInstances) {
+    eventInstances.sort((a, b) {
       final dateComparison = a.dateOnly.compareTo(b.dateOnly);
       if (dateComparison != 0) return dateComparison;
       
@@ -202,13 +219,13 @@ class Event {
     });
 
     // Group by date
-    final Map<DateTime, List<EventInstance>> groupedOccurrences = {};
+    final Map<DateTime, List<EventInstance>> groupedEventInstances = {};
     
-    for (final occurrence in occurrences) {
-      final dateKey = occurrence.dateOnly;
-      groupedOccurrences.putIfAbsent(dateKey, () => []).add(occurrence);
+    for (final eventInstance in eventInstances) {
+      final dateKey = eventInstance.dateOnly;
+      groupedEventInstances.putIfAbsent(dateKey, () => []).add(eventInstance);
     }
 
-    return groupedOccurrences;
+    return groupedEventInstances;
   }
 } 

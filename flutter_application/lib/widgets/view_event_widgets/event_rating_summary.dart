@@ -19,15 +19,21 @@ class EventRatingSummary extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('This event on ${_formatDate(date)} got', style: const TextStyle(fontSize: 16)),
+              if (ratings.isEmpty)
+              Text('This rating is for event on ${_formatDate(date)}', style: const TextStyle(fontSize: 16)),
+              if (ratings.isNotEmpty)
+              Text('The event on ${_formatDate(date)} got', style: const TextStyle(fontSize: 16)),
               const SizedBox(width: 8),
+              if (ratings.isNotEmpty)
               const Icon(Icons.favorite, color: Colors.orange, size: 20),
+              if (ratings.isNotEmpty)
               Text(
                 ratings.isNotEmpty
                   ? ratings.first.rating.toStringAsFixed(1)
                   : '-',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
+              if (ratings.isNotEmpty)
               Text(' (${ratings.length})'),
             ],
           ),

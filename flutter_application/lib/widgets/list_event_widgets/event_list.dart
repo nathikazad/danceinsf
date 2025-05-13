@@ -35,7 +35,7 @@ class EventsList extends StatelessWidget {
             occ.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
             occ.date.isBefore(endDate.add(const Duration(days: 1)))
           ).toList();
-          final groupedInstances = Event.groupOccurrencesByDate(filteredInstances);
+          final groupedInstances = Event.groupEventInstancesByDate(filteredInstances);
           final dateKeys = groupedInstances.keys.toList()..sort();
           if (dateKeys.isEmpty) {
             return const Center(

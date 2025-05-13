@@ -39,8 +39,8 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
           if (!snapshot.hasData || snapshot.data == null) {
             return const Center(child: Text('Event not found.'));
           }
-          final occurrence = snapshot.data!;
-          final event = occurrence.event;
+          final eventInstance = snapshot.data!;
+          final event = eventInstance.event;
           return Scaffold(
             appBar: AppBar(
               title: Text(event.name),
@@ -55,24 +55,19 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Main Info Card
-                  TopBox(event: event, occurrence: occurrence),
+                  TopBox(event: event, eventInstance: eventInstance),
                   const SizedBox(height: 24),
                   // Event Details
-                  EventDetailRow(icon: Icons.calendar_today, text: _formatDate(occurrence.date)),
-                  EventDetailRow(icon: Icons.access_time, text: _formatTimeRange(occurrence.startTime, occurrence.endTime)),
-                  EventDetailRow(icon: Icons.repeat, text: _formatRecurrence(event.frequency)),
-                  EventDetailRow(icon: Icons.location_on, text: '${occurrence.venueName}, ${occurrence.city}', linkText: 'Directions', linkUrl: occurrence.url),
-                  if (occurrence.ticketLink != null && occurrence.ticketLink!.isNotEmpty)
-                    EventDetailRow(icon: Icons.link, text: 'Buy Tickets', linkUrl: occurrence.ticketLink),
-                  if (event.linkToEvent != null && event.linkToEvent!.isNotEmpty)
-                    EventDetailRow(icon: Icons.link, text: 'Flyer', linkUrl: event.linkToEvent),
+                  EventDetailRow(icon: Icons.calendar_today, text: _formatDate(eventInstance.date)),
+                  EventDetailRow(icon: Icons.access_time, text: _formatTimeRange(eventInstance.startTime, eventInstance.endTime)),
+                  EventDetailRow(icon: Icons.repeat, text: _formatRecurrence(event.frequency, event.schedule)),
+                  EventDetailRow(icon: Icons.location_on, text: '${eventInstance.venueName}, ${eventInstance.city}', linkText: 'Directions', linkUrl: eventInstance.url),
+                  if (eventInstance.ticketLink != null && eventInstance.ticketLink!.isNotEmpty)
+                    EventDetailRow(icon: Icons.link, text: 'Buy Tickets', linkUrl: eventInstance.ticketLink),
+                  if (eventInstance.linkToEvent != null && eventInstance.linkToEvent!.isNotEmpty)
+                    EventDetailRow(icon: Icons.link, text: 'Flyer', linkUrl: eventInstance.linkToEvent),
                   const SizedBox(height: 24),
-                  // Ratings Section
-                  // if (occurrence.ratings.isNotEmpty)
-                  //   RatingsSection(occurrence: occurrence),
-                  // // Rate this Event (placeholder)
-                  // const SizedBox(height: 24),
-                  EventRatingSummary(date: occurrence.date, ratings: occurrence.ratings),
+                  EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings),
                 ],
               ),
             ),
@@ -96,14 +91,20 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
     return '${format(start)} - ${format(end)}';
   }
 
-  String _formatRecurrence(Frequency freq) {
+  String _formatRecurrence(Frequency freq, SchedulePattern schedule) {
     switch (freq) {
       case Frequency.once:
         return 'One-time';
       case Frequency.weekly:
-        return 'Repeat Weekly, Every Thursday';
+        return 'Repeat Weekly, Every ${schedule.dayOfWeekString.capitalize()}';
       case Frequency.monthly:
-        return 'Monthly';
+        return 'Monthly, Every ${schedule.weekOfMonthString} ${schedule.dayOfWeekString.capitalize()}';
     }
   }
+}
+
+extension StringExtension on String {
+    String capitalize() {
+      return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
+    }
 }

@@ -35,7 +35,7 @@ class EventController {
           }
       };
 
-      final List<EventInstance> occurrences = [];
+      final List<EventInstance> eventInstances = [];
       
       for (final eventData in eventsResponse) {
         try {
@@ -49,7 +49,7 @@ class EventController {
           // Add instances
           final instances = eventData['event_instances'] as List;
           for (final instance in instances) {
-            occurrences.add(eventInstanceFromMap(instance, event));
+            eventInstances.add(eventInstanceFromMap(instance, event));
           }
         } catch (e, stackTrace) {
           print('Error processing event: ${eventData['name']}');
@@ -59,8 +59,8 @@ class EventController {
         }
       }
 
-      print('Processed ${occurrences.length} event occurrences');
-      return occurrences;
+      print('Processed ${eventInstances.length} event eventInstances');
+      return eventInstances;
     } catch (error, stackTrace) {
       print('Error fetching events');
       print('Error: $error');
@@ -113,8 +113,8 @@ class EventController {
       )).toList();
 
       // 6. Compose the EventInstance
-      final eventOccurrence = eventInstanceFromMap(instanceResponse, event, ratings: ratings);
-      return eventOccurrence;
+      final eventInstance = eventInstanceFromMap(instanceResponse, event, ratings: ratings);
+      return eventInstance;
     } catch (error, stackTrace) {
       print('Error fetching event: $error');
       print('Stack trace: $stackTrace');

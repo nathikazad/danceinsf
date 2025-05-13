@@ -3,8 +3,8 @@ import '../../models/event.dart';
 
 class TopBox extends StatelessWidget {
   final Event event;
-  final EventInstance occurrence;
-  const TopBox({required this.event, required this.occurrence, super.key});
+  final EventInstance eventInstance;
+  const TopBox({required this.event, required this.eventInstance, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +40,12 @@ class TopBox extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '\$${occurrence.cost.toStringAsFixed(0)}',
+                    '\$${eventInstance.cost.toStringAsFixed(0)}',
                     style: const TextStyle(fontSize: 20, color: Colors.orange, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 8),
+                if (event.ratingCount != null && event.ratingCount! > 0)
                 Row(
                   children: [
                     const Icon(Icons.favorite, color: Colors.orange, size: 18),
@@ -59,6 +60,7 @@ class TopBox extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (event.ratingCount != null && event.ratingCount! > 0)
                 const Text('Cumulative', style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),

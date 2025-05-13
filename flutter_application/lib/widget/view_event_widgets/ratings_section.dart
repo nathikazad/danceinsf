@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/event.dart';
 
 class RatingsSection extends StatelessWidget {
-  final EventInstance occurrence;
-  const RatingsSection({required this.occurrence, super.key});
+  final EventInstance eventInstance;
+  const RatingsSection({required this.eventInstance, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class RatingsSection extends StatelessWidget {
       children: [
         const Text('Recent Ratings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 8),
-        ...occurrence.ratings.take(3).map((r) => Padding(
+        ...eventInstance.ratings.take(3).map((r) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
