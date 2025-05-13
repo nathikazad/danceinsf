@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_application/controllers/event_controller.dart';
 import 'package:flutter_application/models/event.dart';
+import 'package:flutter_application/screens/events_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
@@ -9,66 +9,13 @@ final filterControllerProvider = ChangeNotifierProvider<FilterController>((ref) 
 
 // Provider for filtered events
 final filteredEventsProvider = Provider<AsyncValue<List<EventOccurrence>>>((ref) {
-  final eventsAsync = ref.watch(eventControllerProvider);
+  final eventsAsync = ref.watch(eventsStateProvider);
   final filterController = ref.watch(filterControllerProvider);
 
   print('Filtering ${eventsAsync.value?.length} events');
   
   return eventsAsync.whenData((events) {
-    return events.where((occurrence) {
-      final event = occurrence.event;
-      
-      // Filter by search text
-      if (filterController.searchText.isNotEmpty) {
-        final searchLower = filterController.searchText.toLowerCase();
-        if (!event.name.toLowerCase().contains(searchLower) &&
-            !event.location.venueName.toLowerCase().contains(searchLower) &&
-            !event.location.city.toLowerCase().contains(searchLower)) {
-          return false;
-        }
-      }
-
-      // Filter by dance style
-      if (filterController.selectedStyles.isNotEmpty) {
-        final styleMatches = filterController.selectedStyles.any((style) {
-          switch (style) {
-            case 'Salsa':
-              return event.style == DanceStyle.salsa;
-            case 'Bachata':
-              return event.style == DanceStyle.bachata;
-            default:
-              return false;
-          }
-        });
-        if (!styleMatches) return false;
-      }
-
-      // Filter by frequency
-      if (filterController.selectedFrequencies.isNotEmpty) {
-        final frequencyMatches = filterController.selectedFrequencies.any((freq) {
-          switch (freq) {
-            case 'Once':
-              return event.frequency == Frequency.once;
-            case 'Weekly':
-              return event.frequency == Frequency.weekly;
-            case 'Monthly':
-              return event.frequency == Frequency.monthly;
-            default:
-              return false;
-          }
-        });
-        if (!frequencyMatches) return false;
-      }
-
-      // Filter by city
-      if (filterController.selectedCities.isNotEmpty) {
-        if (!filterController.selectedCities.contains(occurrence.city)) {
-          return false;
-        }
-      }
-
-      return true;
-    }).toList();
+    return filterController.filterEvents(events);
   });
 });
 
@@ -90,6 +37,63 @@ class FilterController extends ChangeNotifier {
       _searchText = text;
       notifyListeners();
     }
+  }
+
+  List<EventOccurrence> filterEvents(List<EventOccurrence> events) {
+    return events.where((occurrence) {
+      final event = occurrence.event;
+      
+      // Filter by search text
+      if (searchText.isNotEmpty) {
+        final searchLower = searchText.toLowerCase();
+        if (!event.name.toLowerCase().contains(searchLower) &&
+            !event.location.venueName.toLowerCase().contains(searchLower) &&
+            !event.location.city.toLowerCase().contains(searchLower)) {
+          return false;
+        }
+      }
+
+      // Filter by dance style
+      if (selectedStyles.isNotEmpty) {
+        final styleMatches = selectedStyles.any((style) {
+          switch (style) {
+            case 'Salsa':
+              return event.style == DanceStyle.salsa;
+            case 'Bachata':
+              return event.style == DanceStyle.bachata;
+            default:
+              return false;
+          }
+        });
+        if (!styleMatches) return false;
+      }
+
+      // Filter by frequency
+      if (selectedFrequencies.isNotEmpty) {
+        final frequencyMatches = selectedFrequencies.any((freq) {
+          switch (freq) {
+            case 'Once':
+              return event.frequency == Frequency.once;
+            case 'Weekly':
+              return event.frequency == Frequency.weekly;
+            case 'Monthly':
+              return event.frequency == Frequency.monthly;
+            default:
+              return false;
+          }
+        });
+        if (!frequencyMatches) return false;
+      }
+
+      // Filter by city
+      if (selectedCities.isNotEmpty) {
+        if (!selectedCities.contains(occurrence.city)) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
   }
 
   void toggleStyle(String style) {

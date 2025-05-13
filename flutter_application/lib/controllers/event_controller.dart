@@ -1,23 +1,13 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import '../models/event.dart';
 
-final eventControllerProvider = StateNotifierProvider<EventController, AsyncValue<List<EventOccurrence>>>((ref) {
-  return EventController();
-});
 
-class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
-  EventController() : super(const AsyncValue.loading()) {
-    fetchEvents();
-  }
-
+class EventController {
   final _supabase = Supabase.instance.client;
 
-  Future<void> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
+  Future<List<EventOccurrence>> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
     try {
-      state = const AsyncValue.loading();
-      
       // First fetch events and their instances
       final eventsResponse = await _supabase
           .from('events')
@@ -110,12 +100,12 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
       }
 
       print('Processed ${occurrences.length} event occurrences');
-      state = AsyncValue.data(occurrences);
+      return occurrences;
     } catch (error, stackTrace) {
       print('Error fetching events');
       print('Error: $error');
       print('Stack trace: $stackTrace');
-      state = AsyncValue.error(error, stackTrace);
+      rethrow;
     }
   }
 

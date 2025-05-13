@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/event.dart';
 
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,32 @@ import 'package:flutter_application/widget/event_filters/event_filters_widget.da
 import 'package:flutter_application/widget/event_list.dart';
 import 'package:flutter_application/widget/week_navigator.dart';
 
+
+final eventControllerProvider = Provider<EventController>((ref) => EventController());
+
+final eventsStateProvider = StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventOccurrence>>>((ref) {
+  final controller = ref.watch(eventControllerProvider);
+  return EventsStateNotifier(controller);
+});
+
+class EventsStateNotifier extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
+  final EventController _controller;
+  
+  EventsStateNotifier(this._controller) : super(const AsyncValue.loading());
+
+  Future<void> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
+    state = const AsyncValue.loading();
+    try {
+      final events = await _controller.fetchEvents(
+        startDate: startDate,
+        windowDays: windowDays,
+      );
+      state = AsyncValue.data(events);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+}
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
@@ -31,7 +58,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   void initState() {
     super.initState();
     // Initial fetch
-    ref.read(eventControllerProvider.notifier).fetchEvents(
+    ref.read(eventsStateProvider.notifier).fetchEvents(
       startDate: _startDate,
       windowDays: _daysWindow,
     );
@@ -68,7 +95,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       }
     });
     // Fetch events with new range
-    // ref.read(eventControllerProvider.notifier).fetchEvents(
+    // ref.read(eventsStateProvider.notifier).fetchEvents(
     //   startDate: _startDate,
     //   windowDays: _daysWindow,
     // );
