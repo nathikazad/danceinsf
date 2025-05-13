@@ -1,45 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_application/widget/event_filters/event_filters_controller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FilterState {
-  List<String> selectedStyles = [];
-  List<String> selectedFrequencies = [];
-  List<String> selectedCities = [];
-  String searchText = '';
-
-  void updateFilters({
-    List<String>? styles,
-    List<String>? frequencies,
-    List<String>? cities,
-    String? search,
-  }) {
-    if (styles != null) selectedStyles = styles;
-    if (frequencies != null) selectedFrequencies = frequencies;
-    if (cities != null) selectedCities = cities;
-    if (search != null) searchText = search;
-  }
-
-  void resetFilters() {
-    selectedStyles = [];
-    selectedFrequencies = [];
-    selectedCities = [];
-    searchText = '';
-  }
-}
-
-class FilterModalWidget extends StatefulWidget {
-  final FilterState filterState;
-  final void Function() onApply;
+class FilterModalWidget extends ConsumerStatefulWidget {
+  final FilterController controller;
   
   const FilterModalWidget({
     super.key,
-    required this.filterState,
-    required this.onApply,
+    required this.controller,
   });
   
   @override
-  State<FilterModalWidget> createState() => _FilterModalWidgetState();
+  ConsumerState<FilterModalWidget> createState() => _FilterModalWidgetState();
 
-  static void show(BuildContext context, FilterState filterState, void Function() onApply) {
+  static void show(BuildContext context, {required FilterController controller}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -48,27 +23,27 @@ class FilterModalWidget extends StatefulWidget {
       ),
       builder: (context) {
         return FilterModalWidget(
-          filterState: filterState,
-          onApply: onApply,
+          controller: controller,
         );
       },
     );
   }
 }
 
-class _FilterModalWidgetState extends State<FilterModalWidget> {
+class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
   final List<String> _styles = ['Salsa', 'Bachata'];
   final List<String> _frequencies = ['Once', 'Weekly', 'Monthly'];
   final List<String> _cities = ['San Francisco', 'San Jose', 'Oakland'];
 
   void _resetFilters() {
-    setState(() {
-      widget.filterState.resetFilters();
-    });
+    widget.controller.resetFilters();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch the controller to rebuild when it changes
+    ref.watch(filterControllerProvider);
+    
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Container(
@@ -90,7 +65,6 @@ class _FilterModalWidgetState extends State<FilterModalWidget> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    widget.onApply();
                     Navigator.pop(context);
                   },
                   child: const Text('Apply'),
@@ -98,54 +72,27 @@ class _FilterModalWidgetState extends State<FilterModalWidget> {
               ],
             ),
             const SizedBox(height: 16),
-            EventSearchBar(
-              initialValue: widget.filterState.searchText,
-              onChanged: (value) {
-                setState(() {
-                  widget.filterState.searchText = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
             StyleFilterSection(
               styles: _styles,
-              selectedStyles: widget.filterState.selectedStyles,
+              selectedStyles: widget.controller.selectedStyles,
               onStyleSelected: (style, selected) {
-                setState(() {
-                  if (selected) {
-                    widget.filterState.selectedStyles.add(style);
-                  } else {
-                    widget.filterState.selectedStyles.remove(style);
-                  }
-                });
+                widget.controller.toggleStyle(style);
               },
             ),
             const SizedBox(height: 16),
             FrequencyFilterSection(
               frequencies: _frequencies,
-              selectedFrequencies: widget.filterState.selectedFrequencies,
+              selectedFrequencies: widget.controller.selectedFrequencies,
               onFrequencySelected: (freq, selected) {
-                setState(() {
-                  if (selected) {
-                    widget.filterState.selectedFrequencies.add(freq);
-                  } else {
-                    widget.filterState.selectedFrequencies.remove(freq);
-                  }
-                });
+                widget.controller.toggleFrequency(freq);
               },
             ),
             const SizedBox(height: 16),
             CityFilterSection(
               cities: _cities,
-              selectedCities: widget.filterState.selectedCities,
+              selectedCities: widget.controller.selectedCities,
               onCitySelected: (city, selected) {
-                setState(() {
-                  if (selected) {
-                    widget.filterState.selectedCities.add(city);
-                  } else {
-                    widget.filterState.selectedCities.remove(city);
-                  }
-                });
+                widget.controller.toggleCity(city);
               },
             ),
             const SizedBox(height: 16),
@@ -277,7 +224,10 @@ class EventSearchBar extends StatelessWidget {
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         ),
-        onChanged: onChanged,
+        onChanged: (value) {
+          final String valueCopy = String.fromCharCodes(value.runes);
+          onChanged(valueCopy);
+        },
       ),
     );
   }

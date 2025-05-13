@@ -42,14 +42,8 @@ class EventController extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
       };
 
       final List<EventOccurrence> occurrences = [];
-
-      bool isFirst = true;
       
       for (final eventData in eventsResponse) {
-        if (isFirst) {
-          print('First event: ${eventData['name']} ${eventData['default_start_time']} ${eventData['default_end_time']}');
-          isFirst = false;
-        }
         try {
           // Convert dynamic lists to List<String>
           final eventTypes = (eventData['event_type'] as List<dynamic>).map((e) => e.toString()).toList();

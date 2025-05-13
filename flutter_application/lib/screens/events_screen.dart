@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/widget/event_filters/event_filters_widget.dart';
 import 'package:flutter_application/widget/event_list.dart';
 import 'package:flutter_application/widget/week_navigator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../controllers/event_controller.dart';
 import '../widget/app_drawer.dart';
-import '../widget/event_filters.dart';
+import '../widget/event_filters/event_filters_controller.dart';
+import '../models/event.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
@@ -18,7 +20,6 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   DateTime? _weekStart;
   int _selectedWeekday = DateTime.now().weekday;
   final _weekNavigatorController = WeekNavigatorController();
-  final _filterState = FilterState();
 
   // Add state for date range
   DateTime _startDate = DateTime.now();
@@ -49,16 +50,9 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   }
 
   Set<int> _computeDaysWithEventsForCurrentWeek() {
-    final eventsAsync = ref.read(eventControllerProvider);
+    final eventsAsync = ref.read(filteredEventsProvider);
     final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
     return _weekNavigatorController.computeDaysWithEvents(eventsAsync, weekStart);
-  }
-
-  void _applyFilters() {
-    setState(() {
-      // The filter state is already updated by the modal
-      // TODO: Implement filtering logic here
-    });
   }
 
   void _handleRangeUpdate(bool isTop) {
@@ -80,7 +74,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final eventsAsync = ref.watch(eventControllerProvider);
+    final eventsAsync = ref.watch(filteredEventsProvider);
+    final filterController = ref.watch(filterControllerProvider);
     final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
     return Scaffold(
       appBar: AppBar(
@@ -98,10 +93,12 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       body: Column(
         children: [
           TopBar(
-            onFilterPressed: () => FilterModalWidget.show(context, _filterState, _applyFilters),
+            onFilterPressed: () => FilterModalWidget.show(
+              context, 
+              controller: filterController,
+            ),
             onAddPressed: () => context.push('/add-event'),
-            filterState: _filterState,
-            onApplyFilters: _applyFilters,
+            filterController: filterController,
           ),
           WeekNavigator(
             weekStart: weekStart,
@@ -150,15 +147,13 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 class TopBar extends StatelessWidget {
   final VoidCallback onFilterPressed;
   final VoidCallback onAddPressed;
-  final FilterState filterState;
-  final VoidCallback onApplyFilters;
+  final FilterController filterController;
   
   const TopBar({
     super.key,
     required this.onFilterPressed,
     required this.onAddPressed,
-    required this.filterState,
-    required this.onApplyFilters,
+    required this.filterController,
   });
   
   @override
@@ -173,11 +168,8 @@ class TopBar extends StatelessWidget {
           ),
           Expanded(
             child: EventSearchBar(
-              initialValue: filterState.searchText,
-              onChanged: (value) {
-                filterState.searchText = value;
-                onApplyFilters();
-              },
+              initialValue: filterController.searchText,
+              onChanged: filterController.updateSearchText,
             ),
           ),
           IconButton(
