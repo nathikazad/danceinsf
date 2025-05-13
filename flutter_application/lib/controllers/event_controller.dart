@@ -6,6 +6,60 @@ import '../models/event.dart';
 class EventController {
   final _supabase = Supabase.instance.client;
 
+  // Helper to convert dynamic lists to List<String>
+  List<String> _toStringList(dynamic list) =>
+      (list as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+
+  // DRY: Build Event from map and rating info
+  Event _eventFromMap(Map eventData, {double? rating, int ratingCount = 0}) {
+    final eventTypes = _toStringList(eventData['event_type']);
+    final eventCategories = _toStringList(eventData['event_category']);
+    final weeklyDays = _toStringList(eventData['weekly_days']);
+    final monthlyPattern = _toStringList(eventData['monthly_pattern']);
+
+    return Event(
+      name: eventData['name'],
+      type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
+      style: eventCategories.contains('Salsa') ? DanceStyle.salsa : DanceStyle.bachata,
+      frequency: _parseFrequency(eventData['recurrence_type']),
+      location: Location(
+        venueName: eventData['default_venue_name'] ?? '',
+        city: eventData['default_city'] ?? '',
+        url: eventData['default_google_maps_link'] ?? '',
+      ),
+      linkToEvent: eventData['default_ticket_link'] ?? '',
+      schedule: _createSchedulePattern(
+        eventData['recurrence_type'],
+        DateTime.parse(eventData['start_date']),
+        weeklyDays,
+        monthlyPattern,
+      ),
+      startTime: _parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
+      endTime: _parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
+      cost: eventData['default_cost'],
+      description: eventData['default_description'],
+      rating: ratingCount > 0 ? rating : null,
+      ratingCount: ratingCount,
+    );
+  }
+
+  EventOccurrence eventOccurrenceFromMap(Map instance, Event event, {List<EventRating>? ratings}) {
+    return EventOccurrence(
+      event: event,
+      date: DateTime.parse(instance['instance_date']),
+      venueName: instance['venue_name'],
+      city: instance['city'],
+      url: instance['google_maps_link'],
+      ticketLink: instance['ticket_link'],
+      startTime: _parseTimeOfDay(instance['start_time']),
+      endTime: _parseTimeOfDay(instance['end_time']),
+      cost: instance['cost'],
+      description: instance['description'],
+      ratings: ratings,
+      isCancelled: instance['is_cancelled'] == true,
+    );
+  }
+
   Future<List<EventOccurrence>> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
     try {
       // First fetch events and their instances
@@ -35,66 +89,22 @@ class EventController {
       
       for (final eventData in eventsResponse) {
         try {
-          // Convert dynamic lists to List<String>
-          final eventTypes = (eventData['event_type'] as List<dynamic>).map((e) => e.toString()).toList();
-          final eventCategories = (eventData['event_category'] as List<dynamic>).map((e) => e.toString()).toList();
-          final weeklyDays = (eventData['weekly_days'] as List<dynamic>?)?.map((e) => e.toString()).toList();
-          final monthlyPattern = (eventData['monthly_pattern'] as List<dynamic>?)?.map((e) => e.toString()).toList();
-
           // Get rating data from the map
           final ratingData = ratingsMap[eventData['event_id']];
           final rating = ratingData?['average_rating'] as double?;
           final ratingCount = ratingData?['rating_count'] as int? ?? 0;
 
-          final event = Event(
-            name: eventData['name'],
-            type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
-            style: eventCategories.contains('Salsa') ? DanceStyle.salsa : DanceStyle.bachata,
-            frequency: _parseFrequency(eventData['recurrence_type']),
-            location: Location(
-              venueName: eventData['default_venue_name'] ?? '',
-              city: eventData['default_city'] ?? '',
-              url: eventData['default_google_maps_link'] ?? '',
-            ),
-            linkToEvent: eventData['default_ticket_link'] ?? '',
-            schedule: _createSchedulePattern(
-              eventData['recurrence_type'],
-              DateTime.parse(eventData['start_date']),
-              weeklyDays,
-              monthlyPattern,
-            ),
-            startTime: _parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
-            endTime: _parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
-            cost: eventData['default_cost'],
-            description: eventData['default_description'],
-            rating: ratingCount > 0 ? rating : null,
-            ratingCount: ratingCount,
-          );
+          final event = _eventFromMap(eventData, rating: rating, ratingCount: ratingCount);
 
           // Add instances
           final instances = eventData['event_instances'] as List;
           for (final instance in instances) {
-            if (instance['is_cancelled'] == true) continue;
-            
-            final instanceDate = DateTime.parse(instance['instance_date']);
-            occurrences.add(EventOccurrence(
-              event: event,
-              date: instanceDate,
-              venueName: instance['venue_name'],
-              city: instance['city'],
-              url: instance['google_maps_link'],
-              ticketLink: instance['ticket_link'],
-              startTime: _parseTimeOfDay(instance['start_time']),
-              endTime: _parseTimeOfDay(instance['end_time']),
-              cost: instance['cost'],
-              description: instance['description'],
-            ));
+            occurrences.add(eventOccurrenceFromMap(instance, event));
           }
         } catch (e, stackTrace) {
           print('Error processing event: ${eventData['name']}');
           print('Error: $e');
           print('Stack trace: $stackTrace');
-          // Continue with next event instead of failing completely
           continue;
         }
       }
@@ -104,6 +114,54 @@ class EventController {
     } catch (error, stackTrace) {
       print('Error fetching events');
       print('Error: $error');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  Future<EventOccurrence?> fetchEvent(String eventId) async {
+    try {
+      // Fetch the event and its instances
+      final eventResponse = await _supabase
+          .from('events')
+          .select('*, event_instances!inner(*)')
+          .eq('event_id', eventId)
+          .single();
+
+      // Get ratings for this event using the function
+      final ratingsResponse = await _supabase
+          .rpc('get_event_ratings', params: {'event_ids': [eventId]});
+
+      // Get the rating data
+      final ratingData = ratingsResponse.isNotEmpty ? ratingsResponse.first : null;
+      final rating = ratingData?['average_rating'] as double?;
+      final ratingCount = ratingData?['rating_count'] as int? ?? 0;
+
+      final event = _eventFromMap(eventResponse, rating: rating, ratingCount: ratingCount);
+
+      // Get the first instance (since we're looking for a specific event)
+      final instance = eventResponse['event_instances'][0];
+      if (instance['is_cancelled'] == true) return null;
+
+      // Fetch all ratings for this instance
+      final instanceRatings = await _supabase
+          .from('instance_ratings')
+          .select('*')
+          .eq('instance_id', instance['instance_id'])
+          .order('created_at', ascending: false);
+
+
+      final ratings = instanceRatings.map((rating) => EventRating(
+        rating: rating['rating'] as double,
+        comment: rating['comment'] as String?,
+        userId: rating['user_id'] as String,
+        createdAt: DateTime.parse(rating['created_at'])
+      )).toList();
+
+      final eventOccurrence = eventOccurrenceFromMap(instance, event, ratings: ratings);
+      return eventOccurrence;
+    } catch (error, stackTrace) {
+      print('Error fetching event: $error');
       print('Stack trace: $stackTrace');
       rethrow;
     }

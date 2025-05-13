@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 enum EventType {
   social,
@@ -92,6 +91,19 @@ class Location {
   });
 }
 
+class EventRating {
+  final double rating;
+  final String? comment;
+  final DateTime createdAt;
+  final String userId;
+  EventRating({
+    required this.rating,
+    this.comment,
+    required this.createdAt,
+    required this.userId,
+  });
+}
+
 class EventOccurrence {
   final Event event;
   final DateTime date;
@@ -104,6 +116,8 @@ class EventOccurrence {
   final TimeOfDay endTime;
   final double cost;
   final String? description;
+  final List<EventRating> ratings;
+  final bool isCancelled;
 
   EventOccurrence({
     required this.event,
@@ -117,6 +131,8 @@ class EventOccurrence {
     TimeOfDay? endTime,
     double? cost,
     String? description,
+    List<EventRating>? ratings,
+    bool? isCancelled,
   }) : venueName = venueName ?? event.location.venueName,
        city = city ?? event.location.city,
        url = url ?? event.location.url,
@@ -125,7 +141,9 @@ class EventOccurrence {
        startTime = startTime ?? event.startTime,
        endTime = endTime ?? event.endTime,
        cost = cost ?? event.cost,
-       description = description ?? event.description;
+       description = description ?? event.description,
+       ratings = ratings ?? [],
+       isCancelled = isCancelled ?? false;
 
   // Helper method to get just the date part (without time)
   DateTime get dateOnly => DateTime(date.year, date.month, date.day);
@@ -161,9 +179,6 @@ class Event {
     this.rating,
     this.ratingCount,
   });
-
-
-
 
   static List<EventOccurrence> expandEvents(List<Event> events, DateTime startDate, DateTime endDate) {
     List<EventOccurrence> occurrences = [];
