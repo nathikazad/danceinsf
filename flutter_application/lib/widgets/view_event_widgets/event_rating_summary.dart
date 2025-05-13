@@ -16,10 +16,11 @@ class EventRatingSummary extends StatelessWidget {
     return Center(
       child: Column(
         children: [
-          Text('This event on ${_formatDate(date)} got', style: const TextStyle(fontSize: 16)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text('This event on ${_formatDate(date)} got', style: const TextStyle(fontSize: 16)),
+              const SizedBox(width: 8),
               const Icon(Icons.favorite, color: Colors.orange, size: 20),
               Text(
                 ratings.isNotEmpty

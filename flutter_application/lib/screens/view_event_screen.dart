@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
-import '../widgets/view_event_widgets/ratings_section.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';
 
@@ -19,7 +18,7 @@ class ViewEventScreen extends ConsumerStatefulWidget {
 }
 
 class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
-  late Future<EventOccurrence?> _eventFuture;
+  late Future<EventInstance?> _eventFuture;
 
   @override
   void initState() {
@@ -31,14 +30,7 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bachata Fusion'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      body: FutureBuilder<EventOccurrence?>(
+      body: FutureBuilder<EventInstance?>(
         future: _eventFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -49,31 +41,40 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
           }
           final occurrence = snapshot.data!;
           final event = occurrence.event;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Main Info Card
-                TopBox(event: event, occurrence: occurrence),
-                const SizedBox(height: 24),
-                // Event Details
-                EventDetailRow(icon: Icons.calendar_today, text: _formatDate(occurrence.date)),
-                EventDetailRow(icon: Icons.access_time, text: _formatTimeRange(occurrence.startTime, occurrence.endTime)),
-                EventDetailRow(icon: Icons.repeat, text: _formatRecurrence(event.frequency)),
-                EventDetailRow(icon: Icons.location_on, text: '${occurrence.venueName}, ${occurrence.city}', linkText: 'Directions', linkUrl: occurrence.url),
-                if (occurrence.ticketLink != null && occurrence.ticketLink!.isNotEmpty)
-                  EventDetailRow(icon: Icons.link, text: 'Buy Tickets', linkUrl: occurrence.ticketLink),
-                if (event.linkToEvent != null && event.linkToEvent!.isNotEmpty)
-                  EventDetailRow(icon: Icons.link, text: 'Flyer', linkUrl: event.linkToEvent),
-                const SizedBox(height: 24),
-                // Ratings Section
-                if (occurrence.ratings.isNotEmpty)
-                  RatingsSection(occurrence: occurrence),
-                // Rate this Event (placeholder)
-                const SizedBox(height: 24),
-                EventRatingSummary(date: occurrence.date, ratings: occurrence.ratings),
-              ],
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(event.name),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              ),
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Main Info Card
+                  TopBox(event: event, occurrence: occurrence),
+                  const SizedBox(height: 24),
+                  // Event Details
+                  EventDetailRow(icon: Icons.calendar_today, text: _formatDate(occurrence.date)),
+                  EventDetailRow(icon: Icons.access_time, text: _formatTimeRange(occurrence.startTime, occurrence.endTime)),
+                  EventDetailRow(icon: Icons.repeat, text: _formatRecurrence(event.frequency)),
+                  EventDetailRow(icon: Icons.location_on, text: '${occurrence.venueName}, ${occurrence.city}', linkText: 'Directions', linkUrl: occurrence.url),
+                  if (occurrence.ticketLink != null && occurrence.ticketLink!.isNotEmpty)
+                    EventDetailRow(icon: Icons.link, text: 'Buy Tickets', linkUrl: occurrence.ticketLink),
+                  if (event.linkToEvent != null && event.linkToEvent!.isNotEmpty)
+                    EventDetailRow(icon: Icons.link, text: 'Flyer', linkUrl: event.linkToEvent),
+                  const SizedBox(height: 24),
+                  // Ratings Section
+                  // if (occurrence.ratings.isNotEmpty)
+                  //   RatingsSection(occurrence: occurrence),
+                  // // Rate this Event (placeholder)
+                  // const SizedBox(height: 24),
+                  EventRatingSummary(date: occurrence.date, ratings: occurrence.ratings),
+                ],
+              ),
             ),
           );
         },

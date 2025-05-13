@@ -14,12 +14,12 @@ import 'package:flutter_application/widgets/list_event_widgets/week_navigator.da
 
 final eventControllerProvider = Provider<EventController>((ref) => EventController());
 
-final eventsStateProvider = StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventOccurrence>>>((ref) {
+final eventsStateProvider = StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventInstance>>>((ref) {
   final controller = ref.watch(eventControllerProvider);
   return EventsStateNotifier(controller);
 });
 
-class EventsStateNotifier extends StateNotifier<AsyncValue<List<EventOccurrence>>> {
+class EventsStateNotifier extends StateNotifier<AsyncValue<List<EventInstance>>> {
   final EventController _controller;
   
   EventsStateNotifier(this._controller) : super(const AsyncValue.loading());

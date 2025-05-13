@@ -104,7 +104,7 @@ class EventRating {
   });
 }
 
-class EventOccurrence {
+class EventInstance {
   final Event event;
   final DateTime date;
   final String venueName;
@@ -118,8 +118,10 @@ class EventOccurrence {
   final String? description;
   final List<EventRating> ratings;
   final bool isCancelled;
+  final String eventInstanceId;
 
-  EventOccurrence({
+  EventInstance({
+    required this.eventInstanceId,
     required this.event,
     required this.date,
     String? venueName,
@@ -182,93 +184,11 @@ class Event {
     this.ratingCount,
   });
 
-  static List<EventOccurrence> expandEvents(List<Event> events, DateTime startDate, DateTime endDate) {
-    List<EventOccurrence> occurrences = [];
-    
-    for (final event in events) {
-      switch (event.schedule.frequency) {
-        case Frequency.once:
-          // For one-time events, only add if the date falls within the range
-          if (event.schedule.singleDate != null &&
-              event.schedule.singleDate!.isAfter(startDate.subtract(const Duration(days: 1))) &&
-              event.schedule.singleDate!.isBefore(endDate.add(const Duration(days: 1)))) {
-            occurrences.add(EventOccurrence(
-              event: event,
-              date: event.schedule.singleDate!,
-            ));
-          }
-          break;
-
-        case Frequency.weekly:
-          if (event.schedule.dayOfWeek != null) {
-            // Convert DayOfWeek to int (1-7, where 1 is Monday)
-            final targetDay = event.schedule.dayOfWeek!.index + 1;
-            
-            // Start from the first occurrence of the target day after startDate
-            DateTime currentDate = startDate;
-            while (currentDate.weekday != targetDay) {
-              currentDate = currentDate.add(const Duration(days: 1));
-            }
-            
-            // Add all weekly occurrences until endDate
-            while (currentDate.isBefore(endDate.add(const Duration(days: 1)))) {
-              occurrences.add(EventOccurrence(
-                event: event,
-                date: currentDate,
-              ));
-              currentDate = currentDate.add(const Duration(days: 7));
-            }
-          }
-          break;
-
-        case Frequency.monthly:
-          if (event.schedule.dayOfWeek != null && event.schedule.weekOfMonth != null) {
-            DateTime currentDate = startDate;
-            
-            // Find the first occurrence of the target day in the target week
-            while (currentDate.isBefore(endDate.add(const Duration(days: 1)))) {
-              // Get the first day of the current month
-              final firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
-              
-              // Find the first occurrence of the target day
-              int targetDay = event.schedule.dayOfWeek!.index + 1;
-              DateTime firstOccurrence = firstDayOfMonth;
-              while (firstOccurrence.weekday != targetDay) {
-                firstOccurrence = firstOccurrence.add(const Duration(days: 1));
-              }
-              
-              // Add weeks to get to the target week
-              final targetDate = firstOccurrence.add(
-                Duration(days: (event.schedule.weekOfMonth! - 1) * 7)
-              );
-              
-              // Only add if it's within our date range
-              if (targetDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
-                  targetDate.isBefore(endDate.add(const Duration(days: 1)))) {
-                occurrences.add(EventOccurrence(
-                  event: event,
-                  date: targetDate,
-                ));
-              }
-              
-              // Move to next month
-              currentDate = DateTime(currentDate.year, currentDate.month + 1, 1);
-            }
-          }
-          break;
-      }
-    }
-    
-    // Sort occurrences by date
-    occurrences.sort((a, b) => a.date.compareTo(b.date));
-    return occurrences;
-  }
-
   /// Groups event occurrences by date and sorts them by time within each date.
   /// Returns a Map where:
   /// - Key is the date (DateTime with time set to 00:00:00)
   /// - Value is a list of EventOccurrences for that date, sorted by start time
-  static Map<DateTime, List<EventOccurrence>> groupOccurrencesByDate(List<EventOccurrence> occurrences) {
+  static Map<DateTime, List<EventInstance>> groupOccurrencesByDate(List<EventInstance> occurrences) {
     // First, sort all occurrences by date and time
     occurrences.sort((a, b) {
       // First compare by date
@@ -282,7 +202,7 @@ class Event {
     });
 
     // Group by date
-    final Map<DateTime, List<EventOccurrence>> groupedOccurrences = {};
+    final Map<DateTime, List<EventInstance>> groupedOccurrences = {};
     
     for (final occurrence in occurrences) {
       final dateKey = occurrence.dateOnly;

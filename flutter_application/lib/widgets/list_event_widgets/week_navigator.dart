@@ -11,7 +11,7 @@ class WeekNavigatorController {
     scrollController.dispose();
   }
 
-  Set<int> computeDaysWithEvents(AsyncValue<List<EventOccurrence>> eventsAsync, DateTime weekStart) {
+  Set<int> computeDaysWithEvents(AsyncValue<List<EventInstance>> eventsAsync, DateTime weekStart) {
     final weekEnd = weekStart.add(const Duration(days: 6));
     Set<int> days = {};
     

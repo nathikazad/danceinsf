@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // EventsList widget
 class EventsList extends StatelessWidget {
-  final AsyncValue<List<EventOccurrence>> eventsAsync;
+  final AsyncValue<List<EventInstance>> eventsAsync;
   final WeekNavigatorController weekNavigatorController;
   final void Function(DateTime) handleDateUpdate;
   final void Function(bool) onRangeUpdate;
@@ -86,7 +86,7 @@ class EventsList extends StatelessWidget {
 // GroupedEventsForDate widget
 class GroupedEventsForDate extends StatelessWidget {
   final DateTime date;
-  final List<EventOccurrence> eventInstancesForDate;
+  final List<EventInstance> eventInstancesForDate;
   final DateFormat dateFormat;
   final bool isLast;
   final GlobalKey keyForDate;
@@ -111,11 +111,9 @@ class GroupedEventsForDate extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
-        ...eventInstancesForDate.map((occurrence) {
-          final event = occurrence.event;
-          return EventCard(
-            event: event,
-            isFirst: eventInstancesForDate.first == occurrence,
+        ...eventInstancesForDate.map((eventInstance) {
+          return EventInstanceCard(
+            eventInstance: eventInstance,
           );
         }).toList(),
         if (!isLast)
@@ -125,32 +123,29 @@ class GroupedEventsForDate extends StatelessWidget {
   }
 }
 
-class EventCard extends StatelessWidget {
-  final Event event;
-  final bool isFirst;
+class EventInstanceCard extends StatelessWidget {
+  final EventInstance eventInstance;
 
-  const EventCard({
+  const EventInstanceCard({
     super.key,
-    required this.event,
-    required this.isFirst,
+    required this.eventInstance,
   });
 
   @override
   Widget build(BuildContext context) {
-    final start = event.startTime;
-    final end = event.endTime;
-    final location = event.location;
+    final start = eventInstance.startTime;
+    final end = eventInstance.endTime;
 
     return InkWell(
       onTap: () {
-        GoRouter.of(context).push('/event/${event.eventId}');
+        GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}');
       },
       borderRadius: BorderRadius.circular(8),
       child: Card(
         margin: const EdgeInsets.only(bottom: 12),
         shape: RoundedRectangleBorder(
           side: BorderSide(
-            color: isFirst ? Colors.blue : Colors.transparent,
+            color: Colors.transparent,
             width: 2,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -165,7 +160,7 @@ class EventCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      event.name,
+                      eventInstance.event.name,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     const SizedBox(height: 4),
@@ -173,11 +168,11 @@ class EventCard extends StatelessWidget {
                       children: [
                         const Icon(Icons.location_on, size: 18),
                         const SizedBox(width: 4),
-                        Text(location.venueName, style: const TextStyle(fontSize: 15)),
+                        Text(eventInstance.venueName, style: const TextStyle(fontSize: 15)),
                       ],
                     ),
                     Text(
-                      location.city, // Placeholder for city
+                      eventInstance.city,
                       style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
@@ -192,12 +187,12 @@ class EventCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${event.cost == 0.0 ? 'Free' : '\$${event.cost}'}',
+                    eventInstance.cost == 0.0 ? 'Free' : '\$${eventInstance.cost}',
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${event.rating == null ? '' : '${event.rating} (${event.ratingCount} reviews)'}',
+                    eventInstance.event.rating == null ? '' : '${eventInstance.event.rating} (${eventInstance.event.ratingCount} reviews)',
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ],

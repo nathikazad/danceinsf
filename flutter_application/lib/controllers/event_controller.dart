@@ -10,7 +10,7 @@ class EventController {
   List<String> _toStringList(dynamic list) =>
       (list as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
 
-  Future<List<EventOccurrence>> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
+  Future<List<EventInstance>> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
     try {
       // First fetch events and their instances
       final eventsResponse = await _supabase
@@ -35,7 +35,7 @@ class EventController {
           }
       };
 
-      final List<EventOccurrence> occurrences = [];
+      final List<EventInstance> occurrences = [];
       
       for (final eventData in eventsResponse) {
         try {
@@ -49,7 +49,7 @@ class EventController {
           // Add instances
           final instances = eventData['event_instances'] as List;
           for (final instance in instances) {
-            occurrences.add(eventOccurrenceFromMap(instance, event));
+            occurrences.add(eventInstanceFromMap(instance, event));
           }
         } catch (e, stackTrace) {
           print('Error processing event: ${eventData['name']}');
@@ -69,46 +69,51 @@ class EventController {
     }
   }
 
-  Future<EventOccurrence?> fetchEvent(String eventId) async {
+  Future<EventInstance?> fetchEvent(String eventInstanceId) async {
     try {
-      // Fetch the event and its instances
+      // 1. Fetch the event instance by instance_id
+      final instanceResponse = await _supabase
+          .from('event_instances')
+          .select('*')
+          .eq('instance_id', eventInstanceId)
+          .single();
+
+      final eventId = instanceResponse['event_id'];
+
+      // 2. Fetch the event by event_id
       final eventResponse = await _supabase
           .from('events')
-          .select('*, event_instances!inner(*)')
+          .select('*')
           .eq('event_id', eventId)
           .single();
 
-      // Get ratings for this event using the function
+      // 3. Get ratings for this event using the function
       final ratingsResponse = await _supabase
           .rpc('get_event_ratings', params: {'event_ids': [eventId]});
 
-      // Get the rating data
+      // 4. Get the rating data
       final ratingData = ratingsResponse.isNotEmpty ? ratingsResponse.first : null;
       final rating = ratingData?['average_rating'] as double?;
       final ratingCount = ratingData?['rating_count'] as int? ?? 0;
 
       final event = _eventFromMap(eventResponse, rating: rating, ratingCount: ratingCount);
 
-      // Get the first instance (since we're looking for a specific event)
-      final instance = eventResponse['event_instances'][0];
-      if (instance['is_cancelled'] == true) return null;
-
-      // Fetch all ratings for this instance
+      // 5. Fetch all ratings for this instance
       final instanceRatings = await _supabase
           .from('instance_ratings')
           .select('*')
-          .eq('instance_id', instance['instance_id'])
+          .eq('instance_id', eventInstanceId)
           .order('created_at', ascending: false);
 
-
-      final ratings = instanceRatings.map((rating) => EventRating(
-        rating: rating['rating'] as double,
+      final ratings = instanceRatings.map<EventRating>((rating) => EventRating(
+        rating: rating['rating'] is double ? rating['rating'] : double.tryParse(rating['rating'].toString()) ?? 0.0,
         comment: rating['comment'] as String?,
         userId: rating['user_id'] as String,
         createdAt: DateTime.parse(rating['created_at'])
       )).toList();
 
-      final eventOccurrence = eventOccurrenceFromMap(instance, event, ratings: ratings);
+      // 6. Compose the EventInstance
+      final eventOccurrence = eventInstanceFromMap(instanceResponse, event, ratings: ratings);
       return eventOccurrence;
     } catch (error, stackTrace) {
       print('Error fetching event: $error');
@@ -151,17 +156,18 @@ class EventController {
     );
   }
 
-  EventOccurrence eventOccurrenceFromMap(Map instance, Event event, {List<EventRating>? ratings}) {
-    return EventOccurrence(
+  EventInstance eventInstanceFromMap(Map instance, Event event, {List<EventRating>? ratings}) {
+    return EventInstance(
+      eventInstanceId: instance['instance_id'],
       event: event,
       date: DateTime.parse(instance['instance_date']),
-      venueName: instance['venue_name'],
-      city: instance['city'],
-      url: instance['google_maps_link'],
-      ticketLink: instance['ticket_link'],
-      startTime: _parseTimeOfDay(instance['start_time']),
-      endTime: _parseTimeOfDay(instance['end_time']),
-      cost: instance['cost'],
+      venueName: instance['venue_name'] ?? event.location.venueName,
+      city: instance['city'] ?? event.location.city,
+      url: instance['google_maps_link'] ?? event.location.url,
+      ticketLink: instance['ticket_link'] ?? event.linkToEvent,
+      startTime: _parseTimeOfDay(instance['start_time']) ?? event.startTime,
+      endTime: _parseTimeOfDay(instance['end_time']) ?? event.endTime,
+      cost: instance['cost'] ?? event.cost,
       description: instance['description'],
       ratings: ratings,
       isCancelled: instance['is_cancelled'] == true,

@@ -20,8 +20,8 @@ class TopBox extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  event.style == DanceStyle.bachata ? 'Bachata' : 'Salsa',
-                  style: const TextStyle(fontSize: 16),
+                  event.name,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
