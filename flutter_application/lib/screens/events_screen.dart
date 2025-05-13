@@ -164,9 +164,38 @@ class TopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.tune),
-            onPressed: onFilterPressed,
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.tune),
+                onPressed: onFilterPressed,
+              ),
+              Consumer(
+                builder: (context, ref, child) {
+                  final filterCount = ref.watch(filterControllerProvider).countActiveFilters();
+                  if (filterCount == 0) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        filterCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           Expanded(
             child: EventSearchBar(

@@ -163,4 +163,13 @@ class FilterController extends ChangeNotifier {
         _selectedCities.isNotEmpty ||
         _searchText.isNotEmpty;
   }
+
+  int countActiveFilters() {
+    int count = 0;
+    count += _selectedStyles.length;
+    count += _selectedFrequencies.length;
+    count += _selectedCities.length;
+    // if (_searchText.isNotEmpty) count += 1;
+    return count;
+  }
 }
