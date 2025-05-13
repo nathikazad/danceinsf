@@ -111,6 +111,15 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 _selectedWeekday = 1; // Set to Monday
                 _computeDaysWithEventsForCurrentWeek();
               });
+
+              // Check if new week is beyond current date range
+              final endDate = _startDate.add(Duration(days: _daysWindow));
+              if (newWeekStart.isBefore(_startDate)) {
+                _handleRangeUpdate(true); // Extend backwards
+              } else if (newWeekStart.add(const Duration(days: 7)).isAfter(endDate)) {
+                _handleRangeUpdate(false); // Extend forwards
+              }
+
               _weekNavigatorController.scrollToClosestDate(newWeekStart);
             },
             onDaySelected: (weekday) {
