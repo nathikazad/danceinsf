@@ -5,6 +5,11 @@ import '../widgets/add_event_widgets/repeat_section.dart';
 import '../widgets/add_event_widgets/location_section.dart';
 import '../widgets/add_event_widgets/upload_section.dart';
 import '../widgets/add_event_widgets/organizer_section.dart';
+import '../widgets/add_event_widgets/time_section.dart';
+import '../widgets/add_event_widgets/cost_section.dart';
+import '../widgets/add_event_widgets/tickets_section.dart';
+import '../models/event.dart';
+import '../controllers/event_controller.dart';
 
 class AddEventScreen extends ConsumerStatefulWidget {
   const AddEventScreen({super.key});
@@ -16,32 +21,57 @@ class AddEventScreen extends ConsumerStatefulWidget {
 class _AddEventScreenState extends ConsumerState<AddEventScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _costController = TextEditingController();
-  final _ticketLinkController = TextEditingController();
+  final _eventController = EventController();
 
-  String _eventType = 'Social';
-  String _eventStyle = 'Bachata';
-  DateTime? _selectedDate;
-  TimeOfDay? _startTime;
-  TimeOfDay? _endTime;
+  // Partial event object
+  late Event _event;
+  DateTime? _selectedDateForOnce;
 
-  // Reusable styles
-  static const _sectionHeaderStyle = TextStyle(fontWeight: FontWeight.bold);
-  static const _infoTextStyle = TextStyle(fontSize: 12);
-
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with default values
+    _event = Event(
+      eventId: '', // Will be set by the database
+      name: '',
+      type: EventType.social,
+      style: DanceStyle.bachata,
+      frequency: Frequency.once,
+      location: Location(venueName: '', city: '', url: ''),
+      schedule: SchedulePattern.once(),
+      startTime: const TimeOfDay(hour: 0, minute: 0),
+      endTime: const TimeOfDay(hour: 0, minute: 0),
+      cost: 0.0,
+    );
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _costController.dispose();
-    _ticketLinkController.dispose();
     super.dispose();
   }
 
-  void _handleCreate() {
+  Future<void> _handleCreate() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Save event to Supabase
-      context.pop();
+      try {
+        // Update the event with the latest values
+        _event = _event.copyWith(
+          name: _nameController.text,
+        );
+
+        // Create the event using the controller
+        await _eventController.createEvent(_event, _selectedDateForOnce);
+        
+        if (mounted) {
+          context.pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error creating event: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -67,24 +97,83 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             _buildTypeSection(),
             const SizedBox(height: 20),
             RepeatSection(
-              onDateSelected: (date) => setState(() => _selectedDate = date),
+              schedule: _event.schedule,
+              frequency: _event.frequency,
+              onScheduleChanged: (newSchedule, newFrequency, newSelectedDate) => setState(() {
+                _event = _event.copyWith(
+                  schedule: newSchedule,
+                  frequency: newFrequency,
+                );
+                _selectedDateForOnce = newSelectedDate;
+              }),
             ),
             const SizedBox(height: 20),
-            _buildTimeSection(),
+            TimeSection(
+              startTime: _event.startTime,
+              endTime: _event.endTime,
+              onStartTimeChanged: (time) => setState(() {
+                if (time != null) {
+                  _event = _event.copyWith(startTime: time);
+                }
+              }),
+              onEndTimeChanged: (time) => setState(() {
+                if (time != null) {
+                  _event = _event.copyWith(endTime: time);
+                }
+              }),
+            ),
             const SizedBox(height: 20),
-            _buildCostSection(),
-            const SizedBox(height: 20),
-            const LocationSection(),
-            const SizedBox(height: 20),
-            _buildTicketsSection(),
-            const SizedBox(height: 20),
-            UploadSection(
-              onUpload: () {
-                // TODO: Implement file upload
+            CostSection(
+              initialCost: _event.cost,
+              onCostChanged: (cost) => setState(() {
+                _event = _event.copyWith(cost: cost);
+              }),
+              validator: (value) {
+                if (value == null || value.isEmpty) return null;
+                if (double.tryParse(value) == null) {
+                  return 'Please enter a valid number';
+                }
+                return null;
               },
             ),
             const SizedBox(height: 20),
-            const OrganizerSection(),
+            LocationSection(
+              location: _event.location,
+              onLocationChanged: (newLocation) => setState(() {
+                _event = _event.copyWith(location: newLocation);
+              }),
+            ),
+            const SizedBox(height: 20),
+            TicketsSection(
+              initialTicketLink: _event.linkToEvent,
+              onTicketLinkChanged: (link) => setState(() {
+                _event = _event.copyWith(linkToEvent: link);
+              }),
+              validator: (value) {
+                if (value == null || value.isEmpty) return null;
+                final uri = Uri.tryParse(value);
+                if (uri == null || !uri.isAbsolute) {
+                  return 'Please enter a valid URL';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 20),
+            UploadSection(
+              fileUrl: _event.description,
+              onFileChanged: (url) => setState(() {
+                _event = _event.copyWith(description: url);
+              }),
+            ),
+            const SizedBox(height: 20),
+            OrganizerSection(
+              name: _event.name,
+              phone: '',
+              isOrganizer: true,
+              onOrganizerChanged: (name, phone, isOrganizer) {
+                // Not using organizer info in the event model yet
+              },
+            ),
             const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,
@@ -106,98 +195,18 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
     );
   }
 
-  // Reusable widgets
-  Widget _buildSectionHeader(String title) {
-    return Text(title, style: _sectionHeaderStyle);
-  }
-
-  Widget _buildInfoRow(String text) {
-    return Row(
-      children: [
-        const Icon(Icons.info_outline, size: 18, color: Colors.orange),
-        const SizedBox(width: 4),
-        Text(text, style: _infoTextStyle),
-      ],
-    );
-  }
-
-  Widget _buildFormField({
-    required TextEditingController controller,
-    required String hintText,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        border: const OutlineInputBorder(),
-      ),
-      keyboardType: keyboardType,
-      validator: validator,
-    );
-  }
-
-  Widget _buildButtonGroup({
-    required List<String> options,
-    required String selectedValue,
-    required Function(String) onSelected,
-  }) {
-    return Row(
-      children: options.map((option) {
-        final isSelected = option == selectedValue;
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(
-              right: option != options.last ? 8 : 0,
-            ),
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                backgroundColor: isSelected ? Colors.orange.shade50 : null,
-                side: BorderSide(
-                  color: isSelected ? Colors.orange : Colors.grey.shade300,
-                ),
-              ),
-              onPressed: () => onSelected(option),
-              child: Text(
-                option,
-                style: TextStyle(
-                  color: isSelected ? Colors.orange : Colors.black,
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-
-  Future<void> _pickTime(bool isStart) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startTime = picked;
-        } else {
-          _endTime = picked;
-        }
-      });
-    }
-  }
-
   Widget _buildNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Name'),
+        const Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        _buildFormField(
+        TextFormField(
           controller: _nameController,
-          hintText: 'Name',
+          decoration: const InputDecoration(
+            hintText: 'Name',
+            border: OutlineInputBorder(),
+          ),
           validator: (v) => v == null || v.isEmpty ? 'Please enter a name' : null,
         ),
       ],
@@ -208,77 +217,98 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Type'),
-        const SizedBox(height: 8),
-        _buildButtonGroup(
-          options: ['Social', 'Class'],
-          selectedValue: _eventType,
-          onSelected: (value) => setState(() => _eventType = value),
-        ),
-        const SizedBox(height: 8),
-        _buildButtonGroup(
-          options: ['Bachata', 'Salsa'],
-          selectedValue: _eventStyle,
-          onSelected: (value) => setState(() => _eventStyle = value),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimeSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('Start Time'),
+        const Text('Type', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => _pickTime(true),
-                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 18)),
-                child: Text(_startTime == null ? 'Start Time' : _startTime!.format(context)),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: _event.type == EventType.social ? Colors.orange.shade50 : null,
+                    side: BorderSide(
+                      color: _event.type == EventType.social ? Colors.orange : Colors.grey.shade300,
+                    ),
+                  ),
+                  onPressed: () => setState(() {
+                    _event = _event.copyWith(type: EventType.social);
+                  }),
+                  child: Text(
+                    'Social',
+                    style: TextStyle(
+                      color: _event.type == EventType.social ? Colors.orange : Colors.black,
+                    ),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
-                onPressed: () => _pickTime(false),
-                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 18)),
-                child: Text(_endTime == null ? 'End Time' : _endTime!.format(context)),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: _event.type == EventType.class_ ? Colors.orange.shade50 : null,
+                  side: BorderSide(
+                    color: _event.type == EventType.class_ ? Colors.orange : Colors.grey.shade300,
+                  ),
+                ),
+                onPressed: () => setState(() {
+                  _event = _event.copyWith(type: EventType.class_);
+                }),
+                child: Text(
+                  'Class',
+                  style: TextStyle(
+                    color: _event.type == EventType.class_ ? Colors.orange : Colors.black,
+                  ),
+                ),
               ),
             ),
           ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildCostSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('Cost'),
         const SizedBox(height: 8),
-        _buildFormField(
-          controller: _costController,
-          hintText: 'Cost',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTicketsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('Tickets Link'),
-        const SizedBox(height: 4),
-        _buildInfoRow('Link for Customers to Buy Tickets'),
-        const SizedBox(height: 8),
-        _buildFormField(
-          controller: _ticketLinkController,
-          hintText: 'Sample Link',
+        Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: _event.style == DanceStyle.bachata ? Colors.orange.shade50 : null,
+                    side: BorderSide(
+                      color: _event.style == DanceStyle.bachata ? Colors.orange : Colors.grey.shade300,
+                    ),
+                  ),
+                  onPressed: () => setState(() {
+                    _event = _event.copyWith(style: DanceStyle.bachata);
+                  }),
+                  child: Text(
+                    'Bachata',
+                    style: TextStyle(
+                      color: _event.style == DanceStyle.bachata ? Colors.orange : Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: _event.style == DanceStyle.salsa ? Colors.orange.shade50 : null,
+                  side: BorderSide(
+                    color: _event.style == DanceStyle.salsa ? Colors.orange : Colors.grey.shade300,
+                  ),
+                ),
+                onPressed: () => setState(() {
+                  _event = _event.copyWith(style: DanceStyle.salsa);
+                }),
+                child: Text(
+                  'Salsa',
+                  style: TextStyle(
+                    color: _event.style == DanceStyle.salsa ? Colors.orange : Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

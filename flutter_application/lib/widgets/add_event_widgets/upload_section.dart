@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class UploadSection extends StatelessWidget {
-  final VoidCallback onUpload;
+  final String? fileUrl;
+  final Function(String?) onFileChanged;
 
   const UploadSection({
     super.key,
-    required this.onUpload,
+    this.fileUrl,
+    required this.onFileChanged,
   });
 
   @override
@@ -16,7 +18,11 @@ class UploadSection extends StatelessWidget {
         const Text('Flyer', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         GestureDetector(
-          onTap: onUpload,
+          onTap: () {
+            // TODO: Implement file upload
+            // For now, just simulate a file URL
+            onFileChanged('https://example.com/flyer.pdf');
+          },
           child: Container(
             width: double.infinity,
             height: 140,
@@ -28,16 +34,24 @@ class UploadSection extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.orange.shade50,
-                    radius: 24,
-                    child: Icon(Icons.upload, color: Colors.orange, size: 28),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Upload File', style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  const Text('Supported files PDF, Jpg, Png', style: TextStyle(fontSize: 12)),
-                  const Text('Maximum file size 25 MB', style: TextStyle(fontSize: 12)),
+                  if (fileUrl != null) ...[
+                    const Icon(Icons.check_circle, color: Colors.green, size: 28),
+                    const SizedBox(height: 8),
+                    const Text('File Uploaded', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text(fileUrl!, style: const TextStyle(fontSize: 12)),
+                  ] else ...[
+                    CircleAvatar(
+                      backgroundColor: Colors.orange.shade50,
+                      radius: 24,
+                      child: Icon(Icons.upload, color: Colors.orange, size: 28),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('Upload File', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    const Text('Supported files PDF, Jpg, Png', style: TextStyle(fontSize: 12)),
+                    const Text('Maximum file size 25 MB', style: TextStyle(fontSize: 12)),
+                  ],
                 ],
               ),
             ),

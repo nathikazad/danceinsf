@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import '../../models/event.dart';
 
 class RepeatSection extends StatefulWidget {
-  final Function(DateTime) onDateSelected;
+  final SchedulePattern schedule;
+  final Frequency frequency;
+  final DateTime? selectedDate;
+  final Function(SchedulePattern, Frequency, DateTime?) onScheduleChanged;
 
   const RepeatSection({
     super.key,
-    required this.onDateSelected,
+    required this.schedule,
+    required this.frequency,
+    required this.onScheduleChanged,
+    this.selectedDate,
   });
 
   @override
@@ -13,7 +20,19 @@ class RepeatSection extends StatefulWidget {
 }
 
 class _RepeatSectionState extends State<RepeatSection> {
-  DateTime? _selectedDate;
+  late Frequency _frequency;
+  late DateTime? _selectedDate;
+  late DayOfWeek? _selectedDay;
+  late int? _selectedWeek;
+
+  @override
+  void initState() {
+    super.initState();
+    _frequency = widget.frequency;
+    _selectedDate = widget.selectedDate ?? DateTime.now();
+    _selectedDay = widget.schedule.dayOfWeek;
+    _selectedWeek = widget.schedule.weekOfMonth;
+  }
 
   Future<void> _pickDate(BuildContext context) async {
     final picked = await showDatePicker(
@@ -24,8 +43,29 @@ class _RepeatSectionState extends State<RepeatSection> {
     );
     if (picked != null) {
       setState(() => _selectedDate = picked);
-      widget.onDateSelected(picked);
+      _updateSchedule();
     }
+  }
+
+  void _updateSchedule() {
+    SchedulePattern newSchedule;
+    switch (_frequency) {
+      case Frequency.once:
+        newSchedule = SchedulePattern.once();
+        break;
+      case Frequency.weekly:
+        _selectedDate = null;
+        _selectedDay ??= DayOfWeek.monday;
+        newSchedule = SchedulePattern.weekly(_selectedDay!);
+        break;
+      case Frequency.monthly:
+        _selectedDate = null;
+        _selectedDay ??= DayOfWeek.monday;
+        _selectedWeek ??= 1;
+        newSchedule = SchedulePattern.monthly(_selectedDay!, _selectedWeek!);
+        break;
+    }
+    widget.onScheduleChanged(newSchedule, _frequency, _selectedDate);
   }
 
   Widget _buildDatePicker(BuildContext context) {
@@ -49,6 +89,65 @@ class _RepeatSectionState extends State<RepeatSection> {
     );
   }
 
+  Widget _buildDaySelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Day of Week', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: DayOfWeek.values.map((day) {
+            final isSelected = _selectedDay == day;
+            return ChoiceChip(
+              label: Text(_dayAbbreviations[day]!),
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(() => _selectedDay = day);
+                _updateSchedule();
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  static const Map<DayOfWeek, String> _dayAbbreviations = {
+    DayOfWeek.monday: 'M',
+    DayOfWeek.tuesday: 'T',
+    DayOfWeek.wednesday: 'W',
+    DayOfWeek.thursday: 'Th',
+    DayOfWeek.friday: 'F',
+    DayOfWeek.saturday: 'Sa',
+    DayOfWeek.sunday: 'Su',
+  };
+
+  Widget _buildWeekSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Week of Month', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: [1, 2, 3, 4].map((week) {
+            final isSelected = _selectedWeek == week;
+            String label = ['1st', '2nd', '3rd', '4th'][week - 1];
+            return ChoiceChip(
+              label: Text(label),
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(() => _selectedWeek = week);
+                _updateSchedule();
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -61,40 +160,63 @@ class _RepeatSectionState extends State<RepeatSection> {
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.orange.shade50,
-                  side: BorderSide(color: Colors.orange),
+                  backgroundColor: _frequency == Frequency.once ? Colors.orange.shade50 : null,
+                  side: BorderSide(color: _frequency == Frequency.once ? Colors.orange : Colors.grey.shade300),
                 ),
-                onPressed: () => _pickDate(context),
-                child: const Text('Once', style: TextStyle(color: Colors.orange)),
+                onPressed: () {
+                  setState(() => _frequency = Frequency.once);
+                  _updateSchedule();
+                },
+                child: Text('Once', style: TextStyle(color: _frequency == Frequency.once ? Colors.orange : Colors.black)),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.orange.shade50,
-                  side: BorderSide(color: Colors.orange),
+                  backgroundColor: _frequency == Frequency.weekly ? Colors.orange.shade50 : null,
+                  side: BorderSide(color: _frequency == Frequency.weekly ? Colors.orange : Colors.grey.shade300),
                 ),
-                onPressed: () => _pickDate(context),
-                child: const Text('Monthly', style: TextStyle(color: Colors.orange)),
+                onPressed: () {
+                  setState(() => _frequency = Frequency.weekly);
+                  _updateSchedule();
+                },
+                child: Text('Weekly', style: TextStyle(color: _frequency == Frequency.weekly ? Colors.orange : Colors.black)),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.orange.shade50,
-                  side: BorderSide(color: Colors.orange),
+                  backgroundColor: _frequency == Frequency.monthly ? Colors.orange.shade50 : null,
+                  side: BorderSide(color: _frequency == Frequency.monthly ? Colors.orange : Colors.grey.shade300),
                 ),
-                onPressed: () => _pickDate(context),
-                child: const Text('Weekly', style: TextStyle(color: Colors.orange)),
+                onPressed: () {
+                  setState(() => _frequency = Frequency.monthly);
+                  _updateSchedule();
+                },
+                child: Text('Monthly', style: TextStyle(color: _frequency == Frequency.monthly ? Colors.orange : Colors.black)),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _buildDatePicker(context),
+        if (_frequency == Frequency.once)
+          _buildDatePicker(context)
+        else ...[
+          if (_frequency == Frequency.monthly) ...[
+            const SizedBox(height: 12),
+            _buildWeekSelector(),
+          ],
+          _buildDaySelector(),
+        ],
       ],
     );
+  }
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
   }
 } 

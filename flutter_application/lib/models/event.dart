@@ -28,38 +28,33 @@ enum DayOfWeek {
 
 class SchedulePattern {
   final Frequency frequency;
-  final DateTime? singleDate;  // For 'once' frequency
   final DayOfWeek? dayOfWeek;  // For 'weekly' and 'monthly' frequency
   final int? weekOfMonth;      // For 'monthly' frequency (1-5)
 
   SchedulePattern({
     required this.frequency,
-    this.singleDate,
     this.dayOfWeek,
     this.weekOfMonth,
   }) {
     // Validate the pattern based on frequency
     switch (frequency) {
       case Frequency.once:
-        assert(singleDate != null, 'Single date is required for once frequency');
         assert(dayOfWeek == null && weekOfMonth == null, 'Day of week and week of month should be null for once frequency');
         break;
       case Frequency.weekly:
         assert(dayOfWeek != null, 'Day of week is required for weekly frequency');
-        assert(singleDate == null && weekOfMonth == null, 'Single date and week of month should be null for weekly frequency');
+        assert(weekOfMonth == null, 'Week of month should be null for weekly frequency');
         break;
       case Frequency.monthly:
         assert(dayOfWeek != null && weekOfMonth != null, 'Both day of week and week of month are required for monthly frequency');
-        assert(singleDate == null, 'Single date should be null for monthly frequency');
         assert(weekOfMonth! >= 1 && weekOfMonth! <= 5, 'Week of month must be between 1 and 5');
         break;
     }
   }
 
-  factory SchedulePattern.once(DateTime date) {
+  factory SchedulePattern.once() {
     return SchedulePattern(
       frequency: Frequency.once,
-      singleDate: date,
     );
   }
 
@@ -206,7 +201,40 @@ class Event {
     this.ratingCount,
   });
 
-  
+  Event copyWith({
+    String? eventId,
+    String? name,
+    EventType? type,
+    DanceStyle? style,
+    Frequency? frequency,
+    Location? location,
+    String? linkToEvent,
+    SchedulePattern? schedule,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
+    double? cost,
+    String? description,
+    double? rating,
+    int? ratingCount,
+  }) {
+    return Event(
+      eventId: eventId ?? this.eventId,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      style: style ?? this.style,
+      frequency: frequency ?? this.frequency,
+      location: location ?? this.location,
+      linkToEvent: linkToEvent ?? this.linkToEvent,
+      schedule: schedule ?? this.schedule,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      cost: cost ?? this.cost,
+      description: description ?? this.description,
+      rating: rating ?? this.rating,
+      ratingCount: ratingCount ?? this.ratingCount,
+    );
+  }
+
   static Map<DateTime, List<EventInstance>> groupEventInstancesByDate(List<EventInstance> eventInstances) {
     eventInstances.sort((a, b) {
       final dateComparison = a.dateOnly.compareTo(b.dateOnly);
