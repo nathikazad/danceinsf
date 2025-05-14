@@ -1,0 +1,1 @@
+deno run --allow-net --allow-env functions/_scripts/generate_events.ts
