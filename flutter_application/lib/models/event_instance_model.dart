@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/event_model.dart';
+import 'package:flutter_application/models/proposal_model.dart';
 
 class EventInstance {
   final Event event;
@@ -16,6 +17,7 @@ class EventInstance {
   final List<EventRating> ratings;
   final bool isCancelled;
   final String eventInstanceId;
+  final List<Proposal>? proposals;
 
   EventInstance({
     required this.eventInstanceId,
@@ -32,6 +34,7 @@ class EventInstance {
     String? description,
     List<EventRating>? ratings,
     bool? isCancelled,
+    this.proposals,
   }) : venueName = venueName ?? event.location.venueName,
        city = city ?? event.location.city,
        url = url ?? event.location.url,
@@ -48,7 +51,7 @@ class EventInstance {
   DateTime get dateOnly => DateTime(date.year, date.month, date.day);
 
   // Factory method to create EventInstance from map
-  static EventInstance fromMap(Map instance, Event event, {List<EventRating>? ratings}) {
+  static EventInstance fromMap(Map instance, Event event, {List<EventRating>? ratings, List<Proposal>? proposals}) {
     return EventInstance(
       eventInstanceId: instance['instance_id'],
       event: event,
@@ -63,6 +66,7 @@ class EventInstance {
       description: instance['description'],
       ratings: ratings,
       isCancelled: instance['is_cancelled'] == true,
+      proposals: proposals,
     );
   }
 

@@ -55,7 +55,7 @@ final routerProvider = Provider((ref) {
         path: '/event/:eventId',
         builder: (context, state) {
           final eventId = state.pathParameters['eventId']!;
-          return ViewEventScreen(eventId: eventId);
+          return ViewEventScreen(eventInstanceId: eventId);
         },
       ),
       GoRoute(

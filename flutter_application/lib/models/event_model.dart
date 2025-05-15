@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/event_instance_model.dart';
 import 'package:flutter_application/models/schedule_model.dart';
+import 'package:flutter_application/models/proposal_model.dart';
 
 export 'package:flutter_application/models/event_instance_model.dart';
 export 'package:flutter_application/models/schedule_model.dart';
@@ -109,6 +110,7 @@ class Event {
   final String? description;
   final double? rating;
   final int? ratingCount;
+  List<Proposal>? proposals;
 
   Event({
     required this.eventId,
@@ -125,11 +127,11 @@ class Event {
     this.description,
     this.rating,
     this.ratingCount,
+    this.proposals,
   });
 
-
   // Factory method to create Event from map
-  static Event fromMap(Map eventData, {double? rating, int ratingCount = 0}) {
+  static Event fromMap(Map eventData, {double? rating, int ratingCount = 0, List<Proposal>? proposals}) {
     final eventTypes = _toStringList(eventData['event_type']);
     final eventCategories = _toStringList(eventData['event_category']);
     final weeklyDays = _toStringList(eventData['weekly_days']);
@@ -158,6 +160,7 @@ class Event {
       description: eventData['default_description'],
       rating: ratingCount > 0 ? rating : null,
       ratingCount: ratingCount,
+      proposals: proposals,
     );
   }
 
@@ -176,6 +179,7 @@ class Event {
     String? description,
     double? rating,
     int? ratingCount,
+    List<Proposal>? proposals,
   }) {
     return Event(
       eventId: eventId ?? this.eventId,
@@ -192,6 +196,7 @@ class Event {
       description: description ?? this.description,
       rating: rating ?? this.rating,
       ratingCount: ratingCount ?? this.ratingCount,
+      proposals: proposals ?? this.proposals,
     );
   }
 

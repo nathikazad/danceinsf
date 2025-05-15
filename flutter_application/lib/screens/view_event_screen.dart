@@ -7,12 +7,13 @@ import '../models/event_model.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';
+import '../widgets/view_event_widgets/event_edits.dart';
 
 final eventControllerProvider = Provider<EventController>((ref) => EventController());
 
 class ViewEventScreen extends ConsumerStatefulWidget {
-  final String eventId;
-  const ViewEventScreen({required this.eventId, super.key});
+  final String eventInstanceId;
+  const ViewEventScreen({required this.eventInstanceId, super.key});
 
   @override
   ConsumerState<ViewEventScreen> createState() => _ViewEventScreenState();
@@ -25,7 +26,7 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   void initState() {
     super.initState();
     final controller = ref.read(eventControllerProvider);
-    _eventFuture = controller.fetchEvent(widget.eventId);
+    _eventFuture = controller.fetchEvent(widget.eventInstanceId);
   }
 
   @override
@@ -70,6 +71,13 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                   const SizedBox(height: 24),
                   if (eventInstance.hasStarted)
                     EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings),
+                  const SizedBox(height: 32),
+                  IsInformationCorrect(
+                    eventId: event.eventId,
+                    eventInstanceId: eventInstance.eventInstanceId,
+                    onYes: () => print('User said info is correct'),
+                    onNo: () => print('User said info is NOT correct'),
+                  ),
                 ],
               ),
             ),
