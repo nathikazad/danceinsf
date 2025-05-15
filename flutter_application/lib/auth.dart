@@ -200,4 +200,38 @@ class AuthNotifier extends ChangeNotifier {
       _setState(_state.copyWith(error: e.toString(), isLoading: false));
     }
   }
+
+  Future<void> signInWithPhone(String phoneNumber) async {
+    _setState(_state.copyWith(isLoading: true, error: null));
+    try {
+      await _supabase.auth.signInWithOtp(
+        phone: phoneNumber,
+      );
+      print('OTP sent successfully');
+      // OTP was sent successfully
+      _setState(_state.copyWith(isLoading: false));
+    } catch (e) {
+      print('Error sending OTP: $e');
+      _setState(_state.copyWith(error: e.toString(), isLoading: false));
+    }
+  }
+
+  Future<void> verifyOTP(String phoneNumber, String otp) async {
+    _setState(_state.copyWith(isLoading: true, error: null));
+    try {
+      final response = await _supabase.auth.verifyOTP(
+        phone: phoneNumber,
+        token: otp,
+        type: OtpType.sms,
+      );
+      
+      final user = response.user;
+      if (user == null) throw 'No user returned from Supabase';
+      print('User: $user');
+      _setState(_state.copyWith(user: user, isLoading: false));
+    } catch (e) {
+      print('Error verifying OTP: $e');
+      _setState(_state.copyWith(error: e.toString(), isLoading: false));
+    }
+  }
 } 
