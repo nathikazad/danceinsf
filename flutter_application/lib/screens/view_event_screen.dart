@@ -3,7 +3,7 @@ import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dar
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../controllers/event_controller.dart';
-import '../models/event.dart';
+import '../models/event_model.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';

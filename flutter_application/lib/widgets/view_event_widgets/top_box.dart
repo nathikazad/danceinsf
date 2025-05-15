@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/event.dart';
+import '../../models/event_model.dart';
 
 class TopBox extends StatelessWidget {
   final Event event;

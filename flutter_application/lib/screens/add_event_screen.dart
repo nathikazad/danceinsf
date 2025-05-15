@@ -8,7 +8,7 @@ import '../widgets/add_event_widgets/organizer_section.dart';
 import '../widgets/add_event_widgets/time_section.dart';
 import '../widgets/add_event_widgets/cost_section.dart';
 import '../widgets/add_event_widgets/tickets_section.dart';
-import '../models/event.dart';
+import '../models/event_model.dart';
 import '../controllers/event_controller.dart';
 
 class AddEventScreen extends ConsumerStatefulWidget {

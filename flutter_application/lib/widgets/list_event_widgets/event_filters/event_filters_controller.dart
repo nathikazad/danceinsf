@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_application/models/event.dart';
+import 'package:flutter_application/models/event_model.dart';
 import 'package:flutter_application/screens/list_events_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

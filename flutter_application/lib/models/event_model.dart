@@ -69,11 +69,9 @@ class EventRating {
   });
 }
 
-extension TimeOfDayString on String? {
-  TimeOfDay? toTimeOfDay() {
-    if (this == null) return null;
-    
-    final parts = this!.split(':');
+extension TimeOfDayString on String {
+  TimeOfDay toTimeOfDay() {
+    final parts = split(':');
     if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
     
     final hour = int.tryParse(parts[0]) ?? 0;
@@ -82,14 +80,19 @@ extension TimeOfDayString on String? {
   }
 }
 
-extension DynamicList on dynamic {
-  List<String> toStringList() {
-    if (this == null) return [];
-    if (this is List) return (this as List).map((e) => e.toString()).toList();
-    if (this is String) return [this as String];
-    return [];
+List<String> _toStringList(dynamic list) =>
+  (list as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+
+ TimeOfDay? parseTimeOfDay(String? timeStr) {
+    if (timeStr == null) return null;
+    
+    final parts = timeStr.split(':');
+    if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
+    
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
+    return TimeOfDay(hour: hour, minute: minute);
   }
-}
 
 class Event {
   final String eventId;
@@ -124,12 +127,13 @@ class Event {
     this.ratingCount,
   });
 
+
   // Factory method to create Event from map
   static Event fromMap(Map eventData, {double? rating, int ratingCount = 0}) {
-    final eventTypes = eventData['event_type'].toStringList();
-    final eventCategories = eventData['event_category'].toStringList();
-    final weeklyDays = eventData['weekly_days'].toStringList();
-    final monthlyPattern = eventData['monthly_pattern'].toStringList();
+    final eventTypes = _toStringList(eventData['event_type']);
+    final eventCategories = _toStringList(eventData['event_category']);
+    final weeklyDays = _toStringList(eventData['weekly_days']);
+    final monthlyPattern = _toStringList(eventData['monthly_pattern']);
 
     return Event(
       eventId: eventData['event_id'],
@@ -148,8 +152,8 @@ class Event {
         weeklyDays,
         monthlyPattern,
       ),
-      startTime: eventData['default_start_time'].toTimeOfDay() ?? const TimeOfDay(hour: 0, minute: 0),
-      endTime: eventData['default_end_time'].toTimeOfDay() ?? const TimeOfDay(hour: 0, minute: 0),
+      startTime: parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
+      endTime: parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
       cost: eventData['default_cost'],
       description: eventData['default_description'],
       rating: ratingCount > 0 ? rating : null,
