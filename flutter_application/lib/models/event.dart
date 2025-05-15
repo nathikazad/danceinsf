@@ -77,21 +77,44 @@ class SchedulePattern {
     return dayOfWeek?.toString().split('.').last ?? '';
   }
 
-  String get weekOfMonthString {
-    switch (weekOfMonth) {
-      case 1:
-        return 'First';
-      case 2:
-        return 'Second';
-      case 3:
-        return 'Third';
-      case 4:
-        return 'Fourth';
-      case 5:
-        return 'Last';
-      default:
-        return '';
+  String get shortDayOfWeekString {
+    switch (dayOfWeek) {
+      case DayOfWeek.monday: return 'M';
+      case DayOfWeek.tuesday: return 'T';
+      case DayOfWeek.wednesday: return 'W';
+      case DayOfWeek.thursday: return 'Th';
+      case DayOfWeek.friday: return 'F';
+      case DayOfWeek.saturday: return 'Sa';
+      case DayOfWeek.sunday: return 'Su';
+      default: return '';
     }
+  }
+
+  String get shortMonthlyPattern {
+    if (frequency != Frequency.monthly || dayOfWeek == null || weekOfMonth == null) return '';
+    final string = switch (weekOfMonth) {
+      1 => '1st',
+      2 => '2nd',
+      3 => '3rd',
+      4 => '4th',
+      _ => ''
+    };
+    return '$string-$shortDayOfWeekString';
+  }
+
+  String get shortWeeklyPattern {
+    if (frequency != Frequency.weekly || dayOfWeek == null) return '';
+    return shortDayOfWeekString;
+  }
+
+  String get weekOfMonthString {
+    return switch (weekOfMonth) {
+      1 => 'First',
+      2 => 'Second',
+      3 => 'Third',
+      4 => 'Fourth',
+      _ => ''
+    };
   }
   
 }

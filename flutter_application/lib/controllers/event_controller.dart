@@ -1,3 +1,4 @@
+import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import '../models/event.dart';
@@ -236,14 +237,14 @@ class EventController {
     return TimeOfDay(hour: hour, minute: minute);
   }
 
-  Future<Event> createEvent(Event event, DateTime? selectedDate) async {
+  Future<String?> createEvent(Event event, DateTime? selectedDate) async {
     try {
       // Convert event type and style to lists for database storage
       final eventTypes = [event.type == EventType.social ? 'Social' : 'Class'];
       final eventCategories = [event.style == DanceStyle.salsa ? 'Salsa' : 'Bachata'];
       
       // Convert frequency to string
-      final recurrenceType = event.frequency.toString().split('.').last.toLowerCase();
+      final recurrenceType = event.frequency.toString().split('.').last.capitalize();
       
       // Convert TimeOfDay to string format
       final startTimeStr = '${event.startTime.hour.toString().padLeft(2, '0')}:${event.startTime.minute.toString().padLeft(2, '0')}';
@@ -254,11 +255,11 @@ class EventController {
       List<String>? monthlyPattern;
       
       if (event.schedule.frequency == Frequency.weekly && event.schedule.dayOfWeek != null) {
-        weeklyDays = [event.schedule.dayOfWeekString];
+        weeklyDays = [event.schedule.shortWeeklyPattern];
       } else if (event.schedule.frequency == Frequency.monthly && 
                 event.schedule.dayOfWeek != null && 
                 event.schedule.weekOfMonth != null) {
-        monthlyPattern = ['${event.schedule.weekOfMonth}-${event.schedule.dayOfWeekString}'];
+        monthlyPattern = [event.schedule.shortMonthlyPattern];
       }
 
       final eventData = {
@@ -278,15 +279,32 @@ class EventController {
         'monthly_pattern': monthlyPattern,
         'is_archived': false,
       };
-      // print(eventData);
 
-      // // Create the event in the database
-      final response = await _supabase.from('events').insert(eventData).select().single();
+      // Create the event in the database
+      final eventResponse = await _supabase.from('events').insert(eventData).select().single();
+      if (eventResponse.isEmpty) {
+        print('Warning: Failed to create event');
+        return null;
+      }
+      print('Event created: ${eventResponse['event_id']}');
 
-      // Create the event instance in the database
+      
+      final functionResponse = await _supabase.functions.invoke(
+        'generate_event_instances',
+        body: {
+          'event_ids': [eventResponse['event_id']],
+          if (selectedDate != null) 'date': selectedDate.toIso8601String(),
+        },
+      );
 
-      // // Create and return the Event object
-      return _eventFromMap(response);
+      if (functionResponse.status != 200) {
+        print('Warning: Failed to generate event instances: ${functionResponse.data}');
+        return null;
+      }
+      
+
+      // Create and return the Event object
+      return eventResponse['event_id'];
     } catch (error, stackTrace) {
       print('Error creating event: $error');
       print('Stack trace: $stackTrace');
@@ -294,3 +312,4 @@ class EventController {
     }
   }
 } 
+// https://swsvvoysafsqsgtvpnqg.supabase.co/functions/v1/generate_event_instances
