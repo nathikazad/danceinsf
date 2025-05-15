@@ -142,15 +142,31 @@ class WeekNavigator extends StatelessWidget {
                 final weekday = index + 1;
                 final isSelected = weekday == selectedWeekday;
                 final hasEvents = daysWithEventsForCurrentWeek.contains(weekday);
+                final theme = Theme.of(context);
+                final isDark = theme.brightness == Brightness.dark;
+                final orange = const Color(0xFFFF7A00);
+                final borderColor = isSelected
+                    ? orange
+                    : hasEvents
+                        ? orange
+                        : (isDark ? Colors.grey[700]! : Colors.grey[300]!);
+                final textColor = isSelected
+                    ? Colors.white
+                    : hasEvents
+                        ? orange
+                        : (isDark ? Colors.grey[500]! : Colors.grey[400]!);
+                final fillColor = isSelected
+                    ? orange
+                    : Colors.transparent;
                 return SizedBox(
                   width: 32,
-                  child: ElevatedButton(
-                    onPressed: () => hasEvents ? onDaySelected(weekday) : null,
-                    style: ElevatedButton.styleFrom(
+                  child: OutlinedButton(
+                    onPressed: hasEvents ? () => onDaySelected(weekday) : null,
+                    style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(32, 32),
-                      backgroundColor: isSelected ? Colors.blue : (hasEvents ? null : Colors.grey[200]),
-                      foregroundColor: isSelected ? Colors.white : (hasEvents ? null : Colors.grey[400]),
+                      backgroundColor: fillColor,
+                      side: BorderSide(color: borderColor, width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -159,7 +175,8 @@ class WeekNavigator extends StatelessWidget {
                       weekDays[index],
                       style: TextStyle(
                         fontSize: 14,
-                        color: isSelected ? Colors.white : (hasEvents ? null : Colors.grey[400]),
+                        color: textColor,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 
 // EventsList widget
@@ -135,66 +136,137 @@ class EventInstanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final start = eventInstance.startTime;
     final end = eventInstance.endTime;
-
+    final rating = eventInstance.event.rating ?? 4.5;
+    final ratingCount = eventInstance.event.ratingCount;
     return InkWell(
       onTap: () {
         GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}');
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: Card(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 16),
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-            color: Colors.transparent,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
+        elevation: 2,
+        color: Colors.white,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Left side: Event info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      eventInstance.event.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on, size: 18),
-                        const SizedBox(width: 4),
-                        Text(eventInstance.venueName, style: const TextStyle(fontSize: 15)),
+                        SvgPicture.asset(
+                          'assets/icons/dot.svg',
+                          width: 12,
+                          height: 12,
+                          color: Colors.orange,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            eventInstance.event.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 19,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
-                    Text(
-                      eventInstance.city,
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    const SizedBox(height: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/clock.svg',
+                              width: 18,
+                              height: 18,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(width: 7),
+                            Text(
+                              '${start.format(context)} - ${end.format(context)}',
+                              style: const TextStyle(fontSize: 15, color: Color(0xFF8A8A8A)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/location.svg',
+                              width: 18,
+                              height: 18,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(width: 7),
+                            Flexible(
+                              child: Text(
+                                '${eventInstance.venueName}, ${eventInstance.city}',
+                                style: const TextStyle(fontSize: 15, color: Color(0xFF8A8A8A)),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              // Right side: Cost and rating
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '${start.format(context)} to ${end.format(context)}',
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3EA),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      eventInstance.cost == 0.0 ? 'Free' : '\$${eventInstance.cost.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    eventInstance.cost == 0.0 ? 'Free' : '\$${eventInstance.cost}',
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    eventInstance.event.rating == null ? '' : '${eventInstance.event.rating} (${eventInstance.event.ratingCount} reviews)',
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
+                  if (rating != null) ...[
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/heart.svg',
+                          width: 20,
+                          height: 20,
+                          color: Colors.orange,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          rating.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 17,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ],
