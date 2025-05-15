@@ -7,17 +7,28 @@ class EventController {
   final _supabase = Supabase.instance.client;
 
 
-  Future<List<EventInstance>> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
+  Future<List<EventInstance>> fetchEvents({DateTime? startDate, required int windowDays}) async {
+    startDate ??= DateTime.now();
+    final endDate = startDate.add(Duration(days: windowDays));
     try {
-      // First fetch events and their instances
-      final eventsResponse = await _supabase
-          .from('events')
-          .select('*, event_instances(*)')
-          .eq('is_archived', false);
-          // .order('start_date');
+      print('Fetching events from ${startDate.toIso8601String().split('T')[0]} to ${endDate.toIso8601String().split('T')[0]}');
+      
+      // First fetch event instances within the date range along with their events
+      final instancesResponse = await _supabase
+          .from('event_instances')
+          .select('*, events!inner(*)')
+          .gte('instance_date', startDate.toIso8601String().split('T')[0])
+          .lte('instance_date', endDate.toIso8601String().split('T')[0])
+          .eq('events.is_archived', false);
 
-      // Get all event IDs
-      final eventIds = eventsResponse.map((e) => e['event_id'] as String).toList();
+      print('Raw instances response: ${instancesResponse.length} instances');
+      
+      // Extract unique event IDs from the instances
+      final eventIds = instancesResponse
+          .map((instance) => instance['events']['event_id'] as String)
+          .toSet()
+          .toList();
+
 
       // Get ratings for these events using the function
       final ratingsResponse = await _supabase
@@ -34,29 +45,27 @@ class EventController {
 
       final List<EventInstance> eventInstances = [];
       
-      for (final eventData in eventsResponse) {
+      for (final instanceData in instancesResponse) {
         try {
+          final eventData = instanceData['events'];
           // Get rating data from the map
           final ratingData = ratingsMap[eventData['event_id']];
           final rating = ratingData?['average_rating'] as num?;
           final ratingCount = ratingData?['rating_count'] as int? ?? 0;
 
           final event = Event.fromMap(eventData, rating: rating?.toDouble() ?? 0.0, ratingCount: ratingCount);
-
-          // Add instances
-          final instances = eventData['event_instances'] as List;
-          for (final instance in instances) {
-            eventInstances.add(EventInstance.fromMap(instance, event));
-          }
+          final instance = EventInstance.fromMap(instanceData, event);
+          print('Processing instance: ${instance.date.toIso8601String().split('T')[0]}');
+          eventInstances.add(instance);
         } catch (e, stackTrace) {
-          print('Error processing event: ${eventData['name']}');
+          print('Error processing event instance: ${instanceData['instance_id']}');
           print('Error: $e');
           print('Stack trace: $stackTrace');
           continue;
         }
       }
 
-      print('Processed ${eventInstances.length} event eventInstances');
+      print('Processed ${eventInstances.length} event instances');
       return eventInstances;
     } catch (error, stackTrace) {
       print('Error fetching events');
