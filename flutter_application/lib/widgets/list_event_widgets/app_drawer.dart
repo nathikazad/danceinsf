@@ -46,7 +46,7 @@ class AppDrawer extends ConsumerWidget {
             if (ref.watch(authProvider).state.user != null)
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
+              title: const Text('Revoke OTP'),
               onTap: () {
                 ref.read(authProvider.notifier).signOut();
               },

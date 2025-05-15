@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../widgets/add_event_widgets/repeat_section.dart';
 import '../widgets/add_event_widgets/location_section.dart';
 import '../widgets/add_event_widgets/upload_section.dart';
-import '../widgets/add_event_widgets/organizer_section.dart';
+// import '../widgets/add_event_widgets/organizer_section.dart';
 import '../widgets/add_event_widgets/time_section.dart';
 import '../widgets/add_event_widgets/cost_section.dart';
 import '../widgets/add_event_widgets/tickets_section.dart';
@@ -165,15 +165,15 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
                 _event = _event.copyWith(description: url);
               }),
             ),
-            const SizedBox(height: 20),
-            OrganizerSection(
-              name: _event.name,
-              phone: '',
-              isOrganizer: true,
-              onOrganizerChanged: (name, phone, isOrganizer) {
-                // Not using organizer info in the event model yet
-              },
-            ),
+            // const SizedBox(height: 20),
+            // OrganizerSection(
+            //   name: _event.name,
+            //   phone: '',
+            //   isOrganizer: true,
+            //   onOrganizerChanged: (name, phone, isOrganizer) {
+            //     // Not using organizer info in the event model yet
+            //   },
+            // ),
             const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,

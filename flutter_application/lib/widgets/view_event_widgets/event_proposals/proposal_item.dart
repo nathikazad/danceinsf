@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/proposal_model.dart';
+import 'package:intl/intl.dart';
 
 
 class ProposalItem extends StatelessWidget {
@@ -14,6 +15,8 @@ class ProposalItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formattedDate = DateFormat('MM/dd').format(proposal.createdAt);
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Padding(
@@ -21,6 +24,20 @@ class ProposalItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Expanded(child: Container()),
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
             Text(
               proposal.text,
               style: const TextStyle(fontSize: 16),
