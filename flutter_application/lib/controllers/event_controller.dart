@@ -1,15 +1,11 @@
 import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/material.dart';
-import '../models/event.dart';
+import '../models/event_model.dart';
 
 
 class EventController {
   final _supabase = Supabase.instance.client;
 
-  // Helper to convert dynamic lists to List<String>
-  List<String> _toStringList(dynamic list) =>
-      (list as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
 
   Future<List<EventInstance>> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
     try {
@@ -45,12 +41,12 @@ class EventController {
           final rating = ratingData?['average_rating'] as double?;
           final ratingCount = ratingData?['rating_count'] as int? ?? 0;
 
-          final event = _eventFromMap(eventData, rating: rating, ratingCount: ratingCount);
+          final event = Event.fromMap(eventData, rating: rating, ratingCount: ratingCount);
 
           // Add instances
           final instances = eventData['event_instances'] as List;
           for (final instance in instances) {
-            eventInstances.add(eventInstanceFromMap(instance, event));
+            eventInstances.add(EventInstance.fromMap(instance, event));
           }
         } catch (e, stackTrace) {
           print('Error processing event: ${eventData['name']}');
@@ -97,7 +93,7 @@ class EventController {
       final rating = ratingData?['average_rating'] as double?;
       final ratingCount = ratingData?['rating_count'] as int? ?? 0;
 
-      final event = _eventFromMap(eventResponse, rating: rating, ratingCount: ratingCount);
+      final event = Event.fromMap(eventResponse, rating: rating, ratingCount: ratingCount);
 
       // 5. Fetch all ratings for this instance
       final instanceRatings = await _supabase
@@ -114,127 +110,13 @@ class EventController {
       )).toList();
 
       // 6. Compose the EventInstance
-      final eventInstance = eventInstanceFromMap(instanceResponse, event, ratings: ratings);
+      final eventInstance = EventInstance.fromMap(instanceResponse, event, ratings: ratings);
       return eventInstance;
     } catch (error, stackTrace) {
       print('Error fetching event: $error');
       print('Stack trace: $stackTrace');
       rethrow;
     }
-  }
-
-  // DRY: Build Event from map and rating info
-  Event _eventFromMap(Map eventData, {double? rating, int ratingCount = 0}) {
-    final eventTypes = _toStringList(eventData['event_type']);
-    final eventCategories = _toStringList(eventData['event_category']);
-    final weeklyDays = _toStringList(eventData['weekly_days']);
-    final monthlyPattern = _toStringList(eventData['monthly_pattern']);
-
-    return Event(
-      eventId: eventData['event_id'],
-      name: eventData['name'],
-      type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
-      style: eventCategories.contains('Salsa') ? DanceStyle.salsa : DanceStyle.bachata,
-      frequency: _parseFrequency(eventData['recurrence_type']),
-      location: Location(
-        venueName: eventData['default_venue_name'] ?? '',
-        city: eventData['default_city'] ?? '',
-        url: eventData['default_google_maps_link'] ?? '',
-      ),
-      linkToEvent: eventData['default_ticket_link'] ?? '',
-      schedule: _createSchedulePattern(
-        eventData['recurrence_type'],
-        weeklyDays,
-        monthlyPattern,
-      ),
-      startTime: _parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
-      endTime: _parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
-      cost: eventData['default_cost'],
-      description: eventData['default_description'],
-      rating: ratingCount > 0 ? rating : null,
-      ratingCount: ratingCount,
-    );
-  }
-
-  EventInstance eventInstanceFromMap(Map instance, Event event, {List<EventRating>? ratings}) {
-    return EventInstance(
-      eventInstanceId: instance['instance_id'],
-      event: event,
-      date: DateTime.parse(instance['instance_date']),
-      venueName: instance['venue_name'] ?? event.location.venueName,
-      city: instance['city'] ?? event.location.city,
-      url: instance['google_maps_link'] ?? event.location.url,
-      ticketLink: instance['ticket_link'] ?? event.linkToEvent,
-      startTime: _parseTimeOfDay(instance['start_time']) ?? event.startTime,
-      endTime: _parseTimeOfDay(instance['end_time']) ?? event.endTime,
-      cost: instance['cost'] ?? event.cost,
-      description: instance['description'],
-      ratings: ratings,
-      isCancelled: instance['is_cancelled'] == true,
-    );
-  }
-
-  Frequency _parseFrequency(String? recurrenceType) {
-    switch (recurrenceType?.toLowerCase()) {
-      case 'once':
-        return Frequency.once;
-      case 'weekly':
-        return Frequency.weekly;
-      case 'monthly':
-        return Frequency.monthly;
-      default:
-        return Frequency.once;
-    }
-  }
-
-  SchedulePattern _createSchedulePattern(
-    String? recurrenceType,
-    List<String>? weeklyDays,
-    List<String>? monthlyPattern,
-  ) {
-    switch (recurrenceType?.toLowerCase()) {
-      case 'weekly':
-        if (weeklyDays?.isNotEmpty == true) {
-          // For simplicity, we'll use the first day in the weekly pattern
-          final dayIndex = _parseDayOfWeek(weeklyDays!.first);
-          return SchedulePattern.weekly(DayOfWeek.values[dayIndex]);
-        }
-        return SchedulePattern.once();
-      case 'monthly':
-        if (monthlyPattern?.isNotEmpty == true) {
-          // For simplicity, we'll use the first pattern
-          final pattern = monthlyPattern!.first.split('-');
-          if (pattern.length == 2) {
-            final weekNumber = int.tryParse(pattern[0].replaceAll(RegExp(r'[^0-9]'), '')) ?? 1;
-            final dayIndex = _parseDayOfWeek(pattern[1]);
-            return SchedulePattern.monthly(
-              DayOfWeek.values[dayIndex],
-              weekNumber,
-            );
-          }
-        }
-        return SchedulePattern.once();
-      default:
-        return SchedulePattern.once();
-    }
-  }
-
-  int _parseDayOfWeek(String day) {
-    const dayMap = {
-      'm': 0, 't': 1, 'w': 2, 'th': 3, 'f': 4, 'sa': 5, 'su': 6
-    };
-    return dayMap[day.toLowerCase().trim()] ?? 0;
-  }
-
-  TimeOfDay? _parseTimeOfDay(String? timeStr) {
-    if (timeStr == null) return null;
-    
-    final parts = timeStr.split(':');
-    if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
-    
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = int.tryParse(parts[1]) ?? 0;
-    return TimeOfDay(hour: hour, minute: minute);
   }
 
   Future<String?> createEvent(Event event, DateTime? selectedDate) async {
