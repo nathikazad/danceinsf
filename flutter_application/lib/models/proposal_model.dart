@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class Proposal {
   final int id;
   final DateTime createdAt;

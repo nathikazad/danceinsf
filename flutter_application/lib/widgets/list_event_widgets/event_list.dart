@@ -130,7 +130,7 @@ class EventInstanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final start = eventInstance.startTime;
     final end = eventInstance.endTime;
-    final rating = eventInstance.event.rating ?? 4.5;
+    final rating = eventInstance.event.rating;
     final ratingCount = eventInstance.event.ratingCount;
     return InkWell(
       onTap: () {
@@ -238,7 +238,7 @@ class EventInstanceCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (rating != null) ...[
+                  if (rating != null && ratingCount != null && ratingCount > 0) ...[
                     const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,

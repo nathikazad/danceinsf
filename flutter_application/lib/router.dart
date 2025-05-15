@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_application/screens/verify_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import './auth.dart';
+// import './auth.dart';
 import './screens/splash_screen.dart';
 import 'screens/list_events_screen.dart';
 import './screens/add_event_screen.dart';
@@ -24,7 +23,6 @@ final routerProvider = Provider((ref) {
 
       if (isHomeRoute) {
         final homeRouteCount = await LocalStorage.getHomeRouteCount();
-        print('homeRouteCount: $homeRouteCount');
         if (homeRouteCount < 5) {
           await LocalStorage.incrementHomeRouteCount();
           return '/';
@@ -36,7 +34,7 @@ final routerProvider = Provider((ref) {
     //   // if (isVerifyRoute && isLoggedIn) {
     //   //   return '/';
     //   // }
-    //   return null;
+      return null;
     },
     routes: [
       GoRoute(

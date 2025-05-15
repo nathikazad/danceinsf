@@ -52,7 +52,7 @@ class EventsStateNotifier extends StateNotifier<AsyncValue<List<EventInstance>>>
         ...{for (var e in currentEvents) e.eventInstanceId: e},
         ...{for (var e in newEvents) e.eventInstanceId: e}
       }.values.toList());
-    } catch (error, stackTrace) {
+    } catch (error) {
       print('Error appending events: $error');
     }
   }

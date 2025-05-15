@@ -7,7 +7,7 @@ import '../models/event_model.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';
-import '../widgets/view_event_widgets/event_edits.dart';
+import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
 
 final eventControllerProvider = Provider<EventController>((ref) => EventController());
 
@@ -72,11 +72,11 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                   if (eventInstance.hasStarted)
                     EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings),
                   const SizedBox(height: 32),
-                  IsInformationCorrect(
+                  ProposalsWidget(
                     eventId: event.eventId,
                     eventInstanceId: eventInstance.eventInstanceId,
-                    onYes: () => print('User said info is correct'),
-                    onNo: () => print('User said info is NOT correct'),
+                    eventInstanceProposals: eventInstance.proposals ?? [],
+                    eventProposals: event.proposals ?? [],
                   ),
                 ],
               ),
