@@ -65,4 +65,6 @@ class EventInstance {
       isCancelled: instance['is_cancelled'] == true,
     );
   }
+
+  bool get hasStarted => DateTime.now().isAfter(DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute));
 } 

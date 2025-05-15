@@ -15,29 +15,29 @@ final routerProvider = Provider((ref) {
   return GoRouter(
     initialLocation: '/',
     // refreshListenable: ref.watch(authProvider),
-    // redirect: (context, state) async {
+    redirect: (context, state) async {
     //   final isLoggedIn = authState.user != null;
-    //   final isHomeRoute = state.uri.path == '/';
+      final isHomeRoute = state.uri.path == '/';
     //   final isAddEventRoute = state.uri.path == '/add-event';
     //   final isVerifyRoute = state.uri.path == '/verify';
     //   if (!isLoggedIn && isAddEventRoute) return '/verify';
 
-    //   if (isHomeRoute) {
-    //     final homeRouteCount = await LocalStorage.getHomeRouteCount();
-    //     print('homeRouteCount: $homeRouteCount');
-    //     if (homeRouteCount < 5) {
-    //       await LocalStorage.incrementHomeRouteCount();
-    //       return '/';
-    //     } else {
-    //       return '/events';
-    //     }
-    //   }
+      if (isHomeRoute) {
+        final homeRouteCount = await LocalStorage.getHomeRouteCount();
+        print('homeRouteCount: $homeRouteCount');
+        if (homeRouteCount < 5) {
+          await LocalStorage.incrementHomeRouteCount();
+          return '/';
+        } else {
+          return '/events';
+        }
+      }
 
     //   // if (isVerifyRoute && isLoggedIn) {
     //   //   return '/';
     //   // }
     //   return null;
-    // },
+    },
     routes: [
       GoRoute(
         path: '/',

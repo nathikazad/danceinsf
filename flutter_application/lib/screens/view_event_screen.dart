@@ -68,7 +68,8 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                   if (eventInstance.linkToEvent != null && eventInstance.linkToEvent!.isNotEmpty)
                     EventDetailRow(icon: Icons.link, text: 'Flyer', linkUrl: eventInstance.linkToEvent),
                   const SizedBox(height: 24),
-                  EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings),
+                  if (eventInstance.hasStarted)
+                    EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings),
                 ],
               ),
             ),
