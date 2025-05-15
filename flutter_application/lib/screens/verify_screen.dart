@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../auth.dart';
 
 class VerifyScreen extends ConsumerStatefulWidget {
-  const VerifyScreen({super.key});
+  final String? nextRoute;
+  const VerifyScreen({super.key, this.nextRoute});
 
   @override
   ConsumerState<VerifyScreen> createState() => _VerifyScreenState();
@@ -57,7 +59,17 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
     });
     try {
       await ref.read(authProvider.notifier).verifyOTP(_fullPhoneNumber, _otpController.text.trim());
-      // You can add navigation or success logic here
+      print('nextRoute: ${widget.nextRoute}');
+      if (!mounted) return;
+      if (widget.nextRoute != null) {
+        if (widget.nextRoute == 'back') {
+          context.pop();
+        } else {
+          context.pushReplacement(widget.nextRoute!);
+        }
+      } else {
+        context.go('/events');
+      }
     } catch (e) {
       setState(() {
         _error = e.toString();

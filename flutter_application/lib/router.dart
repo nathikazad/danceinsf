@@ -10,7 +10,7 @@ import './screens/view_event_screen.dart';
 import 'utils/local_storage.dart';
 
 final routerProvider = Provider((ref) {
-  final authState = ref.watch(authProvider).state;
+  // final authState = ref.watch(authProvider).state;
 
   return GoRouter(
     initialLocation: '/',
@@ -61,7 +61,8 @@ final routerProvider = Provider((ref) {
       GoRoute(
         path: '/verify',
         builder: (context, state) {
-          return const VerifyScreen();
+          final nextRoute = state.extra is Map ? (state.extra as Map)['nextRoute'] as String? : null;
+          return VerifyScreen(nextRoute: nextRoute);
         },
       ),
     ],

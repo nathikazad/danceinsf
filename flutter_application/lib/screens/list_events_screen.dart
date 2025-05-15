@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/auth.dart';
 import 'package:flutter_application/models/event_model.dart';
 
 
@@ -126,7 +127,13 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               context, 
               controller: filterController,
             ),
-            onAddPressed: () => context.push('/add-event'),
+            onAddPressed: () {
+              if (ref.read(authProvider).state.user != null) {
+                GoRouter.of(context).push('/add-event');
+              } else {
+                GoRouter.of(context).push('/verify', extra: {'nextRoute': '/add-event'});
+              }
+            },
             filterController: filterController,
           ),
           WeekNavigator(

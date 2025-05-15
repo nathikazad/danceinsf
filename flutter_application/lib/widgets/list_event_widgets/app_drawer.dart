@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Drawer(
       child: SafeArea(
         child: Column(
@@ -41,6 +43,14 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             const Divider(),
+            if (ref.watch(authProvider).state.user != null)
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                ref.read(authProvider.notifier).signOut();
+              },
+            ),
           ],
         ),
       ),

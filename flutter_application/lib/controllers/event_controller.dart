@@ -38,10 +38,10 @@ class EventController {
         try {
           // Get rating data from the map
           final ratingData = ratingsMap[eventData['event_id']];
-          final rating = ratingData?['average_rating'] as double?;
+          final rating = ratingData?['average_rating'] as num?;
           final ratingCount = ratingData?['rating_count'] as int? ?? 0;
 
-          final event = Event.fromMap(eventData, rating: rating, ratingCount: ratingCount);
+          final event = Event.fromMap(eventData, rating: rating?.toDouble() ?? 0.0, ratingCount: ratingCount);
 
           // Add instances
           final instances = eventData['event_instances'] as List;
@@ -90,10 +90,10 @@ class EventController {
 
       // 4. Get the rating data
       final ratingData = ratingsResponse.isNotEmpty ? ratingsResponse.first : null;
-      final rating = ratingData?['average_rating'] as double?;
+      final rating = ratingData?['average_rating'] as num?;
       final ratingCount = ratingData?['rating_count'] as int? ?? 0;
 
-      final event = Event.fromMap(eventResponse, rating: rating, ratingCount: ratingCount);
+      final event = Event.fromMap(eventResponse, rating: rating?.toDouble() ?? 0.0, ratingCount: ratingCount);
 
       // 5. Fetch all ratings for this instance
       final instanceRatings = await _supabase
