@@ -1,3 +1,5 @@
+import 'package:flutter_application/utils/string.dart';
+
 class Proposal {
   final int id;
   final DateTime createdAt;
@@ -5,7 +7,8 @@ class Proposal {
   final String? eventId;
   final String? eventInstanceId;
   final String text;
-  final Map<String, dynamic>? votes;
+  final List<String> yeses;
+  final List<String> nos;
   final bool resolved;
 
   Proposal({
@@ -15,7 +18,8 @@ class Proposal {
     this.eventId,
     this.eventInstanceId,
     required this.text,
-    this.votes,
+    this.yeses = const [],
+    this.nos = const [],
     this.resolved = false,
   });
 
@@ -27,7 +31,8 @@ class Proposal {
       eventId: map['event_id'] as String?,
       eventInstanceId: map['event_instance_id'] as String?,
       text: map['text'] as String,
-      votes: map['votes'] as Map<String, dynamic>?,
+      yeses: toStringList(map['yeses']),
+      nos: toStringList(map['nos']),
       resolved: map['resolved'] as bool? ?? false,
     );
   }
@@ -40,7 +45,8 @@ class Proposal {
       'event_id': eventId,
       'event_instance_id': eventInstanceId,
       'text': text,
-      'votes': votes,
+      'yeses': yeses,
+      'nos': nos,
       'resolved': resolved,
     };
   }

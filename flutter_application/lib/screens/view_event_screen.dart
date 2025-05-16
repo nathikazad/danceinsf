@@ -73,10 +73,7 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                     EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings),
                   const SizedBox(height: 32),
                   ProposalsWidget(
-                    eventId: event.eventId,
-                    eventInstanceId: eventInstance.eventInstanceId,
-                    eventInstanceProposals: eventInstance.proposals ?? [],
-                    eventProposals: event.proposals ?? [],
+                    eventInstance: eventInstance,
                   ),
                 ],
               ),

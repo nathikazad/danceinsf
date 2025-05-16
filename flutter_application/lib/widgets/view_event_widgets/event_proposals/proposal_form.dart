@@ -1,15 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_application/controllers/event_controller.dart';
+import 'package:flutter_application/controllers/proposal_controller.dart';
+import 'package:flutter_application/models/event_model.dart';
 
 class ProposalForm extends StatefulWidget {
-  final String eventId;
-  final String eventInstanceId;
+  final EventInstance eventInstance;
   final VoidCallback onSubmitted;
 
   const ProposalForm({
-    required this.eventId,
-    required this.eventInstanceId,
+    required this.eventInstance,
     required this.onSubmitted,
     super.key,
   });
@@ -30,12 +29,11 @@ class _ProposalFormState extends State<ProposalForm> {
 
   void _handleSubmit() {
     print('Creating proposal');
-    print('eventId: ${widget.eventId}, eventInstanceId: ${widget.eventInstanceId}');
-    EventController.createProposal(
+    ProposalController.createProposal(
       text: _controller.text.trim(),
       forAllEvents: forAllEvents,
-      eventId: widget.eventId,
-      eventInstanceId: widget.eventInstanceId,
+      eventId: widget.eventInstance.event.eventId,
+      eventInstanceId: widget.eventInstance.eventInstanceId,
     );
     final text = _controller.text.trim();
     if (text.isNotEmpty) {
@@ -102,6 +100,7 @@ class _ProposalFormState extends State<ProposalForm> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if(widget.eventInstance.event.frequency != Frequency.once)
                   Row(
                     children: [
                       Expanded(

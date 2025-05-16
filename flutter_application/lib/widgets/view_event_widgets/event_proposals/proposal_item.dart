@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/controllers/proposal_controller.dart';
 import 'package:flutter_application/models/proposal_model.dart';
 import 'package:intl/intl.dart';
 
@@ -6,10 +7,12 @@ import 'package:intl/intl.dart';
 class ProposalItem extends StatelessWidget {
   final Proposal proposal;
   final bool isForAllEvents;
+  final Function(Proposal)? onProposalUpdated;
 
   const ProposalItem({
     required this.proposal,
     required this.isForAllEvents,
+    this.onProposalUpdated,
     super.key,
   });
 
@@ -58,34 +61,40 @@ class ProposalItem extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          '5',
-                          style: TextStyle(
+                        Text(
+                          '${proposal.yeses.length}',
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.thumb_up_outlined),
-                          onPressed: () {
-                            // TODO: Implement thumbs up functionality
+                          onPressed: () async {
+                            final updatedProposal = await ProposalController.voteOnProposal(proposal.id, true);
+                            if (updatedProposal != null && onProposalUpdated != null) {
+                              onProposalUpdated!(updatedProposal);
+                            }
                           },
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        const Text(
-                          '3',
-                          style: TextStyle(
+                        Text(
+                          '${proposal.nos.length}',
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.thumb_down_outlined),
-                          onPressed: () {
-                            // TODO: Implement thumbs down functionality
+                          onPressed: () async {
+                            final updatedProposal = await ProposalController.voteOnProposal(proposal.id, false);
+                            if (updatedProposal != null && onProposalUpdated != null) {
+                              onProposalUpdated!(updatedProposal);
+                            }
                           },
                         ),
                       ],

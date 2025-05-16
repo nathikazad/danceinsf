@@ -219,40 +219,5 @@ class EventController {
       rethrow;
     }
   }
-
-  static Future<String?> createProposal({
-    required String text,
-    required bool forAllEvents,
-    String? eventId,
-    String? eventInstanceId,
-  }) async {
-    final supabase = Supabase.instance.client;
-    if (forAllEvents && eventId == null) {
-      throw Exception('eventId should not be null if forAllEvents is true');
-    }
-    if (!forAllEvents && eventInstanceId == null) {
-      throw Exception('eventInstanceId should not be null if forAllEvents is false');
-    }
-    try {
-      final user = supabase.auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-      final data = {
-        'user_id': user.id,
-        'text': text,
-        'event_id': forAllEvents ? eventId : null,
-        'event_instance_id': forAllEvents ? null : eventInstanceId,
-      };
-      final response = await supabase
-          .from('proposals')
-          .insert(data)
-          .select('id')
-          .single();
-      return response['id'].toString();
-    } catch (e, st) {
-      print('Error creating proposal: $e');
-      print(st);
-      return null;
-    }
-  }
 } 
 // https://swsvvoysafsqsgtvpnqg.supabase.co/functions/v1/generate_event_instances

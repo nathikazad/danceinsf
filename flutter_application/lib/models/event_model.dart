@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/models/event_instance_model.dart';
 import 'package:flutter_application/models/schedule_model.dart';
 import 'package:flutter_application/models/proposal_model.dart';
+import 'package:flutter_application/utils/string.dart';
 
 export 'package:flutter_application/models/event_instance_model.dart';
 export 'package:flutter_application/models/schedule_model.dart';
@@ -81,9 +82,6 @@ extension TimeOfDayString on String {
   }
 }
 
-List<String> _toStringList(dynamic list) =>
-  (list as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
-
  TimeOfDay? parseTimeOfDay(String? timeStr) {
     if (timeStr == null) return null;
     
@@ -132,10 +130,10 @@ class Event {
 
   // Factory method to create Event from map
   static Event fromMap(Map eventData, {double? rating, int ratingCount = 0, List<Proposal>? proposals}) {
-    final eventTypes = _toStringList(eventData['event_type']);
-    final eventCategories = _toStringList(eventData['event_category']);
-    final weeklyDays = _toStringList(eventData['weekly_days']);
-    final monthlyPattern = _toStringList(eventData['monthly_pattern']);
+    final eventTypes = toStringList(eventData['event_type']);
+    final eventCategories = toStringList(eventData['event_category']);
+    final weeklyDays = toStringList(eventData['weekly_days']);
+    final monthlyPattern = toStringList(eventData['monthly_pattern']);
 
     return Event(
       eventId: eventData['event_id'],

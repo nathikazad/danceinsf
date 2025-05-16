@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/models/event_model.dart';
 import 'package:flutter_application/models/proposal_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'proposal_item.dart';
 import 'proposal_form.dart';
 
 class ProposalsWidget extends StatefulWidget {
-  final String eventId;
-  final String eventInstanceId;
-  final List<Proposal> eventProposals;
-  final List<Proposal> eventInstanceProposals;
+  final EventInstance eventInstance;
   
   const ProposalsWidget({
-    required this.eventId, 
-    required this.eventInstanceId, 
-    required this.eventProposals,
-    required this.eventInstanceProposals,
+    required this.eventInstance,
+
     super.key
   });
 
@@ -24,21 +20,56 @@ class ProposalsWidget extends StatefulWidget {
 
 class _ProposalsWidgetState extends State<ProposalsWidget> {
   bool showProposals = false;
-
   String? currentUserId = Supabase.instance.client.auth.currentUser?.id;
   
-  bool get hasUserProposal => currentUserId != null && 
-      (widget.eventProposals.any((proposal) => proposal.userId == currentUserId) ||
-       widget.eventInstanceProposals.any((proposal) => proposal.userId == currentUserId));
+  List<Proposal> _eventInstanceProposals = [];
+  List<Proposal> _eventProposals = [];
 
-  int get totalProposals => widget.eventInstanceProposals.length + widget.eventProposals.length;
+  @override
+  void initState() {
+    super.initState();
+    _eventInstanceProposals = widget.eventInstance.proposals ?? [];
+    _eventProposals = widget.eventInstance.event.proposals ?? [];
+  }
+
+  void _updateProposal(Proposal updatedProposal) {
+    setState(() {
+      // Update in the appropriate list based on whether it's for all events
+      if (updatedProposal.eventId != null) {
+        final index = _eventProposals.indexWhere((p) => p.id == updatedProposal.id);
+        if (index != -1) {
+          _eventProposals[index] = updatedProposal;
+        }
+      } else {
+        final index = _eventInstanceProposals.indexWhere((p) => p.id == updatedProposal.id);
+        if (index != -1) {
+          _eventInstanceProposals[index] = updatedProposal;
+        }
+      }
+    });
+  }
+
+  bool get hasUserProposal {
+    if (currentUserId == null) return false;
+    
+    final eventProposals = widget.eventInstance.event.proposals;
+    final instanceProposals = widget.eventInstance.proposals;
+    
+    return (eventProposals?.any((proposal) => proposal.userId == currentUserId) ?? false) ||
+           (instanceProposals?.any((proposal) => proposal.userId == currentUserId) ?? false);
+  }
+
+  int get totalProposals => (widget.eventInstance.proposals?.length ?? 0) + 
+                           (widget.eventInstance.event.proposals?.length ?? 0);
+
+  List<Proposal> get eventInstanceProposals => _eventInstanceProposals;
+  List<Proposal> get eventProposals => _eventProposals;
 
   void _handleSuggestEdit() {
     showDialog(
       context: context,
       builder: (context) => ProposalForm(
-        eventId: widget.eventId,
-        eventInstanceId: widget.eventInstanceId,
+        eventInstance: widget.eventInstance,
         onSubmitted: () {
           setState(() {}); // Refresh the widget to show new proposal
         },
@@ -49,11 +80,19 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
   Widget _buildProposalsList() {
     return Column(
       children: [
-        ...widget.eventInstanceProposals.map((proposal) => 
-          ProposalItem(proposal: proposal, isForAllEvents: false)
+        ...eventInstanceProposals.map((proposal) => 
+          ProposalItem(
+            proposal: proposal, 
+            isForAllEvents: false,
+            onProposalUpdated: _updateProposal,
+          )
         ).toList(),
-        ...widget.eventProposals.map((proposal) => 
-          ProposalItem(proposal: proposal, isForAllEvents: true)
+        ...eventProposals.map((proposal) => 
+          ProposalItem(
+            proposal: proposal, 
+            isForAllEvents: true,
+            onProposalUpdated: _updateProposal,
+          )
         ).toList(),
       ],
     );
