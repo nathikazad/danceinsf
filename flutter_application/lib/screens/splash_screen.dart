@@ -9,6 +9,7 @@ class SplashScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -72,7 +73,8 @@ class SplashScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Find Local Events In San Francisco',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: 8),
                         Icon(Icons.arrow_forward_rounded),

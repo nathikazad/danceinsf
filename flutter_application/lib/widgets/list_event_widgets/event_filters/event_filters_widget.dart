@@ -7,16 +7,17 @@ export 'package:flutter_application/widgets/list_event_widgets/event_filters/eve
 
 class FilterModalWidget extends ConsumerStatefulWidget {
   final FilterController controller;
-  
+
   const FilterModalWidget({
     super.key,
     required this.controller,
   });
-  
+
   @override
   ConsumerState<FilterModalWidget> createState() => _FilterModalWidgetState();
 
-  static void show(BuildContext context, {required FilterController controller}) {
+  static void show(BuildContext context,
+      {required FilterController controller}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -45,7 +46,7 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
   Widget build(BuildContext context) {
     // Watch the controller to rebuild when it changes
     ref.watch(filterControllerProvider);
-    
+
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Container(
@@ -56,9 +57,16 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
           children: [
             Row(
               children: [
-                const Icon(Icons.tune, size: 28),
+                Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(100)),
+                  child: const Icon(Icons.tune, size: 28),
+                ),
                 const SizedBox(width: 8),
-                const Text('Filters', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const Text('Filters',
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 const Spacer(),
                 TextButton(
                   onPressed: _resetFilters,
@@ -122,15 +130,18 @@ class StyleFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Dance Style', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('Dance Style',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
-          children: styles.map((style) => ChoiceChip(
-            label: Text(style),
-            selected: selectedStyles.contains(style),
-            onSelected: (selected) => onStyleSelected(style, selected),
-          )).toList(),
+          children: styles
+              .map((style) => ChoiceChip(
+                    label: Text(style),
+                    selected: selectedStyles.contains(style),
+                    onSelected: (selected) => onStyleSelected(style, selected),
+                  ))
+              .toList(),
         ),
       ],
     );
@@ -154,15 +165,19 @@ class FrequencyFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Frequency', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('Frequency',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
-          children: frequencies.map((freq) => ChoiceChip(
-            label: Text(freq),
-            selected: selectedFrequencies.contains(freq),
-            onSelected: (selected) => onFrequencySelected(freq, selected),
-          )).toList(),
+          children: frequencies
+              .map((freq) => ChoiceChip(
+                    label: Text(freq),
+                    selected: selectedFrequencies.contains(freq),
+                    onSelected: (selected) =>
+                        onFrequencySelected(freq, selected),
+                  ))
+              .toList(),
         ),
       ],
     );
@@ -186,15 +201,18 @@ class CityFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('City', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('City',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
-          children: cities.map((city) => ChoiceChip(
-            label: Text(city),
-            selected: selectedCities.contains(city),
-            onSelected: (selected) => onCitySelected(city, selected),
-          )).toList(),
+          children: cities
+              .map((city) => ChoiceChip(
+                    label: Text(city),
+                    selected: selectedCities.contains(city),
+                    onSelected: (selected) => onCitySelected(city, selected),
+                  ))
+              .toList(),
         ),
       ],
     );

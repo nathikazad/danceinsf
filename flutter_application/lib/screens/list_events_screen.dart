@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/auth.dart';
 import 'package:flutter_application/models/event_model.dart';
-
+import 'package:flutter_application/utils/theme/app_color.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,17 +12,20 @@ import 'package:flutter_application/widgets/list_event_widgets/event_filters/eve
 import 'package:flutter_application/widgets/list_event_widgets/event_list.dart';
 import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
 
+final eventControllerProvider =
+    Provider<EventController>((ref) => EventController());
 
-final eventControllerProvider = Provider<EventController>((ref) => EventController());
-
-final eventsStateProvider = StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventInstance>>>((ref) {
+final eventsStateProvider =
+    StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventInstance>>>(
+        (ref) {
   final controller = ref.watch(eventControllerProvider);
   return EventsStateNotifier(controller);
 });
 
-class EventsStateNotifier extends StateNotifier<AsyncValue<List<EventInstance>>> {
+class EventsStateNotifier
+    extends StateNotifier<AsyncValue<List<EventInstance>>> {
   final EventController _controller;
-  
+
   EventsStateNotifier(this._controller) : super(const AsyncValue.loading());
 
   Future<void> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
@@ -79,9 +82,9 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
     super.initState();
     // Initial fetch
     ref.read(eventsStateProvider.notifier).fetchEvents(
-      startDate: _startDate,
-      windowDays: _daysWindow,
-    );
+          startDate: _startDate,
+          windowDays: _daysWindow,
+        );
   }
 
   @override
@@ -100,8 +103,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
   Set<int> _computeDaysWithEventsForCurrentWeek() {
     final eventsAsync = ref.read(filteredEventsProvider);
-    final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
-    return _weekNavigatorController.computeDaysWithEvents(eventsAsync, weekStart);
+    final weekStart = _weekStart ??
+        DateTime.now()
+            .subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
+    return _weekNavigatorController.computeDaysWithEvents(
+        eventsAsync, weekStart);
   }
 
   void _handleRangeUpdate(bool isTop) {
@@ -128,15 +134,23 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(filteredEventsProvider);
     final filterController = ref.watch(filterControllerProvider);
-    final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
+    final weekStart = _weekStart ??
+        DateTime.now()
+            .subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dance Events'),
         actions: [
           Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            builder: (context) => Container(
+              decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(100)),
+              child: IconButton(
+                color: AppColors.darkPrimary,
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+              ),
             ),
           ),
         ],
@@ -146,7 +160,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
         children: [
           TopBar(
             onFilterPressed: () => FilterModalWidget.show(
-              context, 
+              context,
               controller: filterController,
             ),
             onAddPressed: () {
@@ -161,7 +175,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           WeekNavigator(
             weekStart: weekStart,
             selectedWeekday: _selectedWeekday,
-            daysWithEventsForCurrentWeek: _computeDaysWithEventsForCurrentWeek(),
+            daysWithEventsForCurrentWeek:
+                _computeDaysWithEventsForCurrentWeek(),
             onWeekChanged: (newWeekStart) {
               setState(() {
                 _weekStart = newWeekStart;
@@ -186,7 +201,9 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               setState(() {
                 _selectedWeekday = weekday;
               });
-              final weekStart = _weekStart ?? DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
+              final weekStart = _weekStart ??
+                  DateTime.now().subtract(
+                      Duration(days: (DateTime.now().weekday - 1) % 7));
               final targetDate = weekStart.add(Duration(days: weekday - 1));
               _weekNavigatorController.scrollToClosestDate(targetDate);
             },
@@ -209,14 +226,14 @@ class TopBar extends StatelessWidget {
   final VoidCallback onFilterPressed;
   final VoidCallback onAddPressed;
   final FilterController filterController;
-  
+
   const TopBar({
     super.key,
     required this.onFilterPressed,
     required this.onAddPressed,
     required this.filterController,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -225,13 +242,19 @@ class TopBar extends StatelessWidget {
         children: [
           Stack(
             children: [
-              IconButton(
-                icon: const Icon(Icons.tune),
-                onPressed: onFilterPressed,
+              Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(100)),
+                child: IconButton(
+                  icon: const Icon(Icons.tune),
+                  onPressed: onFilterPressed,
+                ),
               ),
               Consumer(
                 builder: (context, ref, child) {
-                  final filterCount = ref.watch(filterControllerProvider).countActiveFilters();
+                  final filterCount =
+                      ref.watch(filterControllerProvider).countActiveFilters();
                   if (filterCount == 0) return const SizedBox.shrink();
                   return Positioned(
                     right: 0,
@@ -262,9 +285,14 @@ class TopBar extends StatelessWidget {
               onChanged: filterController.updateSearchText,
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: onAddPressed,
+          Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).colorScheme.secondaryContainer),
+            child: IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: onAddPressed,
+            ),
           ),
         ],
       ),
