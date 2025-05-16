@@ -121,12 +121,7 @@ class EventController {
           .toList();
 
       final ratings = (instanceResponse['instance_ratings'] as List)
-          .map<EventRating>((rating) => EventRating(
-            rating: rating['rating'] is double ? rating['rating'] : double.tryParse(rating['rating'].toString()) ?? 0.0,
-            comment: rating['comment'] as String?,
-            userId: rating['user_id'] as String,
-            createdAt: DateTime.parse(rating['created_at'])
-          ))
+          .map<EventRating>((rating) => EventRating.fromMap(rating))
           .toList();
 
       // 6. Compose the EventInstance with proposals and ratings
@@ -217,6 +212,59 @@ class EventController {
       print('Error creating event: $error');
       print('Stack trace: $stackTrace');
       rethrow;
+    }
+  }
+
+  static Future<EventRating?> rateEvent(String eventInstanceId, int rating) async {
+    final supabase = Supabase.instance.client;
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('User not logged in');
+
+      // Validate rating is between 0 and 5
+      if (rating < 0 || rating > 5) {
+        throw Exception('Rating must be between 0 and 5');
+      }
+
+      // Check if user has already rated this instance
+      final existingRating = await supabase
+          .from('instance_ratings')
+          .select()
+          .eq('instance_id', eventInstanceId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+      final ratingResponse = existingRating != null
+          ? await supabase
+              .from('instance_ratings')
+              .update({
+                'rating': rating,
+              })
+              .eq('instance_id', eventInstanceId)
+              .eq('user_id', user.id)
+              .select()
+              .single()
+          : await supabase
+              .from('instance_ratings')
+              .insert({
+                'instance_id': eventInstanceId,
+                'user_id': user.id,
+                'rating': rating,
+                'created_at': DateTime.now().toIso8601String(),
+              })
+              .select()
+              .single();
+
+      // Convert to EventRating object
+      return EventRating(
+        rating: ratingResponse['rating'] is double ? ratingResponse['rating'] : double.tryParse(ratingResponse['rating'].toString()) ?? 0.0,
+        comment: ratingResponse['comment'] as String?,
+        userId: ratingResponse['user_id'] as String,
+        createdAt: DateTime.parse(ratingResponse['created_at']),
+      );
+    } catch (e) {
+      print('Error rating event: $e');
+      return null;
     }
   }
 } 

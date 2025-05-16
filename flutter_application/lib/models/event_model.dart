@@ -69,6 +69,15 @@ class EventRating {
     required this.createdAt,
     required this.userId,
   });
+
+  static EventRating fromMap(Map ratingData) {
+    return EventRating(
+      rating: ratingData['rating'] is double ? ratingData['rating'] : double.tryParse(ratingData['rating'].toString()) ?? 0.0,
+      comment: ratingData['comment'] as String?,
+      userId: ratingData['user_id'] as String,
+      createdAt: DateTime.parse(ratingData['created_at']),
+    );
+  }
 }
 
 extension TimeOfDayString on String {

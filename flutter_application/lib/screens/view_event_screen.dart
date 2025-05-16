@@ -70,7 +70,19 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                     EventDetailRow(icon: Icons.link, text: 'Flyer', linkUrl: eventInstance.linkToEvent),
                   const SizedBox(height: 24),
                   if (eventInstance.hasStarted)
-                    EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings),
+                    EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings, submitRating: (rating) async {
+                      final ret = await EventController.rateEvent(eventInstance.eventInstanceId, rating);
+                      if (ret != null) {
+                        setState(() {
+                          final existingIndex = eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
+                          if (existingIndex != -1) {
+                            eventInstance.ratings[existingIndex] = ret;
+                          } else {
+                            eventInstance.ratings.add(ret);
+                          }
+                        });
+                      }
+                    }),
                   const SizedBox(height: 32),
                   ProposalsWidget(
                     eventInstance: eventInstance,

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/event_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventRatingSummary extends StatefulWidget {
   final DateTime date;
   final List<EventRating> ratings;
-  const EventRatingSummary({required this.date, required this.ratings, super.key});
+  final Function(int) submitRating;
+  const EventRatingSummary({required this.date, required this.ratings, required this.submitRating, super.key});
 
   @override
   State<EventRatingSummary> createState() => _EventRatingSummaryState();
@@ -13,6 +15,24 @@ class EventRatingSummary extends StatefulWidget {
 class _EventRatingSummaryState extends State<EventRatingSummary> {
   int selectedRating = 0;
   final TextEditingController _commentController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Find user's rating if it exists
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    if (currentUserId != null) {
+      final userRating = widget.ratings.firstWhere(
+        (rating) => rating.userId == currentUserId,
+        orElse: () => EventRating(
+          rating: 0,
+          createdAt: DateTime.now(),
+          userId: '',
+        ),
+      );
+      selectedRating = userRating.rating.toInt();
+    }
+  }
 
   String _formatDate(DateTime date) {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -33,6 +53,10 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final hasUserRated = currentUserId != null && 
+        widget.ratings.any((rating) => rating.userId == currentUserId);
+
     return Center(
       child: Column(
         children: [
@@ -58,13 +82,19 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text('Rate this Event', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            hasUserRated ? 'Your Rating' : 'Rate this Event',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               5,
               (i) => GestureDetector(
-                onTap: () => _handleRating(i + 1),
+                onTap: () {
+                  _handleRating(i + 1);
+                  widget.submitRating(i + 1);
+                },
                 child: Icon(
                   i < selectedRating ? Icons.favorite : Icons.favorite_border,
                   color: i < selectedRating ? Colors.orange : Colors.grey.shade400,
