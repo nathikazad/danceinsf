@@ -18,6 +18,7 @@ class EventInstance {
   final bool isCancelled;
   final String eventInstanceId;
   final List<Proposal>? proposals;
+  final String? flyerUrl;
 
   EventInstance({
     required this.eventInstanceId,
@@ -35,6 +36,7 @@ class EventInstance {
     List<EventRating>? ratings,
     bool? isCancelled,
     this.proposals,
+    String? flyerUrl,
   }) : venueName = venueName ?? event.location.venueName,
        city = city ?? event.location.city,
        url = url ?? event.location.url,
@@ -45,6 +47,7 @@ class EventInstance {
        cost = cost ?? event.cost,
        description = description ?? event.description,
        ratings = ratings ?? [],
+       flyerUrl = flyerUrl ?? event.flyerUrl,
        isCancelled = isCancelled ?? false;
 
   // Helper method to get just the date part (without time)

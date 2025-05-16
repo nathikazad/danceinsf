@@ -118,6 +118,7 @@ class Event {
   final double? rating;
   final int? ratingCount;
   List<Proposal>? proposals;
+  final String? flyerUrl;
 
   Event({
     required this.eventId,
@@ -135,6 +136,7 @@ class Event {
     this.rating,
     this.ratingCount,
     this.proposals,
+    this.flyerUrl,
   });
 
   // Factory method to create Event from map
@@ -155,6 +157,7 @@ class Event {
         city: eventData['default_city'] ?? '',
         url: eventData['default_google_maps_link'] ?? '',
       ),
+      flyerUrl: eventData['default_flyer_url'] ?? '',
       linkToEvent: eventData['default_ticket_link'] ?? '',
       schedule: SchedulePattern.fromMap(
         eventData['recurrence_type'],

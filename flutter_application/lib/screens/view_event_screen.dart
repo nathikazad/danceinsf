@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dart';
+import 'package:flutter_application/widgets/view_event_widgets/flyer_viewer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../controllers/event_controller.dart';
@@ -32,6 +33,13 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Event Details'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: FutureBuilder<EventInstance?>(
         future: _eventFuture,
         builder: (context, snapshot) {
@@ -43,52 +51,44 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
           }
           final eventInstance = snapshot.data!;
           final event = eventInstance.event;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(event.name),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.pop(),
-              ),
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Main Info Card
-                  TopBox(event: event, eventInstance: eventInstance),
-                  const SizedBox(height: 24),
-                  // Event Details
-                  EventDetailRow(icon: Icons.calendar_today, text: _formatDate(eventInstance.date)),
-                  EventDetailRow(icon: Icons.access_time, text: _formatTimeRange(eventInstance.startTime, eventInstance.endTime)),
-                  EventDetailRow(icon: Icons.repeat, text: _formatRecurrence(event.frequency, event.schedule)),
-                  EventDetailRow(icon: Icons.location_on, text: '${eventInstance.venueName}, ${eventInstance.city}', linkText: 'Directions', linkUrl: eventInstance.url),
-                  if (eventInstance.ticketLink != null && eventInstance.ticketLink!.isNotEmpty)
-                    EventDetailRow(icon: Icons.link, text: 'Buy Tickets', linkUrl: eventInstance.ticketLink),
-                  if (eventInstance.linkToEvent != null && eventInstance.linkToEvent!.isNotEmpty)
-                    EventDetailRow(icon: Icons.link, text: 'Flyer', linkUrl: eventInstance.linkToEvent),
-                  const SizedBox(height: 24),
-                  if (eventInstance.hasStarted)
-                    EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings, submitRating: (rating) async {
-                      final ret = await EventController.rateEvent(eventInstance.eventInstanceId, rating);
-                      if (ret != null) {
-                        setState(() {
-                          final existingIndex = eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
-                          if (existingIndex != -1) {
-                            eventInstance.ratings[existingIndex] = ret;
-                          } else {
-                            eventInstance.ratings.add(ret);
-                          }
-                        });
-                      }
-                    }),
-                  const SizedBox(height: 32),
-                  ProposalsWidget(
-                    eventInstance: eventInstance,
-                  ),
-                ],
-              ),
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Main Info Card
+                TopBox(event: event, eventInstance: eventInstance),
+                const SizedBox(height: 24),
+                // Event Details
+                EventDetailRow(icon: Icons.calendar_today, text: _formatDate(eventInstance.date)),
+                EventDetailRow(icon: Icons.access_time, text: _formatTimeRange(eventInstance.startTime, eventInstance.endTime)),
+                EventDetailRow(icon: Icons.repeat, text: _formatRecurrence(event.frequency, event.schedule)),
+                EventDetailRow(icon: Icons.location_on, text: '${eventInstance.venueName}, ${eventInstance.city}', linkText: 'Directions', linkUrl: eventInstance.url),
+                if (eventInstance.ticketLink != null && eventInstance.ticketLink!.isNotEmpty)
+                  EventDetailRow(icon: Icons.link, text: 'Buy Tickets', linkUrl: eventInstance.ticketLink),
+                if (eventInstance.flyerUrl != null && eventInstance.flyerUrl!.isNotEmpty)
+                  FlyerViewer(url: eventInstance.flyerUrl!),
+                const SizedBox(height: 24),
+                if (eventInstance.hasStarted)
+                  EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings, submitRating: (rating) async {
+                    final ret = await EventController.rateEvent(eventInstance.eventInstanceId, rating);
+                    if (ret != null) {
+                      setState(() {
+                        final existingIndex = eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
+                        if (existingIndex != -1) {
+                          eventInstance.ratings[existingIndex] = ret;
+                        } else {
+                          eventInstance.ratings.add(ret);
+                        }
+                      });
+                    }
+                  }),
+                const SizedBox(height: 32),
+                ProposalsWidget(
+                  eventInstance: eventInstance,
+                ),
+              ],
             ),
           );
         },
