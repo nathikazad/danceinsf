@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/utils/theme/app_color.dart';
 import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
+import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 
 // EventsList widget
 class EventsList extends StatelessWidget {
@@ -32,11 +33,14 @@ class EventsList extends StatelessWidget {
         data: (eventInstances) {
           final startDate = DateTime.now();
           final endDate = DateTime.now().add(const Duration(days: 30));
-          final filteredInstances = eventInstances.where((occ) =>
-            occ.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
-            occ.date.isBefore(endDate.add(const Duration(days: 1)))
-          ).toList();
-          final groupedInstances = Event.groupEventInstancesByDate(filteredInstances);
+          final filteredInstances = eventInstances
+              .where((occ) =>
+                  occ.date
+                      .isAfter(startDate.subtract(const Duration(days: 1))) &&
+                  occ.date.isBefore(endDate.add(const Duration(days: 1))))
+              .toList();
+          final groupedInstances =
+              Event.groupEventInstancesByDate(filteredInstances);
           final dateKeys = groupedInstances.keys.toList()..sort();
           if (dateKeys.isEmpty) {
             return const Center(
@@ -49,11 +53,13 @@ class EventsList extends StatelessWidget {
                 weekNavigatorController.updateVisibleDate(handleDateUpdate);
               }
               if (notification is ScrollEndNotification) {
-                final scrollController = weekNavigatorController.scrollController;
+                final scrollController =
+                    weekNavigatorController.scrollController;
                 if (scrollController.position.pixels == 0) {
                   print('Top reached');
                   onRangeUpdate(true);
-                } else if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+                } else if (scrollController.position.pixels ==
+                    scrollController.position.maxScrollExtent) {
                   print('Bottom reached');
                   onRangeUpdate(false);
                 }
@@ -67,7 +73,8 @@ class EventsList extends StatelessWidget {
               itemBuilder: (context, dateIndex) {
                 final date = dateKeys[dateIndex];
                 final eventInstancesForDate = groupedInstances[date]!;
-                weekNavigatorController.dateKeys[date] = weekNavigatorController.dateKeys[date] ?? GlobalKey();
+                weekNavigatorController.dateKeys[date] =
+                    weekNavigatorController.dateKeys[date] ?? GlobalKey();
                 return GroupedEventsForDate(
                   date: date,
                   eventInstancesForDate: eventInstancesForDate,
@@ -107,9 +114,21 @@ class GroupedEventsForDate extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(
-            dateFormat.format(date),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          child: Row(
+            children: [
+              SvgIcon(icon: SvgIconData('assets/icons/calendar.svg')),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                dateFormat.format(date),
+                style: TextStyle(
+                    fontFamily: "Inter",
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.secondary),
+              ),
+            ],
           ),
         ),
         ...eventInstancesForDate.map((eventInstance) {
@@ -117,8 +136,8 @@ class GroupedEventsForDate extends StatelessWidget {
             eventInstance: eventInstance,
           );
         }).toList(),
-        if (!isLast)
-          const Divider(height: 32, thickness: 3, color: Colors.grey),
+        // if (!isLast)
+        //   const Divider(height: 32, thickness: 3, color: Colors.grey),
       ],
     );
   }
@@ -138,6 +157,7 @@ class EventInstanceCard extends StatelessWidget {
     final end = eventInstance.endTime;
     final rating = eventInstance.event.rating ?? 4.5;
     final ratingCount = eventInstance.event.ratingCount;
+    final brightness = Theme.of(context).brightness;
     return InkWell(
       onTap: () {
         GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}');
@@ -146,10 +166,12 @@ class EventInstanceCard extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.only(bottom: 16),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(5),
         ),
-        elevation: 2,
-        color: Colors.white,
+        elevation: 0,
+        color: brightness == Brightness.light
+            ? Colors.white
+            : Color.fromRGBO(43, 33, 28, 1),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           child: Row(
@@ -166,16 +188,17 @@ class EventInstanceCard extends StatelessWidget {
                           'assets/icons/dot.svg',
                           width: 12,
                           height: 12,
-                          color: Colors.orange,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             eventInstance.event.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "Inter",
                               fontSize: 19,
-                              color: Colors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -190,14 +213,20 @@ class EventInstanceCard extends StatelessWidget {
                           children: [
                             SvgPicture.asset(
                               'assets/icons/clock.svg',
-                              width: 18,
-                              height: 18,
-                              color: Colors.orange,
+                              width: 15,
+                              height: 15,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                             const SizedBox(width: 7),
                             Text(
                               '${start.format(context)} - ${end.format(context)}',
-                              style: const TextStyle(fontSize: 15, color: Color(0xFF8A8A8A)),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary),
                             ),
                           ],
                         ),
@@ -206,15 +235,21 @@ class EventInstanceCard extends StatelessWidget {
                           children: [
                             SvgPicture.asset(
                               'assets/icons/location.svg',
-                              width: 18,
-                              height: 18,
-                              color: Colors.orange,
+                              width: 15,
+                              height: 15,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                             const SizedBox(width: 7),
                             Flexible(
                               child: Text(
                                 '${eventInstance.venueName}, ${eventInstance.city}',
-                                style: const TextStyle(fontSize: 15, color: Color(0xFF8A8A8A)),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -227,23 +262,28 @@ class EventInstanceCard extends StatelessWidget {
               ),
               // Right side: Cost and rating
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3EA),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      eventInstance.cost == 0.0 ? 'Free' : '\$${eventInstance.cost.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
-                        fontSize: 18,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: brightness == Brightness.light
+                            ? const Color(0xFFFFF3EA)
+                            : AppColors.darkBackground,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ),
-                  ),
+                      child: Text(
+                        eventInstance.cost == 0.0
+                            ? 'Free'
+                            : '\$${eventInstance.cost.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontFamily: "Inter",
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 16,
+                        ),
+                      )),
                   if (rating != null) ...[
                     const SizedBox(height: 14),
                     Row(
@@ -251,17 +291,18 @@ class EventInstanceCard extends StatelessWidget {
                       children: [
                         SvgPicture.asset(
                           'assets/icons/heart.svg',
-                          width: 20,
-                          height: 20,
-                          color: Colors.orange,
+                          width: 17,
+                          height: 17,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 5),
                         Text(
                           rating.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 17,
+                          style: TextStyle(
+                            fontFamily: "Inter",
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onTertiary,
+                            fontSize: 16,
                           ),
                         ),
                       ],
@@ -276,4 +317,3 @@ class EventInstanceCard extends StatelessWidget {
     );
   }
 }
-

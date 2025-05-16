@@ -11,10 +11,11 @@ class WeekNavigatorController {
     scrollController.dispose();
   }
 
-  Set<int> computeDaysWithEvents(AsyncValue<List<EventInstance>> eventsAsync, DateTime weekStart) {
+  Set<int> computeDaysWithEvents(
+      AsyncValue<List<EventInstance>> eventsAsync, DateTime weekStart) {
     final weekEnd = weekStart.add(const Duration(days: 6));
     Set<int> days = {};
-    
+
     if (eventsAsync.hasValue) {
       final events = eventsAsync.value!;
       for (final event in events) {
@@ -41,7 +42,7 @@ class WeekNavigatorController {
       final RenderBox box = context.findRenderObject() as RenderBox;
       final position = box.localToGlobal(Offset.zero);
       final startY = position.dy;
-      
+
       // Check if our reference point (topThreshold) falls within this card's bounds
       if (startY > 60) {
         closestDate = entry.key;
@@ -65,10 +66,10 @@ class WeekNavigatorController {
       final key = entry.value;
       final context = key.currentContext;
       if (context == null) continue;
-      
+
       // Calculate distance from target date
       final daysDifference = entry.key.difference(targetDate).inDays.abs();
-      
+
       if (minDistance == null || daysDifference < minDistance) {
         minDistance = daysDifference;
         closestDate = entry.key;
@@ -107,29 +108,61 @@ class WeekNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final weekDays = ['M', 'T', 'W', 'Th', 'F', 'Sa', 'Su'];
-    final dateFormat = DateFormat('MM/dd');
-
+    final dateFormat = DateFormat('MM / dd');
+    List<String> dateStr = dateFormat.format(weekStart).split("/");
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Row(
         children: [
           Text(
-            dateFormat.format(weekStart),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            dateStr.first,
+            style: TextStyle(
+                fontFamily: "Inter",
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.primary),
+          ),
+          Text(
+            " / ${dateStr.last}",
+            style: TextStyle(
+                fontFamily: "Inter",
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.tertiary),
           ),
           SizedBox(
-            width: 32,
             child: IconButton(
-              icon: const Icon(Icons.chevron_left),
+              icon: Container(
+                height: 30,
+                width: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(100)),
+                child: const Icon(
+                  Icons.chevron_left,
+                  size: 20,
+                ),
+              ),
               onPressed: () => onWeekChanged(
                 weekStart.subtract(const Duration(days: 7)),
               ),
             ),
           ),
           SizedBox(
-            width: 32,
             child: IconButton(
-              icon: const Icon(Icons.chevron_right),
+              icon: Container(
+                height: 30,
+                width: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(100)),
+                child: const Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                ),
+              ),
               onPressed: () => onWeekChanged(
                 weekStart.add(const Duration(days: 7)),
               ),
@@ -141,7 +174,8 @@ class WeekNavigator extends StatelessWidget {
               children: List.generate(7, (index) {
                 final weekday = index + 1;
                 final isSelected = weekday == selectedWeekday;
-                final hasEvents = daysWithEventsForCurrentWeek.contains(weekday);
+                final hasEvents =
+                    daysWithEventsForCurrentWeek.contains(weekday);
                 final theme = Theme.of(context);
                 final isDark = theme.brightness == Brightness.dark;
                 final orange = const Color(0xFFFF7A00);
@@ -155,18 +189,16 @@ class WeekNavigator extends StatelessWidget {
                     : hasEvents
                         ? orange
                         : (isDark ? Colors.grey[500]! : Colors.grey[400]!);
-                final fillColor = isSelected
-                    ? orange
-                    : Colors.transparent;
+                final fillColor = isSelected ? orange : Colors.transparent;
                 return SizedBox(
-                  width: 32,
+                  width: 40,
                   child: OutlinedButton(
                     onPressed: hasEvents ? () => onDaySelected(weekday) : null,
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(32, 32),
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      minimumSize: const Size(40, 40),
                       backgroundColor: fillColor,
-                      side: BorderSide(color: borderColor, width: 2),
+                      side: BorderSide(color: borderColor, width: 1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -176,7 +208,8 @@ class WeekNavigator extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         color: textColor,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -188,4 +221,4 @@ class WeekNavigator extends StatelessWidget {
       ),
     );
   }
-} 
+}
