@@ -58,15 +58,18 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
             Row(
               children: [
                 Container(
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(100)),
-                  child: const Icon(Icons.tune, size: 28),
+                  child: const Icon(Icons.tune, size: 18),
                 ),
                 const SizedBox(width: 8),
-                const Text('Filters',
-                    style:
-                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                Text('Filters',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(fontSize: 14)),
                 const Spacer(),
                 TextButton(
                   onPressed: _resetFilters,
@@ -77,7 +80,13 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('Apply'),
+                  child: Text(
+                    'Apply',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(color: Colors.white, fontSize: 14),
+                  ),
                 ),
               ],
             ),
@@ -130,14 +139,23 @@ class StyleFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Dance Style',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('Dance Style',
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontSize: 12)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           children: styles
               .map((style) => ChoiceChip(
-                    label: Text(style),
+                    label: Text(
+                      style,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                    ),
                     selected: selectedStyles.contains(style),
                     onSelected: (selected) => onStyleSelected(style, selected),
                   ))
@@ -165,14 +183,21 @@ class FrequencyFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Frequency',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('Frequency',
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontSize: 12)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           children: frequencies
               .map((freq) => ChoiceChip(
-                    label: Text(freq),
+                    label: Text(freq,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(fontSize: 12)),
                     selected: selectedFrequencies.contains(freq),
                     onSelected: (selected) =>
                         onFrequencySelected(freq, selected),
@@ -201,14 +226,21 @@ class CityFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('City',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('City',
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontSize: 12)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           children: cities
               .map((city) => ChoiceChip(
-                    label: Text(city),
+                    label: Text(city,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(fontSize: 12)),
                     selected: selectedCities.contains(city),
                     onSelected: (selected) => onCitySelected(city, selected),
                   ))

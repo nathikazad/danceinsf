@@ -12,7 +12,8 @@ class VerifyScreen extends ConsumerStatefulWidget {
 }
 
 class _VerifyScreenState extends ConsumerState<VerifyScreen> {
-  final TextEditingController _countryCodeController = TextEditingController(text: '+1');
+  final TextEditingController _countryCodeController =
+      TextEditingController(text: '+1');
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
 
@@ -58,7 +59,9 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
       _error = null;
     });
     try {
-      await ref.read(authProvider.notifier).verifyOTP(_fullPhoneNumber, _otpController.text.trim());
+      await ref
+          .read(authProvider.notifier)
+          .verifyOTP(_fullPhoneNumber, _otpController.text.trim());
       print('nextRoute: ${widget.nextRoute}');
       if (!mounted) return;
       if (widget.nextRoute != null) {
@@ -86,13 +89,27 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.orange),
+          icon: Container(
+            padding: const EdgeInsets.only(left: 6),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).colorScheme.secondaryContainer),
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text('Verify', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text('Verify',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontSize: 18)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -100,12 +117,17 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 16),
-            const Text(
-              'Verify your phone number to rate this event',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
+            Container(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Verify your phone number to rate this event',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 15),
             Row(
               children: [
                 Flexible(
@@ -115,8 +137,10 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       hintText: '+1',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 12),
                     ),
                   ),
                 ),
@@ -128,8 +152,10 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       hintText: '234 5323 212',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 12),
                     ),
                   ),
                 ),
@@ -139,22 +165,30 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
             ElevatedButton(
               onPressed: _isLoading || _otpSent ? null : _sendOTP,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange.shade50,
-                foregroundColor: Colors.orange,
+                backgroundColor:
+                    Theme.of(context).colorScheme.secondaryContainer,
+                foregroundColor: Theme.of(context).colorScheme.primary,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: _isLoading && !_otpSent
-                  ? const CircularProgressIndicator(color: Colors.orange)
-                  : const Text('Send', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  ? CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary)
+                  : const Text('Send',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          fontFamily: "Inter")),
             ),
             const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Enter OTP Code',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary, fontSize: 14),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -162,23 +196,31 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'OTP Code',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 12),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
               ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _isLoading || !_otpSent ? null : _verifyOTP,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: _isLoading && _otpSent
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Verify', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  : const Text('Verify',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
             ),
             if (_error != null) ...[
               const SizedBox(height: 16),
@@ -189,4 +231,4 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
       ),
     );
   }
-} 
+}
