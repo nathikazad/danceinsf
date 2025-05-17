@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_application/utils/theme/app_color.dart';
 import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
@@ -108,38 +109,57 @@ class GroupedEventsForDate extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return Column(
-      key: keyForDate,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Row(
-            children: [
-              SvgIcon(icon: SvgIconData('assets/icons/calendar.svg')),
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                dateFormat.format(date),
-                style: TextStyle(
-                    fontFamily: "Inter",
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.secondary),
-              ),
-            ],
+    return LayoutBuilder(builder: (context, constraints) {
+      final screenWidth = constraints.maxWidth;
+      final crossAxisCount = screenWidth > 600 ? 2 : 1;
+      return Column(
+        key: keyForDate,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              children: [
+                SvgIcon(icon: SvgIconData('assets/icons/calendar.svg')),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  dateFormat.format(date),
+                  style: TextStyle(
+                      fontFamily: "Inter",
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
+              ],
+            ),
           ),
-        ),
-        ...eventInstancesForDate.map((eventInstance) {
-          return EventInstanceCard(
-            eventInstance: eventInstance,
-          );
-        }).toList(),
-        // if (!isLast)
-        //   const Divider(height: 32, thickness: 3, color: Colors.grey),
-      ],
-    );
+          GridView.builder(
+              itemCount: eventInstancesForDate.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+                height: 150.0,
+              ),
+              itemBuilder: (context, index) {
+                return EventInstanceCard(
+                    eventInstance: eventInstancesForDate[index]);
+              }),
+          // ...eventInstancesForDate.map((eventInstance) {
+          //   return EventInstanceCard(
+          //     eventInstance: eventInstance,
+          //   );
+          // }).toList(),
+          // if (!isLast)
+          //   const Divider(height: 32, thickness: 3, color: Colors.grey),
+        ],
+      );
+    });
   }
 }
 
@@ -163,86 +183,65 @@ class EventInstanceCard extends StatelessWidget {
         GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}');
       },
       borderRadius: BorderRadius.circular(12),
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-        elevation: 0,
-        color: brightness == Brightness.light
-            ? Colors.white
-            : Color.fromRGBO(43, 33, 28, 1),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left side: Event info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/dot.svg',
-                          width: 12,
-                          height: 12,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            eventInstance.event.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontFamily: "Inter",
-                              fontSize: 19,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+      child: SizedBox(
+        height: 120,
+        child: Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          elevation: 0,
+          color: brightness == Brightness.light
+              ? Colors.white
+              : Color.fromRGBO(43, 33, 28, 1),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left side: Event info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/dot.svg',
+                            width: 12,
+                            height: 12,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/clock.svg',
-                              width: 15,
-                              height: 15,
-                              color: Theme.of(context).colorScheme.primary,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              eventInstance.event.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontFamily: "Inter",
+                                fontSize: 19,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 7),
-                            Text(
-                              '${start.format(context)} - ${end.format(context)}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/location.svg',
-                              width: 15,
-                              height: 15,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 7),
-                            Flexible(
-                              child: Text(
-                                '${eventInstance.venueName}, ${eventInstance.city}',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/clock.svg',
+                                width: 15,
+                                height: 15,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 7),
+                              Text(
+                                '${start.format(context)} - ${end.format(context)}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelMedium
@@ -250,70 +249,127 @@ class EventInstanceCard extends StatelessWidget {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .tertiary),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Right side: Cost and rating
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: brightness == Brightness.light
-                            ? const Color(0xFFFFF3EA)
-                            : AppColors.darkBackground,
-                        borderRadius: BorderRadius.circular(8),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/location.svg',
+                                width: 15,
+                                height: 15,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 7),
+                              Flexible(
+                                child: Text(
+                                  '${eventInstance.venueName}, ${eventInstance.city}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        eventInstance.cost == 0.0
-                            ? 'Free'
-                            : '\$${eventInstance.cost.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          fontFamily: "Inter",
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 16,
+                    ],
+                  ),
+                ),
+                // Right side: Cost and rating
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: brightness == Brightness.light
+                              ? const Color(0xFFFFF3EA)
+                              : AppColors.darkBackground,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      )),
-                  if (rating != null) ...[
-                    const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/heart.svg',
-                          width: 17,
-                          height: 17,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          rating.toStringAsFixed(1),
+                        child: Text(
+                          eventInstance.cost == 0.0
+                              ? 'Free'
+                              : '\$${eventInstance.cost.toStringAsFixed(0)}',
                           style: TextStyle(
                             fontFamily: "Inter",
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onTertiary,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 16,
                           ),
-                        ),
-                      ],
-                    ),
+                        )),
+                    if (rating != null) ...[
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/heart.svg',
+                            width: 17,
+                            height: 17,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            rating.toStringAsFixed(1),
+                            style: TextStyle(
+                              fontFamily: "Inter",
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+class SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight
+    extends SliverGridDelegate {
+  final int crossAxisCount;
+  final double height;
+  final double mainAxisSpacing;
+  final double crossAxisSpacing;
+
+  const SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight({
+    required this.crossAxisCount,
+    required this.height,
+    this.mainAxisSpacing = 0,
+    this.crossAxisSpacing = 0,
+  });
+
+  @override
+  SliverGridLayout getLayout(SliverConstraints constraints) {
+    final double usableCrossAxisExtent =
+        constraints.crossAxisExtent - crossAxisSpacing * (crossAxisCount - 1);
+    final double childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
+    return SliverGridRegularTileLayout(
+      childCrossAxisExtent: childCrossAxisExtent,
+      childMainAxisExtent: height,
+      crossAxisCount: crossAxisCount,
+      mainAxisStride: height + mainAxisSpacing,
+      crossAxisStride: childCrossAxisExtent + crossAxisSpacing,
+      reverseCrossAxis: false,
+    );
+  }
+
+  @override
+  bool shouldRelayout(covariant SliverGridDelegate oldDelegate) => true;
 }
