@@ -23,8 +23,8 @@ class _LocationSectionState extends State<LocationSection> {
   @override
   void initState() {
     super.initState();
-    _venueController.text = widget.location.venueName ?? '';
-    _cityController.text = widget.location.city ?? '';
+    _venueController.text = widget.location.venueName;
+    _cityController.text = widget.location.city;
     _mapsLinkController.text = widget.location.url ?? '';
   }
 

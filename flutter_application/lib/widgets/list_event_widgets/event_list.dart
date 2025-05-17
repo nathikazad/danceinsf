@@ -32,16 +32,7 @@ class EventsList extends StatelessWidget {
           child: Text('Error: ${error.toString()}'),
         ),
         data: (eventInstances) {
-          final startDate = DateTime.now();
-          final endDate = DateTime.now().add(const Duration(days: 30));
-          final filteredInstances = eventInstances
-              .where((occ) =>
-                  occ.date
-                      .isAfter(startDate.subtract(const Duration(days: 1))) &&
-                  occ.date.isBefore(endDate.add(const Duration(days: 1))))
-              .toList();
-          final groupedInstances =
-              Event.groupEventInstancesByDate(filteredInstances);
+          final groupedInstances = Event.groupEventInstancesByDate(eventInstances);
           final dateKeys = groupedInstances.keys.toList()..sort();
           if (dateKeys.isEmpty) {
             return const Center(
@@ -175,7 +166,7 @@ class EventInstanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final start = eventInstance.startTime;
     final end = eventInstance.endTime;
-    final rating = eventInstance.event.rating ?? 4.5;
+    final rating = eventInstance.event.rating;
     final ratingCount = eventInstance.event.ratingCount;
     final brightness = Theme.of(context).brightness;
     return InkWell(

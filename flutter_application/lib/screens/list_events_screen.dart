@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/auth.dart';
 import 'package:flutter_application/models/event_model.dart';
 import 'package:flutter_application/utils/theme/app_color.dart';
 
@@ -37,6 +38,25 @@ class EventsStateNotifier
       state = AsyncValue.data(events);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
+  Future<void> appendEvents({DateTime? startDate, int windowDays = 90}) async {
+    if (state is! AsyncData) return;
+    
+    try {
+      final currentEvents = (state as AsyncData<List<EventInstance>>).value;
+      final newEvents = await _controller.fetchEvents(
+        startDate: startDate,
+        windowDays: windowDays,
+      );
+      
+      state = AsyncValue.data({
+        ...{for (var e in currentEvents) e.eventInstanceId: e},
+        ...{for (var e in newEvents) e.eventInstanceId: e}
+      }.values.toList());
+    } catch (error) {
+      print('Error appending events: $error');
     }
   }
 }
@@ -95,16 +115,19 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       if (isTop) {
         // When reaching top, extend range backwards
         _startDate = _startDate.subtract(Duration(days: _daysWindow));
+        ref.read(eventsStateProvider.notifier).appendEvents(
+          startDate: _startDate,
+          windowDays: _daysWindow,
+        );
       } else {
         // When reaching bottom, extend range forwards
         _daysWindow += 30;
+        ref.read(eventsStateProvider.notifier).appendEvents(
+          startDate: _startDate.add(Duration(days: _daysWindow - 30)),
+          windowDays: 30,
+        );
       }
     });
-    // Fetch events with new range
-    // ref.read(eventsStateProvider.notifier).fetchEvents(
-    //   startDate: _startDate,
-    //   windowDays: _daysWindow,
-    // );
   }
 
   @override
@@ -140,7 +163,13 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               context,
               controller: filterController,
             ),
-            onAddPressed: () => context.push('/add-event'),
+            onAddPressed: () {
+              if (ref.read(authProvider).state.user != null) {
+                GoRouter.of(context).push('/add-event');
+              } else {
+                GoRouter.of(context).push('/verify', extra: {'nextRoute': '/add-event'});
+              }
+            },
             filterController: filterController,
           ),
           WeekNavigator(
@@ -157,11 +186,12 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
               // Check if new week is beyond current date range
               final endDate = _startDate.add(Duration(days: _daysWindow));
+              print('New Week: ${newWeekStart.toIso8601String().split('T')[0]}, Start: ${_startDate.toIso8601String().split('T')[0]}, End: ${endDate.toIso8601String().split('T')[0]}');
               if (newWeekStart.isBefore(_startDate)) {
+                print('Extending backwards');
                 _handleRangeUpdate(true); // Extend backwards
-              } else if (newWeekStart
-                  .add(const Duration(days: 7))
-                  .isAfter(endDate)) {
+              } else if (newWeekStart.add(const Duration(days: 7)).isAfter(endDate)) {
+                print('Extending forwards');
                 _handleRangeUpdate(false); // Extend forwards
               }
 

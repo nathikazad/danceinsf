@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/event_instance_model.dart';
 import 'package:flutter_application/models/schedule_model.dart';
+import 'package:flutter_application/models/proposal_model.dart';
+import 'package:flutter_application/utils/string.dart';
 
 export 'package:flutter_application/models/event_instance_model.dart';
 export 'package:flutter_application/models/schedule_model.dart';
@@ -67,6 +69,15 @@ class EventRating {
     required this.createdAt,
     required this.userId,
   });
+
+  static EventRating fromMap(Map ratingData) {
+    return EventRating(
+      rating: ratingData['rating'] is double ? ratingData['rating'] : double.tryParse(ratingData['rating'].toString()) ?? 0.0,
+      comment: ratingData['comment'] as String?,
+      userId: ratingData['user_id'] as String,
+      createdAt: DateTime.parse(ratingData['created_at']),
+    );
+  }
 }
 
 extension TimeOfDayString on String {
@@ -79,9 +90,6 @@ extension TimeOfDayString on String {
     return TimeOfDay(hour: hour, minute: minute);
   }
 }
-
-List<String> _toStringList(dynamic list) =>
-  (list as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
 
  TimeOfDay? parseTimeOfDay(String? timeStr) {
     if (timeStr == null) return null;
@@ -109,6 +117,8 @@ class Event {
   final String? description;
   final double? rating;
   final int? ratingCount;
+  List<Proposal>? proposals;
+  final String? flyerUrl;
 
   Event({
     required this.eventId,
@@ -125,15 +135,16 @@ class Event {
     this.description,
     this.rating,
     this.ratingCount,
+    this.proposals,
+    this.flyerUrl,
   });
 
-
   // Factory method to create Event from map
-  static Event fromMap(Map eventData, {double? rating, int ratingCount = 0}) {
-    final eventTypes = _toStringList(eventData['event_type']);
-    final eventCategories = _toStringList(eventData['event_category']);
-    final weeklyDays = _toStringList(eventData['weekly_days']);
-    final monthlyPattern = _toStringList(eventData['monthly_pattern']);
+  static Event fromMap(Map eventData, {double? rating, int ratingCount = 0, List<Proposal>? proposals}) {
+    final eventTypes = toStringList(eventData['event_type']);
+    final eventCategories = toStringList(eventData['event_category']);
+    final weeklyDays = toStringList(eventData['weekly_days']);
+    final monthlyPattern = toStringList(eventData['monthly_pattern']);
 
     return Event(
       eventId: eventData['event_id'],
@@ -146,6 +157,7 @@ class Event {
         city: eventData['default_city'] ?? '',
         url: eventData['default_google_maps_link'] ?? '',
       ),
+      flyerUrl: eventData['default_flyer_url'] ?? '',
       linkToEvent: eventData['default_ticket_link'] ?? '',
       schedule: SchedulePattern.fromMap(
         eventData['recurrence_type'],
@@ -158,6 +170,7 @@ class Event {
       description: eventData['default_description'],
       rating: ratingCount > 0 ? rating : null,
       ratingCount: ratingCount,
+      proposals: proposals,
     );
   }
 
@@ -176,6 +189,7 @@ class Event {
     String? description,
     double? rating,
     int? ratingCount,
+    List<Proposal>? proposals,
   }) {
     return Event(
       eventId: eventId ?? this.eventId,
@@ -192,6 +206,7 @@ class Event {
       description: description ?? this.description,
       rating: rating ?? this.rating,
       ratingCount: ratingCount ?? this.ratingCount,
+      proposals: proposals ?? this.proposals,
     );
   }
 

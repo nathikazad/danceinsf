@@ -11,8 +11,6 @@ final filterControllerProvider = ChangeNotifierProvider<FilterController>((ref) 
 final filteredEventsProvider = Provider<AsyncValue<List<EventInstance>>>((ref) {
   final eventsAsync = ref.watch(eventsStateProvider);
   final filterController = ref.watch(filterControllerProvider);
-
-  print('Filtering ${eventsAsync.value?.length} events');
   
   return eventsAsync.whenData((events) {
     return filterController.filterEvents(events);
