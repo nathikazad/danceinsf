@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../widgets/add_event_widgets/repeat_section.dart';
 import '../widgets/add_event_widgets/location_section.dart';
 import '../widgets/add_event_widgets/upload_section.dart';
-// import '../widgets/add_event_widgets/organizer_section.dart';
 import '../widgets/add_event_widgets/time_section.dart';
 import '../widgets/add_event_widgets/cost_section.dart';
 import '../widgets/add_event_widgets/tickets_section.dart';
@@ -13,37 +12,25 @@ import '../widgets/add_event_widgets/dance_type_section.dart';
 import '../models/event_model.dart';
 import '../controllers/event_controller.dart';
 
-class AddEventScreen extends ConsumerStatefulWidget {
-  const AddEventScreen({super.key});
+class EditEventScreen extends ConsumerStatefulWidget {
+  final String eventId;
+  const EditEventScreen({required this.eventId, super.key});
 
   @override
-  ConsumerState<AddEventScreen> createState() => _AddEventScreenState();
+  ConsumerState<EditEventScreen> createState() => _EditEventScreenState();
 }
 
-class _AddEventScreenState extends ConsumerState<AddEventScreen> {
+class _EditEventScreenState extends ConsumerState<EditEventScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-
-  // Partial event object
   late Event _event;
-  DateTime? _selectedDateForOnce;
+  late Event _oldEvent;  // Store the original event
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Initialize with default values
-    _event = Event(
-      eventId: '', // Will be set by the database
-      name: '',
-      type: EventType.social,
-      style: DanceStyle.bachata,
-      frequency: Frequency.once,
-      location: Location(venueName: '', city: '', url: ''),
-      schedule: SchedulePattern.once(),
-      startTime: const TimeOfDay(hour: 0, minute: 0),
-      endTime: const TimeOfDay(hour: 0, minute: 0),
-      cost: 0.0,
-    );
+    _loadEvent();
   }
 
   @override
@@ -52,16 +39,41 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
     super.dispose();
   }
 
-  Future<void> _handleCreate() async {
+  Future<void> _loadEvent() async {
+    try {
+      final event = await EventController.fetchEvent(widget.eventId);
+      if (event != null && mounted) {
+        setState(() {
+          _event = event;
+          _oldEvent = event;  // Store the original event
+          _nameController.text = _event.name;
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Event not found');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading event: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleSave() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Update the event with the latest values
-        _event = _event.copyWith(
-          name: _nameController.text,
-        );
+        _event = _event.copyWith(name: _nameController.text);
+        // Get and print the differences between original and current state
+        final differences = Event.getDifferences(_oldEvent, _event);
+        if (differences != null) {
+          print('Event changes:');
+          print(differences);
+        }
 
-        // Create the event using the controller
-        await EventController.createEvent(_event, _selectedDateForOnce);
+        // Update the event in the database
+        // await EventController.updateEvent(_event);
         
         if (mounted) {
           context.pop();
@@ -69,7 +81,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error creating event: $e')),
+            SnackBar(content: Text('Error updating event: $e')),
           );
         }
       }
@@ -78,13 +90,21 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Create New'),
+        title: const Text('Edit Event'),
         centerTitle: true,
         elevation: 0,
       ),
@@ -109,12 +129,11 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             RepeatSection(
               schedule: _event.schedule,
               frequency: _event.frequency,
-              onScheduleChanged: (newSchedule, newFrequency, newSelectedDate) => setState(() {
+              onScheduleChanged: (newSchedule, newFrequency, _) => setState(() {
                 _event = _event.copyWith(
                   schedule: newSchedule,
                   frequency: newFrequency,
                 );
-                _selectedDateForOnce = newSelectedDate;
               }),
             ),
             const SizedBox(height: 20),
@@ -175,15 +194,6 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
                 _event = _event.copyWith(description: url);
               }),
             ),
-            // const SizedBox(height: 20),
-            // OrganizerSection(
-            //   name: _event.name,
-            //   phone: '',
-            //   isOrganizer: true,
-            //   onOrganizerChanged: (name, phone, isOrganizer) {
-            //     // Not using organizer info in the event model yet
-            //   },
-            // ),
             const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,
@@ -195,8 +205,8 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: _handleCreate,
-                child: const Text('Create', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                onPressed: _handleSave,
+                child: const Text('Save', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -204,4 +214,4 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
       ),
     );
   }
-}
+} 

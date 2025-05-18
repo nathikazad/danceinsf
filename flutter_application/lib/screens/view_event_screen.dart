@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/controllers/event_instance_controller.dart';
 import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dart';
 import 'package:flutter_application/widgets/view_event_widgets/flyer_viewer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../controllers/event_controller.dart';
 import '../models/event_model.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';
 import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
 
-final eventControllerProvider = Provider<EventController>((ref) => EventController());
-
 class ViewEventScreen extends ConsumerStatefulWidget {
   final String eventInstanceId;
-  const ViewEventScreen({required this.eventInstanceId, super.key});
+
+  const ViewEventScreen({
+    super.key,
+    required this.eventInstanceId,
+  });
 
   @override
   ConsumerState<ViewEventScreen> createState() => _ViewEventScreenState();
@@ -26,8 +28,38 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   @override
   void initState() {
     super.initState();
-    final controller = ref.read(eventControllerProvider);
-    _eventFuture = controller.fetchEvent(widget.eventInstanceId);
+    _eventFuture = EventInstanceController.fetchEventInstance(widget.eventInstanceId);
+  }
+
+  void _showEditOptions(BuildContext context, EventInstance eventInstance) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: Text('Only this event on ${_formatDate(eventInstance.date)}'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/edit-event-instance/${eventInstance.eventInstanceId}');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit_calendar),
+                title: const Text('All future versions of this event'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/edit-event/${eventInstance.event.eventId}');
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -39,6 +71,20 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          FutureBuilder<EventInstance?>(
+            future: _eventFuture,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const SizedBox.shrink();
+              }
+              return IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _showEditOptions(context, snapshot.data!),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<EventInstance?>(
         future: _eventFuture,
@@ -72,17 +118,7 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 const SizedBox(height: 24),
                 if (eventInstance.hasStarted)
                   EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings, submitRating: (rating) async {
-                    final ret = await EventController.rateEvent(eventInstance.eventInstanceId, rating);
-                    if (ret != null) {
-                      setState(() {
-                        final existingIndex = eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
-                        if (existingIndex != -1) {
-                          eventInstance.ratings[existingIndex] = ret;
-                        } else {
-                          eventInstance.ratings.add(ret);
-                        }
-                      });
-                    }
+                    await _rateEvent(rating);
                   }),
                 const SizedBox(height: 32),
                 ProposalsWidget(
@@ -118,6 +154,25 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
         return 'Repeat Weekly, Every ${schedule.dayOfWeekString.capitalize()}';
       case Frequency.monthly:
         return 'Monthly, Every ${schedule.weekOfMonthString} ${schedule.dayOfWeekString.capitalize()}';
+    }
+  }
+
+  Future<void> _rateEvent(int rating) async {
+    final ret = await EventInstanceController.rateEvent(widget.eventInstanceId, rating);
+    if (ret != null) {
+      setState(() {
+        _eventFuture.then((eventInstance) {
+          if (eventInstance != null) {
+            final existingIndex = eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
+            if (existingIndex != -1) {
+              eventInstance.ratings[existingIndex] = ret;
+            } else {
+              eventInstance.ratings.add(ret);
+            }
+            _eventFuture = Future.value(eventInstance);
+          }
+        });
+      });
     }
   }
 }

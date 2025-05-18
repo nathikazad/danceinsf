@@ -147,7 +147,7 @@ class EventInstanceCard extends StatelessWidget {
     final start = eventInstance.startTime;
     final end = eventInstance.endTime;
     final rating = eventInstance.event.rating;
-    final ratingCount = eventInstance.event.ratingCount;
+    // final ratingCount = eventInstance.event.ratingCount;
     final brightness = Theme.of(context).brightness;
     return InkWell(
       onTap: () {

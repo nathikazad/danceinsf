@@ -1,107 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/event_instance_model.dart';
+import 'package:flutter_application/models/event_sub_models.dart';
 import 'package:flutter_application/models/schedule_model.dart';
 import 'package:flutter_application/models/proposal_model.dart';
 import 'package:flutter_application/utils/string.dart';
 
 export 'package:flutter_application/models/event_instance_model.dart';
 export 'package:flutter_application/models/schedule_model.dart';
-
-enum EventType {
-  social,
-  class_
-}
-
-enum DanceStyle {
-  salsa,
-  bachata
-}
-
-enum Frequency {
-  once,
-  weekly,
-  monthly;
-
-  static Frequency fromString(String? recurrenceType) {
-    switch (recurrenceType?.toLowerCase()) {
-      case 'once':
-        return Frequency.once;
-      case 'weekly':
-        return Frequency.weekly;
-      case 'monthly':
-        return Frequency.monthly;
-      default:
-        return Frequency.once;
-    }
-  }
-}
-
-enum DayOfWeek {
-  monday,
-  tuesday,
-  wednesday,
-  thursday,
-  friday,
-  saturday,
-  sunday
-}
-
-class Location {
-  final String venueName;
-  final String city;
-  final String? url;
-
-  Location({
-    required this.venueName,
-    required this.city,
-    this.url,
-  });
-}
-
-class EventRating {
-  final double rating;
-  final String? comment;
-  final DateTime createdAt;
-  final String userId;
-  EventRating({
-    required this.rating,
-    this.comment,
-    required this.createdAt,
-    required this.userId,
-  });
-
-  static EventRating fromMap(Map ratingData) {
-    return EventRating(
-      rating: ratingData['rating'] is double ? ratingData['rating'] : double.tryParse(ratingData['rating'].toString()) ?? 0.0,
-      comment: ratingData['comment'] as String?,
-      userId: ratingData['user_id'] as String,
-      createdAt: DateTime.parse(ratingData['created_at']),
-    );
-  }
-}
-
-extension TimeOfDayString on String {
-  TimeOfDay toTimeOfDay() {
-    final parts = split(':');
-    if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
-    
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = int.tryParse(parts[1]) ?? 0;
-    return TimeOfDay(hour: hour, minute: minute);
-  }
-}
-
- TimeOfDay? parseTimeOfDay(String? timeStr) {
-    if (timeStr == null) return null;
-    
-    final parts = timeStr.split(':');
-    if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
-    
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = int.tryParse(parts[1]) ?? 0;
-    return TimeOfDay(hour: hour, minute: minute);
-  }
-
+export 'package:flutter_application/models/event_sub_models.dart';
 class Event {
   final String eventId;
   final String name;
@@ -230,5 +136,86 @@ class Event {
     }
 
     return groupedEventInstances;
+  }
+
+  /// Compares two Event models and returns their differences as a Map.
+  /// Returns null if the models are identical.
+  static Map<String, dynamic>? getDifferences(Event event1, Event event2) {
+    final differences = <String, dynamic>{};
+
+    void addIfDifferent(String key, dynamic value1, dynamic value2) {
+      if (value1 != value2) {
+        differences[key] = {
+          'old': value1,
+          'new': value2,
+        };
+      }
+    }
+
+    // Compare basic fields
+    addIfDifferent('eventId', event1.eventId, event2.eventId);
+    addIfDifferent('name', event1.name, event2.name);
+    addIfDifferent('type', event1.type, event2.type);
+    addIfDifferent('style', event1.style, event2.style);
+    addIfDifferent('frequency', event1.frequency, event2.frequency);
+    addIfDifferent('linkToEvent', event1.linkToEvent, event2.linkToEvent);
+    addIfDifferent('cost', event1.cost, event2.cost);
+    addIfDifferent('description', event1.description, event2.description);
+    addIfDifferent('rating', event1.rating, event2.rating);
+    addIfDifferent('ratingCount', event1.ratingCount, event2.ratingCount);
+    addIfDifferent('flyerUrl', event1.flyerUrl, event2.flyerUrl);
+
+    // Compare TimeOfDay objects
+    if (event1.startTime.hour != event2.startTime.hour || 
+        event1.startTime.minute != event2.startTime.minute) {
+      differences['startTime'] = {
+        'old': '${event1.startTime.hour}:${event1.startTime.minute}',
+        'new': '${event2.startTime.hour}:${event2.startTime.minute}',
+      };
+    }
+
+    if (event1.endTime.hour != event2.endTime.hour || 
+        event1.endTime.minute != event2.endTime.minute) {
+      differences['endTime'] = {
+        'old': '${event1.endTime.hour}:${event1.endTime.minute}',
+        'new': '${event2.endTime.hour}:${event2.endTime.minute}',
+      };
+    }
+
+    // Compare Location
+    if (event1.location.venueName != event2.location.venueName ||
+        event1.location.city != event2.location.city ||
+        event1.location.url != event2.location.url) {
+      differences['location'] = {
+        'old': {
+          'venueName': event1.location.venueName,
+          'city': event1.location.city,
+          'url': event1.location.url,
+        },
+        'new': {
+          'venueName': event2.location.venueName,
+          'city': event2.location.city,
+          'url': event2.location.url,
+        },
+      };
+    }
+
+    // Compare SchedulePattern
+    if (event1.schedule.toString() != event2.schedule.toString()) {
+      differences['schedule'] = {
+        'old': event1.schedule.toString(),
+        'new': event2.schedule.toString(),
+      };
+    }
+
+    // Compare proposals if they exist
+    if (event1.proposals?.length != event2.proposals?.length) {
+      differences['proposals'] = {
+        'old': event1.proposals?.length,
+        'new': event2.proposals?.length,
+      };
+    }
+
+    return differences.isEmpty ? null : differences;
   }
 }

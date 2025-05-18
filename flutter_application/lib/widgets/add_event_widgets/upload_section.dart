@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_application/controllers/event_controller.dart';
+import 'package:flutter_application/controllers/flyer_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UploadSection extends StatefulWidget {
@@ -21,7 +21,6 @@ class UploadSection extends StatefulWidget {
 
 class _UploadSectionState extends State<UploadSection> {
   bool _isUploading = false;
-  final _eventController = EventController();
   final _imagePicker = ImagePicker();
 
   Future<void> _showUploadOptions() async {
@@ -72,7 +71,7 @@ class _UploadSectionState extends State<UploadSection> {
         setState(() => _isUploading = true);
 
         final file = File(image.path);
-        final fileUrl = await _eventController.uploadEventFlyer(file);
+        final fileUrl = await FlyerController.uploadEventFlyer(file);
 
         if (fileUrl != null) {
           widget.onFileChanged(fileUrl);
@@ -113,7 +112,7 @@ class _UploadSectionState extends State<UploadSection> {
           // Handle web platform
           final bytes = result.files.first.bytes;
           if (bytes != null) {
-            fileUrl = await _eventController.uploadEventFlyerWeb(
+            fileUrl = await FlyerController.uploadEventFlyerWeb(
               bytes,
               result.files.first.name,
             );
@@ -121,7 +120,7 @@ class _UploadSectionState extends State<UploadSection> {
         } else {
           // Handle mobile platforms
           final file = File(result.files.first.path!);
-          fileUrl = await _eventController.uploadEventFlyer(file);
+          fileUrl = await FlyerController.uploadEventFlyer(file);
         }
 
         if (fileUrl != null) {

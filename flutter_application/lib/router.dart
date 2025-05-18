@@ -7,6 +7,8 @@ import 'screens/list_events_screen.dart';
 import './screens/add_event_screen.dart';
 import './screens/view_event_screen.dart';
 import 'utils/local_storage.dart';
+import 'screens/edit_event_screen.dart';
+import 'screens/edit_event_instance_screen.dart';
 
 final routerProvider = Provider((ref) {
   // final authState = ref.watch(authProvider).state;
@@ -62,6 +64,18 @@ final routerProvider = Provider((ref) {
           final nextRoute = state.extra is Map ? (state.extra as Map)['nextRoute'] as String? : null;
           return VerifyScreen(nextRoute: nextRoute);
         },
+      ),
+      GoRoute(
+        path: '/edit-event/:eventId',
+        builder: (context, state) => EditEventScreen(
+          eventId: state.pathParameters['eventId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/edit-event-instance/:instanceId',
+        builder: (context, state) => EditEventInstanceScreen(
+          eventInstanceId: state.pathParameters['instanceId']!,
+        ),
       ),
     ],
   );

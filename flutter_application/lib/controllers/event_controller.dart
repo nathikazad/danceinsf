@@ -1,16 +1,11 @@
 import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
-import 'package:flutter_application/models/proposal_model.dart';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:path/path.dart' as path;
-
 
 class EventController {
   static final supabase = Supabase.instance.client;
 
-  Future<List<EventInstance>> fetchEvents({DateTime? startDate, required int windowDays}) async {
+  static Future<List<EventInstance>> fetchEvents({DateTime? startDate, required int windowDays}) async {
     startDate ??= DateTime.now();
     final endDate = startDate.add(Duration(days: windowDays));
     try {
@@ -29,7 +24,6 @@ class EventController {
           .map((instance) => instance['events']['event_id'] as String)
           .toSet()
           .toList();
-
 
       // Get ratings for these events using the function
       final ratingsResponse = await supabase
@@ -76,74 +70,7 @@ class EventController {
     }
   }
 
-  Future<EventInstance?> fetchEvent(String eventInstanceId) async {
-    try {
-      // 1. Fetch the event instance with its event, unresolved proposals, and ratings in a single query
-      final instanceResponse = await supabase
-          .from('event_instances')
-          .select('''
-            *,
-            events!inner(*),
-            proposals!event_instance_id(*),
-            instance_ratings(*)
-          ''')
-          .eq('instance_id', eventInstanceId)
-          .eq('proposals.resolved', false)
-          .single();
-
-      final eventId = instanceResponse['event_id'];
-      final eventData = instanceResponse['events'];
-
-      // 2. Get ratings for this event using the function
-      final ratingsResponse = await supabase
-          .rpc('get_event_ratings', params: {'event_ids': [eventId]});
-
-      // 3. Get the rating data
-      final ratingData = ratingsResponse.isNotEmpty ? ratingsResponse.first : null;
-      final rating = ratingData?['average_rating'] as num?;
-      final ratingCount = ratingData?['rating_count'] as int? ?? 0;
-
-      // 4. Fetch unresolved event-level proposals
-      final eventProposalsResponse = await supabase
-          .from('proposals')
-          .select('*')
-          .eq('event_id', eventId)
-          .eq('resolved', false)
-          .order('created_at', ascending: false);
-
-      final eventProposals = eventProposalsResponse
-          .map<Proposal>((proposal) => Proposal.fromMap(proposal))
-          .toList();
-
-      print('Event data: ${eventData['default_flyer_url']}');
-      final event = Event.fromMap(eventData, rating: rating?.toDouble() ?? 0.0, ratingCount: ratingCount, proposals: eventProposals);
-
-      // 5. Process instance proposals and ratings from the nested response
-      final instanceProposals = (instanceResponse['proposals'] as List)
-          .map<Proposal>((proposal) => Proposal.fromMap(proposal))
-          .toList();
-
-      final ratings = (instanceResponse['instance_ratings'] as List)
-          .map<EventRating>((rating) => EventRating.fromMap(rating))
-          .toList();
-
-      // 6. Compose the EventInstance with proposals and ratings
-      final eventInstance = EventInstance.fromMap(
-        instanceResponse, 
-        event, 
-        ratings: ratings,
-        proposals: instanceProposals,
-      );
-      
-      return eventInstance;
-    } catch (error, stackTrace) {
-      print('Error fetching event: $error');
-      print('Stack trace: $stackTrace');
-      rethrow;
-    }
-  }
-
-  Future<String?> createEvent(Event event, DateTime? selectedDate) async {
+  static Future<String?> createEvent(Event event, DateTime? selectedDate) async {
     try {
       // Convert event type and style to lists for database storage
       final eventTypes = [event.type == EventType.social ? 'Social' : 'Class'];
@@ -195,7 +122,6 @@ class EventController {
       }
       print('Event created: ${eventResponse['event_id']}');
 
-      
       final functionResponse = await supabase.functions.invoke(
         'generate_event_instances',
         body: {
@@ -208,9 +134,7 @@ class EventController {
         print('Warning: Failed to generate event instances: ${functionResponse.data}');
         return null;
       }
-      
 
-      // Create and return the Event object
       return eventResponse['event_id'];
     } catch (error, stackTrace) {
       print('Error creating event: $error');
@@ -219,123 +143,79 @@ class EventController {
     }
   }
 
-  static Future<EventRating?> rateEvent(String eventInstanceId, int rating) async {
-    
+  static Future<void> updateEvent(Event event) async {
     try {
-      final user = supabase.auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
+      // Convert event type and style to lists for database storage
+      final eventTypes = [event.type == EventType.social ? 'Social' : 'Class'];
+      final eventCategories = [event.style == DanceStyle.salsa ? 'Salsa' : 'Bachata'];
+      
+      // Convert frequency to string
+      final recurrenceType = event.frequency.toString().split('.').last.capitalize();
+      
+      // Convert TimeOfDay to string format
+      final startTimeStr = '${event.startTime.hour.toString().padLeft(2, '0')}:${event.startTime.minute.toString().padLeft(2, '0')}';
+      final endTimeStr = '${event.endTime.hour.toString().padLeft(2, '0')}:${event.endTime.minute.toString().padLeft(2, '0')}';
 
-      // Validate rating is between 0 and 5
-      if (rating < 0 || rating > 5) {
-        throw Exception('Rating must be between 0 and 5');
+      // Extract weekly days or monthly pattern based on schedule
+      List<String>? weeklyDays;
+      List<String>? monthlyPattern;
+      
+      if (event.schedule.frequency == Frequency.weekly && event.schedule.dayOfWeek != null) {
+        weeklyDays = [event.schedule.shortWeeklyPattern];
+      } else if (event.schedule.frequency == Frequency.monthly && 
+                event.schedule.dayOfWeek != null && 
+                event.schedule.weekOfMonth != null) {
+        monthlyPattern = [event.schedule.shortMonthlyPattern];
       }
 
-      // Check if user has already rated this instance
-      final existingRating = await supabase
-          .from('instance_ratings')
-          .select()
-          .eq('instance_id', eventInstanceId)
-          .eq('user_id', user.id)
-          .maybeSingle();
+      final eventData = {
+        'name': event.name,
+        'event_type': eventTypes,
+        'event_category': eventCategories,
+        'recurrence_type': recurrenceType,
+        'default_venue_name': event.location.venueName,
+        'default_city': event.location.city,
+        'default_google_maps_link': event.location.url,
+        'default_ticket_link': event.linkToEvent,
+        'default_start_time': startTimeStr,
+        'default_end_time': endTimeStr,
+        'default_cost': event.cost,
+        'flyer_url': event.flyerUrl,
+        'default_description': event.description,
+        'weekly_days': weeklyDays,
+        'monthly_pattern': monthlyPattern,
+      };
 
-      final ratingResponse = existingRating != null
-          ? await supabase
-              .from('instance_ratings')
-              .update({
-                'rating': rating,
-              })
-              .eq('instance_id', eventInstanceId)
-              .eq('user_id', user.id)
-              .select()
-              .single()
-          : await supabase
-              .from('instance_ratings')
-              .insert({
-                'instance_id': eventInstanceId,
-                'user_id': user.id,
-                'rating': rating,
-                'created_at': DateTime.now().toIso8601String(),
-              })
-              .select()
-              .single();
+      await supabase
+          .from('events')
+          .update(eventData)
+          .eq('event_id', event.eventId);
 
-      // Convert to EventRating object
-      return EventRating(
-        rating: ratingResponse['rating'] is double ? ratingResponse['rating'] : double.tryParse(ratingResponse['rating'].toString()) ?? 0.0,
-        comment: ratingResponse['comment'] as String?,
-        userId: ratingResponse['user_id'] as String,
-        createdAt: DateTime.parse(ratingResponse['created_at']),
+      // After updating the event, regenerate instances for the next 30 days
+      await supabase.functions.invoke(
+        'generate_event_instances',
+        body: {
+          'event_ids': [event.eventId],
+        },
       );
+    } catch (error, stackTrace) {
+      print('Error updating event: $error');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  static Future<Event?> fetchEvent(String eventId) async {
+    try {
+      final response = await supabase
+          .from('events')
+          .select()
+          .eq('event_id', eventId)
+          .single();
+
+      return Event.fromMap(response);
     } catch (e) {
-      print('Error rating event: $e');
-      return null;
-    }
-  }
-
-  Future<String?> uploadEventFlyer(File file) async {
-    try {
-      final user = supabase.auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      // Generate a unique file name
-      final fileExt = path.extension(file.path);
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}$fileExt';
-      final filePath = 'flyers/$fileName';
-
-      // Upload file to Supabase Storage
-      final response = await supabase.storage
-          .from('flyers')
-          .upload(filePath, file);
-
-      if (response.isEmpty) {
-        throw Exception('Failed to upload file');
-      }
-
-      // Get the public URL
-      final fileUrl = supabase.storage
-          .from('flyers')
-          .getPublicUrl(filePath);
-      print('File URL: $fileUrl');
-
-      return fileUrl;
-    } catch (error, stackTrace) {
-      print('Error uploading file: $error');
-      print('Stack trace: $stackTrace');
-      return null;
-    }
-  }
-
-  Future<String?> uploadEventFlyerWeb(List<int> bytes, String fileName) async {
-    try {
-      final user = supabase.auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      // Generate a unique file name
-      final fileExt = path.extension(fileName);
-      final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}$fileExt';
-      final filePath = 'flyers/$uniqueFileName';
-
-      // Convert List<int> to Uint8List
-      final uint8List = Uint8List.fromList(bytes);
-
-      // Upload file to Supabase Storage
-      final response = await supabase.storage
-          .from('flyers')
-          .uploadBinary(filePath, uint8List);
-
-      if (response.isEmpty) {
-        throw Exception('Failed to upload file');
-      }
-
-      // Get the public URL
-      final fileUrl = supabase.storage
-          .from('flyers')
-          .getPublicUrl(filePath);
-
-      return fileUrl;
-    } catch (error, stackTrace) {
-      print('Error uploading file: $error');
-      print('Stack trace: $stackTrace');
+      print('Error fetching event: $e');
       return null;
     }
   }

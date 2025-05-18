@@ -12,26 +12,18 @@ import 'package:flutter_application/widgets/list_event_widgets/event_filters/eve
 import 'package:flutter_application/widgets/list_event_widgets/event_list.dart';
 import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
 
-final eventControllerProvider =
-    Provider<EventController>((ref) => EventController());
-
 final eventsStateProvider =
     StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventInstance>>>(
-        (ref) {
-  final controller = ref.watch(eventControllerProvider);
-  return EventsStateNotifier(controller);
-});
+        (ref) => EventsStateNotifier());
 
 class EventsStateNotifier
     extends StateNotifier<AsyncValue<List<EventInstance>>> {
-  final EventController _controller;
-
-  EventsStateNotifier(this._controller) : super(const AsyncValue.loading());
+  EventsStateNotifier() : super(const AsyncValue.loading());
 
   Future<void> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
     state = const AsyncValue.loading();
     try {
-      final events = await _controller.fetchEvents(
+      final events = await EventController.fetchEvents(
         startDate: startDate,
         windowDays: windowDays,
       );
@@ -46,7 +38,7 @@ class EventsStateNotifier
     
     try {
       final currentEvents = (state as AsyncData<List<EventInstance>>).value;
-      final newEvents = await _controller.fetchEvents(
+      final newEvents = await EventController.fetchEvents(
         startDate: startDate,
         windowDays: windowDays,
       );
@@ -81,10 +73,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   void initState() {
     super.initState();
     // Initial fetch
-    ref.read(eventsStateProvider.notifier).fetchEvents(
-          startDate: _startDate,
-          windowDays: _daysWindow,
-        );
+    ref.read(eventsStateProvider.notifier).fetchEvents();
   }
 
   @override
