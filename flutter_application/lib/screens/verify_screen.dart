@@ -3,9 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../auth.dart';
 
+enum VerifyScreenType {
+  giveRating,
+  addEvent,
+  editEvent,
+  none,
+}
+
 class VerifyScreen extends ConsumerStatefulWidget {
   final String? nextRoute;
-  const VerifyScreen({super.key, this.nextRoute});
+  final VerifyScreenType verifyScreenType;
+  const VerifyScreen({super.key, this.nextRoute, this.verifyScreenType = VerifyScreenType.none});
 
   @override
   ConsumerState<VerifyScreen> createState() => _VerifyScreenState();
@@ -66,7 +74,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
       if (!mounted) return;
       if (widget.nextRoute != null) {
         if (widget.nextRoute == 'back') {
-          context.pop();
+          context.pop(true);
         } else {
           context.pushReplacement(widget.nextRoute!);
         }
@@ -81,6 +89,19 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  String _getMessage() {
+    switch (widget.verifyScreenType) {
+      case VerifyScreenType.giveRating:
+        return 'Verify your phone number to rate this event';
+      case VerifyScreenType.addEvent:
+        return 'Verify your phone number to add an event';
+      case VerifyScreenType.editEvent:
+        return 'Verify your phone number to edit this event';
+      case VerifyScreenType.none:
+        return 'Verify your phone number';
     }
   }
 
@@ -101,7 +122,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
               size: 20,
             ),
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(false),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -120,7 +141,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
             Container(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Verify your phone number to rate this event',
+                _getMessage(),
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                     fontSize: 14),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/auth.dart';
 import 'package:flutter_application/models/event_model.dart';
+import 'package:flutter_application/screens/verify_screen.dart';
 import 'package:flutter_application/utils/theme/app_color.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -156,7 +157,10 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               if (ref.read(authProvider).state.user != null) {
                 GoRouter.of(context).push('/add-event');
               } else {
-                GoRouter.of(context).push('/verify', extra: {'nextRoute': '/add-event'});
+                GoRouter.of(context).push('/verify',
+                 extra: {
+                  'nextRoute': '/add-event', 
+                  'verifyScreenType': VerifyScreenType.addEvent});
               }
             },
             filterController: filterController,

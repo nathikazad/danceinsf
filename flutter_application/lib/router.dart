@@ -62,7 +62,8 @@ final routerProvider = Provider((ref) {
         path: '/verify',
         builder: (context, state) {
           final nextRoute = state.extra is Map ? (state.extra as Map)['nextRoute'] as String? : null;
-          return VerifyScreen(nextRoute: nextRoute);
+          final verifyScreenType = state.extra is Map ? (state.extra as Map)['verifyScreenType'] as VerifyScreenType? : VerifyScreenType.none;
+          return VerifyScreen(nextRoute: nextRoute, verifyScreenType: verifyScreenType ?? VerifyScreenType.none);
         },
       ),
       GoRoute(

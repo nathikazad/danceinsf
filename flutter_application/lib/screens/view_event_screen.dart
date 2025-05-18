@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/controllers/event_instance_controller.dart';
+import 'package:flutter_application/screens/verify_screen.dart';
 import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dart';
 import 'package:flutter_application/widgets/view_event_widgets/flyer_viewer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
@@ -44,16 +46,30 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 leading: const Icon(Icons.edit),
                 title: Text('Only this event on ${_formatDate(eventInstance.date)}'),
                 onTap: () {
-                  Navigator.pop(context);
-                  context.push('/edit-event-instance/${eventInstance.eventInstanceId}');
+                  if (Supabase.instance.client.auth.currentUser != null) {
+                    GoRouter.of(context).push('/edit-event-instance/${eventInstance.eventInstanceId}');
+                  } else {
+                    GoRouter.of(
+                      context,
+                    ).push('/verify', extra: {
+                      'nextRoute': '/edit-event-instance/${eventInstance.eventInstanceId}', 
+                      'verifyScreenType': VerifyScreenType.editEvent});
+                  }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.edit_calendar),
                 title: const Text('All future versions of this event'),
                 onTap: () {
-                  Navigator.pop(context);
-                  context.push('/edit-event/${eventInstance.event.eventId}');
+                  if (Supabase.instance.client.auth.currentUser != null) {
+                    GoRouter.of(context).push('/edit-event/${eventInstance.event.eventId}');
+                  } else {
+                    GoRouter.of(
+                      context,
+                    ).push('/verify', extra: {
+                      'nextRoute': '/edit-event/${eventInstance.event.eventId}', 
+                      'verifyScreenType': VerifyScreenType.editEvent});
+                  }
                 },
               ),
             ],
@@ -169,6 +185,9 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 const SizedBox(height: 32),
                 ProposalsWidget(
                   eventInstance: eventInstance,
+                  onEditClicked: () {
+                    _showEditOptions(context, snapshot.data!);
+                  }
                 ),
               ],
             ),

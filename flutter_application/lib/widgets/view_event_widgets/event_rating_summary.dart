@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/screens/verify_screen.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/event_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -138,7 +140,23 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                 children: List.generate(
                   5,
                   (i) => GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      if (Supabase.instance.client.auth.currentUser == null) {
+                        final result = await GoRouter.of(context).push<bool>('/verify',
+                        extra: {
+                          'nextRoute': '/back',
+                          'verifyScreenType': VerifyScreenType.giveRating});
+                        if (result != true) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Need to verify your phone number to rate events'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        }
+                      }
                       _handleRating(i + 1);
                       widget.submitRating(i + 1);
                     },

@@ -3,12 +3,13 @@ import 'package:flutter_application/models/event_model.dart';
 import 'package:flutter_application/models/proposal_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'proposal_item.dart';
-import 'proposal_form.dart';
+// import 'proposal_form.dart';
 
 class ProposalsWidget extends StatefulWidget {
   final EventInstance eventInstance;
+  final Function() onEditClicked;
 
-  const ProposalsWidget({required this.eventInstance, super.key});
+  const ProposalsWidget({required this.eventInstance, required this.onEditClicked, super.key});
 
   @override
   State<ProposalsWidget> createState() => _ProposalsWidgetState();
@@ -69,15 +70,7 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
   List<Proposal> get eventProposals => _eventProposals;
 
   void _handleSuggestEdit() {
-    showDialog(
-      context: context,
-      builder: (context) => ProposalForm(
-        eventInstance: widget.eventInstance,
-        onSubmitted: () {
-          setState(() {}); // Refresh the widget to show new proposal
-        },
-      ),
-    );
+    widget.onEditClicked();
   }
 
   Widget _buildProposalsList() {
