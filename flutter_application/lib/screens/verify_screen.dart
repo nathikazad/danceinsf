@@ -7,6 +7,7 @@ enum VerifyScreenType {
   giveRating,
   addEvent,
   editEvent,
+  voteOnProposal,
   none,
 }
 
@@ -102,6 +103,8 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
         return 'Verify your phone number to edit this event';
       case VerifyScreenType.none:
         return 'Verify your phone number';
+      case VerifyScreenType.voteOnProposal:
+        return 'Verify your phone number to vote on proposals';
     }
   }
 

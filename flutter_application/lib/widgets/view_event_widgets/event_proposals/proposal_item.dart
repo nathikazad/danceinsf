@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/controllers/proposal_controller.dart';
 import 'package:flutter_application/models/proposal_model.dart';
+import 'package:flutter_application/screens/verify_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-
-class ProposalItem extends StatelessWidget {
+class ProposalItem extends StatefulWidget {
   final Proposal proposal;
   final bool isForAllEvents;
   final Function(Proposal)? onProposalUpdated;
@@ -17,8 +19,38 @@ class ProposalItem extends StatelessWidget {
   });
 
   @override
+  State<ProposalItem> createState() => _ProposalItemState();
+}
+
+class _ProposalItemState extends State<ProposalItem> {
+  Future<void> _handleVote(bool isUpvote) async {
+    if (Supabase.instance.client.auth.currentUser == null) {
+      final result = await GoRouter.of(context).push<bool>('/verify',
+        extra: {
+          'nextRoute': '/back',
+          'verifyScreenType': VerifyScreenType.giveRating
+        }
+      );
+      if (result != true) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Need to verify your phone number to vote on proposals'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+    }
+    final updatedProposal = await ProposalController.voteOnProposal(widget.proposal.id, isUpvote);
+    if (updatedProposal != null && widget.onProposalUpdated != null) {
+      widget.onProposalUpdated!(updatedProposal);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('MM/dd').format(proposal.createdAt);
+    final formattedDate = DateFormat('MM/dd').format(widget.proposal.createdAt);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -42,7 +74,7 @@ class ProposalItem extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              proposal.text,
+              widget.proposal.text,
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 12),
@@ -50,7 +82,7 @@ class ProposalItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  isForAllEvents ? 'For All Events' : 'Only This Event',
+                  widget.isForAllEvents ? 'For All Events' : 'Only This Event',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -62,7 +94,7 @@ class ProposalItem extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          '${proposal.yeses.length}',
+                          '${widget.proposal.yeses.length}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -70,19 +102,14 @@ class ProposalItem extends StatelessWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.thumb_up_outlined),
-                          onPressed: () async {
-                            final updatedProposal = await ProposalController.voteOnProposal(proposal.id, true);
-                            if (updatedProposal != null && onProposalUpdated != null) {
-                              onProposalUpdated!(updatedProposal);
-                            }
-                          },
+                          onPressed: () => _handleVote(true),
                         ),
                       ],
                     ),
                     Row(
                       children: [
                         Text(
-                          '${proposal.nos.length}',
+                          '${widget.proposal.nos.length}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -90,12 +117,7 @@ class ProposalItem extends StatelessWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.thumb_down_outlined),
-                          onPressed: () async {
-                            final updatedProposal = await ProposalController.voteOnProposal(proposal.id, false);
-                            if (updatedProposal != null && onProposalUpdated != null) {
-                              onProposalUpdated!(updatedProposal);
-                            }
-                          },
+                          onPressed: () => _handleVote(false),
                         ),
                       ],
                     ),
