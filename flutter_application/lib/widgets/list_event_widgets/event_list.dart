@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_application/utils/theme/app_color.dart';
 import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
@@ -14,7 +15,7 @@ class EventsList extends StatelessWidget {
   final AsyncValue<List<EventInstance>> eventsAsync;
   final WeekNavigatorController weekNavigatorController;
   final void Function(DateTime) handleDateUpdate;
-  final void Function(bool) onRangeUpdate;
+  final Future<void> Function(bool) onRangeUpdate;  
   const EventsList({
     super.key,
     required this.eventsAsync,
@@ -49,7 +50,9 @@ class EventsList extends StatelessWidget {
                     weekNavigatorController.scrollController;
                 if (scrollController.position.pixels == 0) {
                   print('Top reached');
-                  onRangeUpdate(true);
+                  if (kIsWeb) {
+                    onRangeUpdate(true);
+                  }
                 } else if (scrollController.position.pixels ==
                     scrollController.position.maxScrollExtent) {
                   print('Bottom reached');
@@ -58,7 +61,13 @@ class EventsList extends StatelessWidget {
               }
               return true;
             },
-            child: ListView.builder(
+            child: 
+            RefreshIndicator(
+              onRefresh: () async {
+                await onRangeUpdate(true);
+              },
+              child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
               controller: weekNavigatorController.scrollController,
               padding: const EdgeInsets.all(16),
               itemCount: dateKeys.length,
@@ -76,6 +85,7 @@ class EventsList extends StatelessWidget {
                 );
               },
             ),
+          ),
           );
         },
       ),

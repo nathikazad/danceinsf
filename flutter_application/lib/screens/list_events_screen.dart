@@ -100,24 +100,22 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
         eventsAsync, weekStart);
   }
 
-  void _handleRangeUpdate(bool isTop) {
-    setState(() {
-      if (isTop) {
-        // When reaching top, extend range backwards
-        _startDate = _startDate.subtract(Duration(days: _daysWindow));
-        ref.read(eventsStateProvider.notifier).appendEvents(
-          startDate: _startDate,
-          windowDays: _daysWindow,
-        );
-      } else {
-        // When reaching bottom, extend range forwards
-        _daysWindow += 30;
-        ref.read(eventsStateProvider.notifier).appendEvents(
-          startDate: _startDate.add(Duration(days: _daysWindow - 30)),
-          windowDays: 30,
-        );
-      }
-    });
+  Future<void> _handleRangeUpdate(bool isTop) async {
+    if (isTop) {
+      // When reaching top, extend range backwards
+      _startDate = _startDate.subtract(Duration(days: _daysWindow));
+      await ref.read(eventsStateProvider.notifier).appendEvents(
+        startDate: _startDate,
+        windowDays: _daysWindow,
+      );
+    } else {
+      // When reaching bottom, extend range forwards
+      _daysWindow += 30;
+      await ref.read(eventsStateProvider.notifier).appendEvents(
+        startDate: _startDate.add(Duration(days: _daysWindow - 30)),
+        windowDays: 30,
+      );
+    }
   }
 
   @override
