@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/controllers/proposal_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../widgets/add_event_widgets/repeat_section.dart';
 import '../widgets/add_event_widgets/location_section.dart';
 import '../widgets/add_event_widgets/upload_section.dart';
@@ -67,13 +69,14 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
         _event = _event.copyWith(name: _nameController.text);
         // Get and print the differences between original and current state
         final differences = Event.getDifferences(_oldEvent, _event);
-        if (differences != null) {
-          print('Event changes:');
-          print(differences);
+        if (_event.organizerId == Supabase.instance.client.auth.currentUser?.id) {
+          await EventController.updateEvent(_event);
+        } else {
+          await ProposalController.createProposal(
+          changes: differences ?? {},
+          forAllEvents: true,
+          eventId: _event.eventId);
         }
-
-        // Update the event in the database
-        // await EventController.updateEvent(_event);
         
         if (mounted) {
           context.pop();

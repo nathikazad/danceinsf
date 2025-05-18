@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CostSection extends StatelessWidget {
+class CostSection extends StatefulWidget {
   final double initialCost;
   final Function(double) onCostChanged;
   final String? Function(String?)? validator;
@@ -13,13 +13,30 @@ class CostSection extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final controller = TextEditingController(text: initialCost.toString());
+  State<CostSection> createState() => _CostSectionState();
+}
+
+class _CostSectionState extends State<CostSection> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.initialCost.toString());
     controller.addListener(() {
       final value = double.tryParse(controller.text) ?? 0.0;
-      onCostChanged(value);
+      widget.onCostChanged(value);
     });
+  }
 
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -31,7 +48,7 @@ class CostSection extends StatelessWidget {
             hintText: 'Cost',
             border: OutlineInputBorder(),
           ),
-          validator: validator,
+          validator: widget.validator,
           keyboardType: TextInputType.number,
         ),
       ],

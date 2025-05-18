@@ -6,7 +6,7 @@ class Proposal {
   final String userId;
   final String? eventId;
   final String? eventInstanceId;
-  final String text;
+  final Map<String, dynamic> changes;
   final List<String> yeses;
   final List<String> nos;
   final bool resolved;
@@ -17,7 +17,7 @@ class Proposal {
     required this.userId,
     this.eventId,
     this.eventInstanceId,
-    required this.text,
+    required this.changes,
     this.yeses = const [],
     this.nos = const [],
     this.resolved = false,
@@ -30,7 +30,7 @@ class Proposal {
       userId: map['user_id'] as String,
       eventId: map['event_id'] as String?,
       eventInstanceId: map['event_instance_id'] as String?,
-      text: map['text'] as String,
+      changes: map['changes'] as Map<String, dynamic>,
       yeses: toStringList(map['yeses']),
       nos: toStringList(map['nos']),
       resolved: map['resolved'] as bool? ?? false,
@@ -44,7 +44,7 @@ class Proposal {
       'user_id': userId,
       'event_id': eventId,
       'event_instance_id': eventInstanceId,
-      'text': text,
+      'changes': changes,
       'yeses': yeses,
       'nos': nos,
       'resolved': resolved,

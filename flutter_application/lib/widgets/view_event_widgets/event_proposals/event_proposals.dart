@@ -111,7 +111,7 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Proposed Edits ($totalProposals)',
+              'Suggested Corrections ($totalProposals)',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -146,7 +146,7 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
             GestureDetector(
               onTap: _handleSuggestEdit,
               child: const Text(
-                'Suggest an edit',
+                'Suggest a correction',
                 style: TextStyle(
                   color: Colors.orange,
                   fontWeight: FontWeight.bold,

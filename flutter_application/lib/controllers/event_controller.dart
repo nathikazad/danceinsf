@@ -1,4 +1,4 @@
-import 'package:flutter_application/widgets/add_event_widgets/repeat_section.dart';
+import 'package:flutter_application/utils/string.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
 

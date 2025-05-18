@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/controllers/event_instance_controller.dart';
+import 'package:flutter_application/controllers/proposal_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../widgets/add_event_widgets/location_section.dart';
 import '../widgets/add_event_widgets/upload_section.dart';
 import '../widgets/add_event_widgets/time_section.dart';
@@ -54,12 +56,17 @@ class _EditEventInstanceScreenState extends ConsumerState<EditEventInstanceScree
       try {
         // Get and print the differences between original and current state
         final differences = EventInstance.getDifferences(_oldEventInstance, _eventInstance);
-        if (differences != null) {
-          print('Event Instance changes:');
-          print(differences);
+
+        if (_eventInstance.event.organizerId == Supabase.instance.client.auth.currentUser?.id) {
+          await EventInstanceController.updateEventInstance(_eventInstance);
+        } else {
+          await ProposalController.createProposal(
+          changes: differences ?? {},
+          forAllEvents: false,
+          eventInstanceId: _eventInstance.eventInstanceId);
         }
 
-        // await EventInstanceController.updateEventInstance(_eventInstance);
+        
         if (mounted) {
           context.pop();
         }

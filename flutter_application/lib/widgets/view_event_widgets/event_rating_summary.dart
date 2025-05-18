@@ -142,15 +142,26 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                   (i) => GestureDetector(
                     onTap: () async {
                       if (Supabase.instance.client.auth.currentUser == null) {
-                        final result = await GoRouter.of(context).push<bool>('/verify',
-                        extra: {
-                          'nextRoute': '/back',
-                          'verifyScreenType': VerifyScreenType.giveRating});
-                        if (result != true) {
+                        try {
+                          final result = await GoRouter.of(context).push<bool>('/verify',
+                          extra: {
+                            'nextRoute': '/back',
+                            'verifyScreenType': VerifyScreenType.giveRating});
+                          if (result != true) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Need to verify your phone number to rate events'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            return;
+                          }
+                        } catch (e) {
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Need to verify your phone number to rate events'),
+                              content: Text('Failed to verify phone number. Please try again.'),
                               duration: Duration(seconds: 2),
                             ),
                           );

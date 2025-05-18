@@ -77,7 +77,9 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
         if (widget.nextRoute == 'back') {
           context.pop(true);
         } else {
-          context.pushReplacement(widget.nextRoute!);
+          await context.push(widget.nextRoute!);
+          if (!mounted) return;
+          context.pop(true);
         }
       } else {
         context.go('/events');

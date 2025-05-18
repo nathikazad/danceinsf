@@ -25,6 +25,7 @@ class Event {
   final int? ratingCount;
   List<Proposal>? proposals;
   final String? flyerUrl;
+  final String? organizerId;
 
   Event({
     required this.eventId,
@@ -43,6 +44,7 @@ class Event {
     this.ratingCount,
     this.proposals,
     this.flyerUrl,
+    this.organizerId,
   });
 
   // Factory method to create Event from map
@@ -77,6 +79,7 @@ class Event {
       rating: ratingCount > 0 ? rating : null,
       ratingCount: ratingCount,
       proposals: proposals,
+      organizerId: eventData['organizer_id'],
     );
   }
 

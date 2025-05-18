@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/controllers/proposal_controller.dart';
 import 'package:flutter_application/models/proposal_model.dart';
 import 'package:flutter_application/screens/verify_screen.dart';
+import 'package:flutter_application/utils/string.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_application/utils/theme/app_text_styles.dart';
+import 'package:flutter/gestures.dart';
 
 class ProposalItem extends StatefulWidget {
   final Proposal proposal;
@@ -25,17 +29,28 @@ class ProposalItem extends StatefulWidget {
 class _ProposalItemState extends State<ProposalItem> {
   Future<void> _handleVote(bool isUpvote) async {
     if (Supabase.instance.client.auth.currentUser == null) {
-      final result = await GoRouter.of(context).push<bool>('/verify',
-        extra: {
-          'nextRoute': '/back',
-          'verifyScreenType': VerifyScreenType.giveRating
+      try {
+        final result = await GoRouter.of(context).push<bool>('/verify',
+          extra: {
+            'nextRoute': '/back',
+            'verifyScreenType': VerifyScreenType.voteOnProposal
+          }
+        );
+        if (result != true) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Need to verify your phone number to vote on proposals'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
         }
-      );
-      if (result != true) {
+      } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Need to verify your phone number to vote on proposals'),
+            content: Text('Failed to verify phone number. Please try again.'),
             duration: Duration(seconds: 2),
           ),
         );
@@ -48,8 +63,67 @@ class _ProposalItemState extends State<ProposalItem> {
     }
   }
 
+  Widget _buildFormattedText(Map<String, dynamic> changes) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: changes.entries.map((entry) {
+        if (entry.value is! Map) return const SizedBox.shrink();
+        
+        final key = entry.key;
+        final value = entry.value as Map;
+        final oldValue = value['old']?.toString() ?? '';
+        final newValue = value['new']?.toString() ?? '';
+        final formattedKey = key.split(RegExp('(?=[A-Z])')).join(' ');
+        
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: RichText(
+            text: TextSpan(
+              style: AppTextStyles.bodyLarge.copyWith(color: colorScheme.onSurface),
+              children: [
+                TextSpan(text: 'Change ${formattedKey.capitalize()} from '),
+                TextSpan(
+                  text: oldValue.isEmpty ? 'None' : oldValue,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  recognizer: oldValue.startsWith('http') ? (TapGestureRecognizer()
+                    ..onTap = () async {
+                      final url = Uri.parse(oldValue);
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url);
+                      }
+                    }) : null,
+                ),
+                const TextSpan(text: ' to '),
+                TextSpan(
+                  text: newValue.isEmpty ? 'None' : newValue,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  recognizer: newValue.startsWith('http') ? (TapGestureRecognizer()
+                    ..onTap = () async {
+                      final url = Uri.parse(newValue);
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url);
+                      }
+                    }) : null,
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('proposal: ${widget.proposal.changes}');
     final formattedDate = DateFormat('MM/dd').format(widget.proposal.createdAt);
 
     return Card(
@@ -73,10 +147,7 @@ class _ProposalItemState extends State<ProposalItem> {
               ],
             ),
             const SizedBox(height: 4),
-            Text(
-              widget.proposal.text,
-              style: const TextStyle(fontSize: 16),
-            ),
+            _buildFormattedText(widget.proposal.changes),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

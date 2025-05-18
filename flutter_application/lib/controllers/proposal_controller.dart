@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProposalController {
   static Future<String?> createProposal({
-    required String text,
+    required Map<String, dynamic> changes,
     required bool forAllEvents,
     String? eventId,
     String? eventInstanceId,
@@ -21,7 +21,7 @@ class ProposalController {
       if (user == null) throw Exception('User not logged in');
       final data = {
         'user_id': user.id,
-        'text': text,
+        'changes': changes,
         'event_id': forAllEvents ? eventId : null,
         'event_instance_id': forAllEvents ? null : eventInstanceId,
         'yeses': [],

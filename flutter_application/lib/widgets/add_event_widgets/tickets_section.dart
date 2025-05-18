@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class TicketsSection extends StatelessWidget {
+class TicketsSection extends StatefulWidget {
   final String? initialTicketLink;
   final Function(String) onTicketLinkChanged;
   final String? Function(String?)? validator;
@@ -13,12 +13,29 @@ class TicketsSection extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final controller = TextEditingController(text: initialTicketLink);
-    controller.addListener(() {
-      onTicketLinkChanged(controller.text);
-    });
+  State<TicketsSection> createState() => _TicketsSectionState();
+}
 
+class _TicketsSectionState extends State<TicketsSection> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.initialTicketLink);
+    controller.addListener(() {
+      widget.onTicketLinkChanged(controller.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -39,7 +56,7 @@ class TicketsSection extends StatelessWidget {
             hintText: 'Sample Link',
             border: OutlineInputBorder(),
           ),
-          validator: validator,
+          validator: widget.validator,
           keyboardType: TextInputType.url,
         ),
       ],
