@@ -130,43 +130,9 @@ class WeekNavigator extends StatelessWidget {
                 fontSize: 14,
                 color: Theme.of(context).colorScheme.tertiary),
           ),
-          SizedBox(
-            child: IconButton(
-              icon: Container(
-                height: 30,
-                width: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(100)),
-                child: const Icon(
-                  Icons.chevron_left,
-                  size: 20,
-                ),
-              ),
-              onPressed: () => onWeekChanged(
-                weekStart.subtract(const Duration(days: 7)),
-              ),
-            ),
-          ),
-          SizedBox(
-            child: IconButton(
-              icon: Container(
-                height: 30,
-                width: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(100)),
-                child: const Icon(
-                  Icons.chevron_right,
-                  size: 20,
-                ),
-              ),
-              onPressed: () => onWeekChanged(
-                weekStart.add(const Duration(days: 7)),
-              ),
-            ),
+          Chevrons(
+            weekStart: weekStart,
+            onWeekChanged: onWeekChanged,
           ),
           Expanded(
             child: Row(
@@ -220,5 +186,67 @@ class WeekNavigator extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+
+class Chevrons extends StatelessWidget {
+  final DateTime weekStart;
+  final Function(DateTime) onWeekChanged;
+
+  const Chevrons({
+    super.key,
+    required this.weekStart,
+    required this.onWeekChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth >= 450) {
+      return Row(
+        children: [
+          SizedBox(
+            child: IconButton(
+              icon: Container(
+                height: 30,
+                width: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(100)),
+                child: const Icon(
+                  Icons.chevron_left,
+                  size: 20,
+                ),
+              ),
+              onPressed: () => onWeekChanged(
+                weekStart.subtract(const Duration(days: 7)),
+              ),
+            ),
+          ),
+          SizedBox(
+            child: IconButton(
+              icon: Container(
+                height: 30,
+                width: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(100)),
+                child: const Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                ),
+              ),
+              onPressed: () => onWeekChanged(
+                weekStart.add(const Duration(days: 7)),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return const SizedBox(width: 10);
   }
 }
