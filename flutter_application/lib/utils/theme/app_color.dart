@@ -20,7 +20,8 @@ class AppColors {
   static const Color darkPrimary = Color.fromRGBO(240, 99, 20, 1);
   static const Color darkSecondaryVariant = Color.fromRGBO(61, 49, 42, 1);
   static const Color darkSecondary = Colors.white;
-  static const Color darkOnSecondary = Color.fromRGBO(30, 30, 30, 1);
+  static const Color darkOnSecondary = Color(0xFFFFFFFF);
+  //Color.fromRGBO(30, 30, 30, 1);
   static const Color darkOnSecondaryContainer = Color(0xFFFFFFFF);
   static const Color darkTertiary = Color.fromRGBO(213, 213, 213, 1);
   static const Color darkonTertiary = Color(0xFFFFFFFF);

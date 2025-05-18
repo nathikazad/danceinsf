@@ -6,7 +6,11 @@ class EventRatingSummary extends StatefulWidget {
   final DateTime date;
   final List<EventRating> ratings;
   final Function(int) submitRating;
-  const EventRatingSummary({required this.date, required this.ratings, required this.submitRating, super.key});
+  const EventRatingSummary(
+      {required this.date,
+      required this.ratings,
+      required this.submitRating,
+      super.key});
 
   @override
   State<EventRatingSummary> createState() => _EventRatingSummaryState();
@@ -54,57 +58,106 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
   @override
   Widget build(BuildContext context) {
     final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-    final hasUserRated = currentUserId != null && 
+    final brightness = Theme.of(context).brightness;
+    final hasUserRated = currentUserId != null &&
         widget.ratings.any((rating) => rating.userId == currentUserId);
 
-    return Center(
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      elevation: 0,
+      color: brightness == Brightness.light
+          ? Colors.white
+          : Color.fromRGBO(43, 33, 28, 1),
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Center(
+          child: Column(
             children: [
-              if (widget.ratings.isEmpty)
-                Text('This rating is for event on ${_formatDate(widget.date)}', style: const TextStyle(fontSize: 16)),
-              if (widget.ratings.isNotEmpty)
-                Text('The event on ${_formatDate(widget.date)} got', style: const TextStyle(fontSize: 16)),
-              const SizedBox(width: 8),
-              if (widget.ratings.isNotEmpty)
-                const Icon(Icons.favorite, color: Colors.orange, size: 20),
-              if (widget.ratings.isNotEmpty)
-                Text(
-                  widget.ratings.isNotEmpty
-                      ? widget.ratings.first.rating.toStringAsFixed(1)
-                      : '-',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-              if (widget.ratings.isNotEmpty)
-                Text(' (${widget.ratings.length})'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            hasUserRated ? 'Your Rating' : 'Rate this Event',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              5,
-              (i) => GestureDetector(
-                onTap: () {
-                  _handleRating(i + 1);
-                  widget.submitRating(i + 1);
-                },
-                child: Icon(
-                  i < selectedRating ? Icons.favorite : Icons.favorite_border,
-                  color: i < selectedRating ? Colors.orange : Colors.grey.shade400,
-                  size: 30,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.ratings.isEmpty)
+                    Text(
+                        'This rating is for event on ${_formatDate(widget.date)}',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: 14,
+                            color: brightness == Brightness.dark
+                                ? Colors.white
+                                : Colors.black)),
+                  if (widget.ratings.isNotEmpty)
+                    Text('The event on ${_formatDate(widget.date)} got',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: 14,
+                            color: brightness == Brightness.dark
+                                ? Colors.white
+                                : Colors.black)),
+                  const SizedBox(width: 8),
+                  if (widget.ratings.isNotEmpty)
+                    Icon(Icons.favorite,
+                        color: Theme.of(context).colorScheme.primary, size: 18),
+                  if (widget.ratings.isNotEmpty)
+                    Text(
+                      widget.ratings.isNotEmpty
+                          ? widget.ratings.first.rating.toStringAsFixed(1)
+                          : '-',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 18),
+                    ),
+                  if (widget.ratings.isNotEmpty)
+                    Text(
+                      ' (${widget.ratings.length})',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onTertiary
+                                  .withOpacity(0.5),
+                              fontSize: 14),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 15),
+              Text(
+                hasUserRated ? 'Your Rating' : 'Rate this Event',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 16),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  5,
+                  (i) => GestureDetector(
+                    onTap: () {
+                      _handleRating(i + 1);
+                      widget.submitRating(i + 1);
+                    },
+                    child: Icon(
+                      i < selectedRating ? Icons.favorite : Icons.favorite,
+                      color: i < selectedRating
+                          ? Colors.orange
+                          : brightness == Brightness.light
+                              ? Color.fromRGBO(218, 218, 218, 1)
+                              : Colors.white,
+                      size: 30,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
-} 
+}

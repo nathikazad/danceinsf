@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'dart:io';
@@ -118,18 +119,25 @@ class FlyerViewer extends StatelessWidget {
       onTap: () => _viewFlyer(context),
       child: Row(
         children: [
-          Icon(Icons.link, color: Colors.orange, size: 22),
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).colorScheme.secondaryContainer),
+            child: SvgIcon(
+              icon: SvgIconData("assets/icons/line-md_link.svg"),
+              size: 18,
+            ),
+          ),
           const SizedBox(width: 8),
           Text(
             'Flyer',
-            style: const TextStyle(
-              color: Colors.orange,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary, fontSize: 12),
           ),
         ],
       ),
     );
   }
-} 
+}
