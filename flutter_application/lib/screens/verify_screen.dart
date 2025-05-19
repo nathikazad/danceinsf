@@ -208,46 +208,48 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                           fontSize: 14,
                           fontFamily: "Inter")),
             ),
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 24),
-            Text(
-              'Enter OTP Code',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary, fontSize: 14),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _otpController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: 'OTP Code',
-                hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 12),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+            if (_otpSent) ...[
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 24),
+              Text(
+                'Enter OTP Code',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary, fontSize: 14),
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isLoading || !_otpSent ? null : _verifyOTP,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _otpController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'OTP Code',
+                  hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 12),
+                  border:
+                      OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                ),
               ),
-              child: _isLoading && _otpSent
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Verify',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-            ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _verifyOTP,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Verify',
+                        style:
+                            TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+              ),
+            ],
             if (_error != null) ...[
               const SizedBox(height: 16),
               Text(_error!, style: const TextStyle(color: Colors.red)),
