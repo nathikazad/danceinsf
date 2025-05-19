@@ -192,6 +192,9 @@ class _RepeatSectionState extends State<RepeatSection> {
             );
           }).toList(),
         ),
+        SizedBox(
+          height: 8,
+        )
       ],
     );
   }
