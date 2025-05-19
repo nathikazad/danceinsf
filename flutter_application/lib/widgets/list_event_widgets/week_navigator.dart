@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/event_model.dart';
+import 'package:flutter_application/widgets/list_event_widgets/responsive_row_column.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -110,82 +111,136 @@ class WeekNavigator extends StatelessWidget {
     final weekDays = ['M', 'T', 'W', 'Th', 'F', 'Sa', 'Su'];
     final dateFormat = DateFormat('MM / dd');
     List<String> dateStr = dateFormat.format(weekStart).split("/");
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        children: [
-          Text(
-            dateStr.first,
-            style: TextStyle(
-                fontFamily: "Inter",
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.primary),
-          ),
-          Text(
-            " / ${dateStr.last}",
-            style: TextStyle(
-                fontFamily: "Inter",
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.tertiary),
-          ),
-          Chevrons(
-            weekStart: weekStart,
-            onWeekChanged: onWeekChanged,
-          ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(7, (index) {
-                final weekday = index + 1;
-                final isSelected = weekday == selectedWeekday;
-                final hasEvents =
-                    daysWithEventsForCurrentWeek.contains(weekday);
-                final theme = Theme.of(context);
-                final isDark = theme.brightness == Brightness.dark;
-                final orange = const Color(0xFFFF7A00);
-                final borderColor = isSelected
-                    ? orange
-                    : hasEvents
-                        ? orange
-                        : (isDark ? Colors.grey[700]! : Colors.grey[300]!);
-                final textColor = isSelected
-                    ? Colors.white
-                    : hasEvents
-                        ? orange
-                        : (isDark ? Colors.grey[500]! : Colors.grey[400]!);
-                final fillColor = isSelected ? orange : Colors.transparent;
-                return SizedBox(
-                  width: 40,
-                  child: OutlinedButton(
-                    onPressed: hasEvents ? () => onDaySelected(weekday) : null,
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 5),
-                      minimumSize: const Size(40, 40),
-                      backgroundColor: fillColor,
-                      side: BorderSide(color: borderColor, width: 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    child: Text(
-                      weekDays[index],
-                      style: TextStyle(
+    return LayoutBuilder(builder: (context, constraints) {
+      final bool isPhoneScreen = constraints.maxWidth < 600;
+      return Padding(
+        padding: EdgeInsets.symmetric(
+            horizontal: isPhoneScreen ? 0 : 8, vertical: 8),
+        child: Row(
+          children: [
+            ResponsiveRowColumn(
+              constraints: constraints,
+              firstChild: Row(
+                children: [
+                  Text(
+                    dateStr.first,
+                    style: TextStyle(
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w700,
                         fontSize: 14,
-                        color: textColor,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                  Text(
+                    " / ${dateStr.last}",
+                    style: TextStyle(
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.tertiary),
+                  ),
+                ],
+              ),
+              secondChild: Row(
+                children: [
+                  SizedBox(
+                    child: IconButton(
+                      icon: Container(
+                        height: isPhoneScreen ? 20 : 30,
+                        width: isPhoneScreen ? 20 : 30,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            borderRadius: BorderRadius.circular(100)),
+                        child: Icon(
+                          Icons.chevron_left,
+                          size: isPhoneScreen ? 15 : 20,
+                        ),
+                      ),
+                      onPressed: () => onWeekChanged(
+                        weekStart.subtract(const Duration(days: 7)),
                       ),
                     ),
                   ),
-                );
-              }),
+                  SizedBox(
+                    child: IconButton(
+                      icon: Container(
+                        height: isPhoneScreen ? 20 : 30,
+                        width: isPhoneScreen ? 20 : 30,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            borderRadius: BorderRadius.circular(100)),
+                        child: Icon(
+                          Icons.chevron_right,
+                          size: isPhoneScreen ? 15 : 20,
+                        ),
+                      ),
+                      onPressed: () => onWeekChanged(
+                        weekStart.add(const Duration(days: 7)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(7, (index) {
+                  final weekday = index + 1;
+                  final isSelected = weekday == selectedWeekday;
+                  final hasEvents =
+                      daysWithEventsForCurrentWeek.contains(weekday);
+                  final theme = Theme.of(context);
+                  final isDark = theme.brightness == Brightness.dark;
+                  final orange = const Color(0xFFFF7A00);
+                  final borderColor = isSelected
+                      ? orange
+                      : hasEvents
+                          ? orange
+                          : (isDark ? Colors.grey[700]! : Colors.grey[300]!);
+                  final textColor = isSelected
+                      ? Colors.white
+                      : hasEvents
+                          ? orange
+                          : (isDark ? Colors.grey[500]! : Colors.grey[400]!);
+                  final fillColor = isSelected ? orange : Colors.transparent;
+                  return SizedBox(
+                    width: 40,
+                    child: OutlinedButton(
+                      onPressed:
+                          hasEvents ? () => onDaySelected(weekday) : null,
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        minimumSize: const Size(40, 40),
+                        backgroundColor: fillColor,
+                        side: BorderSide(color: borderColor, width: 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      child: Text(
+                        weekDays[index],
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: textColor,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 
