@@ -107,13 +107,25 @@ class AppDrawer extends ConsumerWidget {
                 child: Divider(),
               ),
               if (ref.watch(authProvider).state.user != null)
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Revoke OTP'),
-                onTap: () {
-                  ref.read(authProvider.notifier).signOut();
-                },
-              ),
+                ListTile(
+                  leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(100)),
+                      child: Icon(
+                        Icons.logout,
+                        size: 25,
+                        color: Theme.of(context).colorScheme.primary,
+                      )),
+                  title: const Text('Revoke OTP'),
+                  onTap: () {
+                    ref.read(authProvider.notifier).signOut();
+                  },
+                ),
             ],
           ),
         ),

@@ -31,7 +31,8 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   @override
   void initState() {
     super.initState();
-    _eventFuture = EventInstanceController.fetchEventInstance(widget.eventInstanceId);
+    _eventFuture =
+        EventInstanceController.fetchEventInstance(widget.eventInstanceId);
   }
 
   void _showEditOptions(BuildContext context, EventInstance eventInstance) {
@@ -43,32 +44,65 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.edit),
-                title: Text('Only this event on ${_formatDate(eventInstance.date)}'),
+                leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(100)),
+                    child: Icon(
+                      Icons.edit,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    )),
+                title: Text(
+                  'Only this event on ${_formatDate(eventInstance.date)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontSize: 14),
+                ),
                 onTap: () {
                   if (Supabase.instance.client.auth.currentUser != null) {
-                    GoRouter.of(context).push('/edit-event-instance/${eventInstance.eventInstanceId}');
+                    GoRouter.of(context).push(
+                        '/edit-event-instance/${eventInstance.eventInstanceId}');
                   } else {
                     GoRouter.of(
                       context,
                     ).push('/verify', extra: {
-                      'nextRoute': '/edit-event-instance/${eventInstance.eventInstanceId}', 
-                      'verifyScreenType': VerifyScreenType.editEvent});
+                      'nextRoute':
+                          '/edit-event-instance/${eventInstance.eventInstanceId}',
+                      'verifyScreenType': VerifyScreenType.editEvent
+                    });
                   }
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.edit_calendar),
-                title: const Text('All future versions of this event'),
+                leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(100)),
+                    child: Icon(
+                      Icons.edit_calendar,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    )),
+                title: Text('All future versions of this event',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(fontSize: 14)),
                 onTap: () {
                   if (Supabase.instance.client.auth.currentUser != null) {
-                    GoRouter.of(context).push('/edit-event/${eventInstance.event.eventId}');
+                    GoRouter.of(context)
+                        .push('/edit-event/${eventInstance.event.eventId}');
                   } else {
                     GoRouter.of(
                       context,
                     ).push('/verify', extra: {
-                      'nextRoute': '/edit-event/${eventInstance.event.eventId}', 
-                      'verifyScreenType': VerifyScreenType.editEvent});
+                      'nextRoute': '/edit-event/${eventInstance.event.eventId}',
+                      'verifyScreenType': VerifyScreenType.editEvent
+                    });
                   }
                 },
               ),
@@ -111,11 +145,25 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 return const SizedBox.shrink();
               }
               return IconButton(
-                icon: const Icon(Icons.edit),
+                icon: Container(
+                  padding: const EdgeInsets.all(10),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Theme.of(context).colorScheme.secondaryContainer),
+                  child: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                ),
                 onPressed: () => _showEditOptions(context, snapshot.data!),
               );
             },
           ),
+          SizedBox(
+            width: 10,
+          )
         ],
       ),
       body: FutureBuilder<EventInstance?>(
@@ -179,16 +227,18 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                   FlyerViewer(url: eventInstance.flyerUrl!),
                 const SizedBox(height: 24),
                 if (eventInstance.hasStarted)
-                  EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings, submitRating: (rating) async {
-                    await _rateEvent(rating);
-                  }),
+                  EventRatingSummary(
+                      date: eventInstance.date,
+                      ratings: eventInstance.ratings,
+                      submitRating: (rating) async {
+                        await _rateEvent(rating);
+                      }),
                 const SizedBox(height: 32),
                 ProposalsWidget(
-                  eventInstance: eventInstance,
-                  onEditClicked: () {
-                    _showEditOptions(context, snapshot.data!);
-                  }
-                ),
+                    eventInstance: eventInstance,
+                    onEditClicked: () {
+                      _showEditOptions(context, snapshot.data!);
+                    }),
               ],
             ),
           );
@@ -223,12 +273,14 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   }
 
   Future<void> _rateEvent(int rating) async {
-    final ret = await EventInstanceController.rateEvent(widget.eventInstanceId, rating);
+    final ret =
+        await EventInstanceController.rateEvent(widget.eventInstanceId, rating);
     if (ret != null) {
       setState(() {
         _eventFuture.then((eventInstance) {
           if (eventInstance != null) {
-            final existingIndex = eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
+            final existingIndex =
+                eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
             if (existingIndex != -1) {
               eventInstance.ratings[existingIndex] = ret;
             } else {
