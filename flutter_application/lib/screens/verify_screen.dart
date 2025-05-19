@@ -13,8 +13,8 @@ enum VerifyScreenType {
 
 class VerifyScreen extends ConsumerStatefulWidget {
   final String? nextRoute;
-  final VerifyScreenType verifyScreenType;
-  const VerifyScreen({super.key, this.nextRoute, this.verifyScreenType = VerifyScreenType.none});
+  final extra;
+  const VerifyScreen({super.key, this.nextRoute, this.extra});
 
   @override
   ConsumerState<VerifyScreen> createState() => _VerifyScreenState();
@@ -37,6 +37,8 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
     _otpController.dispose();
     super.dispose();
   }
+
+  VerifyScreenType get _verifyScreenType => widget.extra is Map ? (widget.extra as Map)['verifyScreenType'] as VerifyScreenType? ?? VerifyScreenType.none : VerifyScreenType.none;
 
   String get _fullPhoneNumber =>
       '${_countryCodeController.text.trim()}${_phoneController.text.trim().replaceAll(' ', '')}';
@@ -96,7 +98,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
   }
 
   String _getMessage() {
-    switch (widget.verifyScreenType) {
+    switch (_verifyScreenType) {
       case VerifyScreenType.giveRating:
         return 'Verify your phone number to rate this event';
       case VerifyScreenType.addEvent:

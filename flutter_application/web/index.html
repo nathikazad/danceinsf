@@ -31,6 +31,45 @@
 
   <title>flutter_application</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = 'https://swsvvoysafsqsgtvpnqg.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3c3Z2b3lzYWZzcXNndHZwbnFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5Mzk1NzgsImV4cCI6MjA2MjUxNTU3OH0.Z3J3KaWt3zd55GSx2fvAZBzd0WRYDWxFzL-eA4X0l54';
+    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Generate or get session ID
+    function getSessionId() {
+      let sessionId = localStorage.getItem('session');
+      console.log('Browser - Retrieved session ID:', sessionId);
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        console.log('Browser - Generated new session ID:', sessionId);
+        localStorage.setItem('session', sessionId);
+      }
+      return sessionId;
+    }
+
+    // Make getSessionId available to Flutter
+    window.getSessionId = getSessionId;
+
+    // Log page load
+    window.addEventListener('load', async () => {
+      try {
+        const sessionId = getSessionId();
+        console.log('Browser - Using session ID for log:', sessionId);
+        await supabaseClient
+          .from('logs')
+          .insert({ 
+            text: 'Browser page load complete',
+            session_id: sessionId
+          });
+      } catch (e) {
+        console.error('Failed to log to Supabase:', e);
+      }
+    });
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
