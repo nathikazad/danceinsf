@@ -1,8 +1,10 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_application/controllers/flyer_controller.dart';
+import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UploadSection extends StatefulWidget {
@@ -151,44 +153,82 @@ class _UploadSectionState extends State<UploadSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Flyer', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Flyer',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: _isUploading ? null : _showUploadOptions,
-          child: Container(
-            width: double.infinity,
-            height: 140,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.orange.shade200, width: 1.2, style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(12),
+          child: DottedBorder(
+            options: RoundedRectDottedBorderOptions(
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
+              dashPattern: [5, 5],
+              radius: Radius.circular(16),
+              strokeWidth: 1,
+              padding: EdgeInsets.all(16),
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (_isUploading) ...[
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 8),
-                    const Text('Uploading...', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ] else if (widget.fileUrl != null) ...[
-                    const Icon(Icons.check_circle, color: Colors.green, size: 28),
-                    const SizedBox(height: 8),
-                    const Text('File Uploaded', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    // Text(widget.fileUrl!, style: const TextStyle(fontSize: 12)),
-                  ] else ...[
-                    CircleAvatar(
-                      backgroundColor: Colors.orange.shade50,
-                      radius: 24,
-                      child: Icon(Icons.upload, color: Colors.orange, size: 28),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('Upload File', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    const Text('Supported files PDF, Jpg, Png', style: TextStyle(fontSize: 12)),
-                    const Text('Maximum file size 25 MB', style: TextStyle(fontSize: 12)),
+            child: SizedBox(
+              width: double.infinity,
+              height: 140,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_isUploading) ...[
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 8),
+                      const Text('Uploading...',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ] else if (widget.fileUrl != null) ...[
+                      const Icon(Icons.check_circle,
+                          color: Colors.green, size: 28),
+                      const SizedBox(height: 8),
+                      const Text('File Uploaded',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      // Text(widget.fileUrl!, style: const TextStyle(fontSize: 12)),
+                    ] else ...[
+                      CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        radius: 24,
+                        child: SvgIcon(
+                          icon: SvgIconData('assets/icons/upload_icon.svg'),
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 30,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Upload File',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                  fontSize: 14,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary)),
+                      const SizedBox(height: 4),
+                      Text('Supported files PDF, Jpg, Png',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                  fontSize: 12,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onTertiary)),
+                      Text('Maximum file size 25 MB',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w400,
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary)),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -196,4 +236,4 @@ class _UploadSectionState extends State<UploadSection> {
       ],
     );
   }
-} 
+}

@@ -33,23 +33,36 @@ class TimeSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Start Time', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Start Time',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _pickTime(context, true),
-                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 18)),
-                child: Text(startTime == null ? 'Start Time' : startTime!.format(context)),
+                style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 0.5),
+                        borderRadius: BorderRadius.circular(5)),
+                    padding: const EdgeInsets.symmetric(vertical: 18)),
+                child: Text(startTime == null
+                    ? 'Start Time'
+                    : startTime!.format(context)),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _pickTime(context, false),
-                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 18)),
-                child: Text(endTime == null ? 'End Time' : endTime!.format(context)),
+                style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 0.5),
+                        borderRadius: BorderRadius.circular(5)),
+                    padding: const EdgeInsets.symmetric(vertical: 18)),
+                child: Text(
+                    endTime == null ? 'End Time' : endTime!.format(context)),
               ),
             ),
           ],
@@ -57,4 +70,4 @@ class TimeSection extends StatelessWidget {
       ],
     );
   }
-} 
+}

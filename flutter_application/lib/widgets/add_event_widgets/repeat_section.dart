@@ -69,23 +69,36 @@ class _RepeatSectionState extends State<RepeatSection> {
   }
 
   Widget _buildDatePicker(BuildContext context) {
-    return OutlinedButton(
-      onPressed: () => _pickDate(context),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            _selectedDate == null
-                ? 'Date'
-                : '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}',
-            style: const TextStyle(fontSize: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Date',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
+        const SizedBox(height: 8),
+        OutlinedButton(
+          onPressed: () => _pickDate(context),
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+                side: BorderSide(width: 0.5)),
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
           ),
-          const Icon(Icons.arrow_drop_down),
-        ],
-      ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _selectedDate == null
+                    ? 'Date'
+                    : '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const Icon(Icons.arrow_drop_down),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -93,14 +106,32 @@ class _RepeatSectionState extends State<RepeatSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Day of Week', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Day of Week',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
+          runSpacing: 8,
           children: DayOfWeek.values.map((day) {
             final isSelected = _selectedDay == day;
             return ChoiceChip(
-              label: Text(_dayAbbreviations[day]!),
+              showCheckmark: false,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  side: BorderSide(
+                      width: 1,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.tertiary)),
+              label: Text(
+                _dayAbbreviations[day]!,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontSize: 12,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.tertiary),
+              ),
               selected: isSelected,
               onSelected: (selected) {
                 setState(() => _selectedDay = day);
@@ -127,7 +158,9 @@ class _RepeatSectionState extends State<RepeatSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Week of Month', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Week of Month',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -135,7 +168,22 @@ class _RepeatSectionState extends State<RepeatSection> {
             final isSelected = _selectedWeek == week;
             String label = ['1st', '2nd', '3rd', '4th'][week - 1];
             return ChoiceChip(
-              label: Text(label),
+              showCheckmark: false,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  side: BorderSide(
+                      width: 1,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.tertiary)),
+              label: Text(
+                label,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontSize: 12,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.tertiary),
+              ),
               selected: isSelected,
               onSelected: (selected) {
                 setState(() => _selectedWeek = week);
@@ -153,49 +201,90 @@ class _RepeatSectionState extends State<RepeatSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Repeat', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Repeat',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: _frequency == Frequency.once ? Colors.orange.shade50 : null,
-                  side: BorderSide(color: _frequency == Frequency.once ? Colors.orange : Colors.grey.shade300),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  backgroundColor: _frequency == Frequency.once
+                      ? Theme.of(context).colorScheme.secondaryContainer
+                      : null,
+                  side: BorderSide(
+                      color: _frequency == Frequency.once
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.tertiary),
                 ),
                 onPressed: () {
                   setState(() => _frequency = Frequency.once);
                   _updateSchedule();
                 },
-                child: Text('Once', style: TextStyle(color: _frequency == Frequency.once ? Colors.orange : Colors.black)),
+                child: Text('Once',
+                    style: TextStyle(
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w500,
+                        color: _frequency == Frequency.once
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.tertiary)),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: _frequency == Frequency.weekly ? Colors.orange.shade50 : null,
-                  side: BorderSide(color: _frequency == Frequency.weekly ? Colors.orange : Colors.grey.shade300),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  backgroundColor: _frequency == Frequency.weekly
+                      ? Theme.of(context).colorScheme.secondaryContainer
+                      : null,
+                  side: BorderSide(
+                      color: _frequency == Frequency.weekly
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.tertiary),
                 ),
                 onPressed: () {
                   setState(() => _frequency = Frequency.weekly);
                   _updateSchedule();
                 },
-                child: Text('Weekly', style: TextStyle(color: _frequency == Frequency.weekly ? Colors.orange : Colors.black)),
+                child: Text('Weekly',
+                    style: TextStyle(
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w500,
+                        color: _frequency == Frequency.weekly
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.tertiary)),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: _frequency == Frequency.monthly ? Colors.orange.shade50 : null,
-                  side: BorderSide(color: _frequency == Frequency.monthly ? Colors.orange : Colors.grey.shade300),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  backgroundColor: _frequency == Frequency.monthly
+                      ? Theme.of(context).colorScheme.secondaryContainer
+                      : null,
+                  side: BorderSide(
+                      color: _frequency == Frequency.monthly
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.tertiary),
                 ),
                 onPressed: () {
                   setState(() => _frequency = Frequency.monthly);
                   _updateSchedule();
                 },
-                child: Text('Monthly', style: TextStyle(color: _frequency == Frequency.monthly ? Colors.orange : Colors.black)),
+                child: Text('Monthly',
+                    style: TextStyle(
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w500,
+                        color: _frequency == Frequency.monthly
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.tertiary)),
               ),
             ),
           ],
@@ -219,4 +308,4 @@ extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
   }
-} 
+}
