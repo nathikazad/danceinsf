@@ -18,6 +18,7 @@ class TimeSection extends StatelessWidget {
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      initialEntryMode: TimePickerEntryMode.input
     );
     if (picked != null) {
       if (isStart) {

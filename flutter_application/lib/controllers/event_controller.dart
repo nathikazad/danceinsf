@@ -50,7 +50,7 @@ class EventController {
 
           final event = Event.fromMap(eventData, rating: rating?.toDouble() ?? 0.0, ratingCount: ratingCount);
           final instance = EventInstance.fromMap(instanceData, event);
-          print('Processing instance: ${instance.date.toIso8601String().split('T')[0]}');
+          // print('Processing instance: ${instance.date.toIso8601String().split('T')[0]}');
           eventInstances.add(instance);
         } catch (e, stackTrace) {
           print('Error processing event instance: ${instanceData['instance_id']}');
