@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_application/controllers/flyer_controller.dart';
+import 'package:dance_sf/controllers/flyer_controller.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:image_picker/image_picker.dart';
 

@@ -1,4 +1,4 @@
-import 'package:flutter_application/models/event_model.dart';
+import 'package:dance_sf/models/event_model.dart';
 
 class SchedulePattern {
   final Frequency frequency;

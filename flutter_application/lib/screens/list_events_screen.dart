@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/auth.dart';
-import 'package:flutter_application/models/event_model.dart';
-import 'package:flutter_application/screens/verify_screen.dart';
-import 'package:flutter_application/utils/theme/app_color.dart';
+import 'package:dance_sf/auth.dart';
+import 'package:dance_sf/models/event_model.dart';
+import 'package:dance_sf/screens/verify_screen.dart';
+import 'package:dance_sf/utils/theme/app_color.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_application/controllers/event_controller.dart';
+import 'package:dance_sf/controllers/event_controller.dart';
 
-import 'package:flutter_application/widgets/list_event_widgets/app_drawer.dart';
-import 'package:flutter_application/widgets/list_event_widgets/event_filters/event_filters_widget.dart';
-import 'package:flutter_application/widgets/list_event_widgets/event_list.dart';
-import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
+import 'package:dance_sf/widgets/list_event_widgets/app_drawer.dart';
+import 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_widget.dart';
+import 'package:dance_sf/widgets/list_event_widgets/event_list.dart';
+import 'package:dance_sf/widgets/list_event_widgets/week_navigator.dart';
 
 final eventsStateProvider =
     StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventInstance>>>(

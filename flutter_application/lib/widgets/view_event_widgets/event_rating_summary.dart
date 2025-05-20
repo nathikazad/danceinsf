@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/screens/verify_screen.dart';
+import 'package:dance_sf/screens/verify_screen.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/event_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

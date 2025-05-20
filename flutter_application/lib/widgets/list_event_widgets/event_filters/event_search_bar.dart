@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/utils/theme/app_color.dart';
+import 'package:dance_sf/utils/theme/app_color.dart';
 
 class EventSearchBar extends StatefulWidget {
   final String initialValue;

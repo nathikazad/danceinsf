@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_application/utils/theme/app_color.dart';
-import 'package:flutter_application/widgets/list_event_widgets/week_navigator.dart';
+import 'package:dance_sf/utils/theme/app_color.dart';
+import 'package:dance_sf/widgets/list_event_widgets/week_navigator.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/event_model.dart';

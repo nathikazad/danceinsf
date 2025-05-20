@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/models/event_model.dart';
-import 'package:flutter_application/models/proposal_model.dart';
+import 'package:dance_sf/models/event_model.dart';
+import 'package:dance_sf/models/proposal_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'proposal_item.dart';
 // import 'proposal_form.dart';

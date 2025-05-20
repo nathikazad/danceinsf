@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import './auth.dart';
 import './screens/splash_screen.dart' as splash;
-import 'package:flutter_application/screens/verify_screen.dart' as verify;
+import 'package:dance_sf/screens/verify_screen.dart' as verify;
 import 'screens/list_events_screen.dart' as list_events;
 import './screens/add_event_screen.dart' as add_event;
 import './screens/view_event_screen.dart' as view_event;

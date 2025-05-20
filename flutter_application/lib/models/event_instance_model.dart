@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/models/event_model.dart';
-import 'package:flutter_application/models/proposal_model.dart';
+import 'package:dance_sf/models/event_model.dart';
+import 'package:dance_sf/models/proposal_model.dart';
 
 class EventInstance {
   final Event event;

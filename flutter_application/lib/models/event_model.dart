@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/models/event_instance_model.dart';
-import 'package:flutter_application/models/event_sub_models.dart';
-import 'package:flutter_application/models/schedule_model.dart';
-import 'package:flutter_application/models/proposal_model.dart';
-import 'package:flutter_application/utils/string.dart';
+import 'package:dance_sf/models/event_instance_model.dart';
+import 'package:dance_sf/models/event_sub_models.dart';
+import 'package:dance_sf/models/schedule_model.dart';
+import 'package:dance_sf/models/proposal_model.dart';
+import 'package:dance_sf/utils/string.dart';
 
-export 'package:flutter_application/models/event_instance_model.dart';
-export 'package:flutter_application/models/schedule_model.dart';
-export 'package:flutter_application/models/event_sub_models.dart';
+export 'package:dance_sf/models/event_instance_model.dart';
+export 'package:dance_sf/models/schedule_model.dart';
+export 'package:dance_sf/models/event_sub_models.dart';
 class Event {
   final String eventId;
   final String name;

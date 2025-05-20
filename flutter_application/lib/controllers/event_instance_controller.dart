@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
-import 'package:flutter_application/models/proposal_model.dart';
+import 'package:dance_sf/models/proposal_model.dart';
 
 class EventInstanceController {
   static final supabase = Supabase.instance.client;

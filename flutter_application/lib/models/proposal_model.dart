@@ -1,4 +1,4 @@
-import 'package:flutter_application/utils/string.dart';
+import 'package:dance_sf/utils/string.dart';
 
 class Proposal {
   final int id;

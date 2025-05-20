@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application/utils/theme/app_theme.dart';
+import 'package:dance_sf/utils/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_application/utils/web_storage/web_storage.dart';
+import 'package:dance_sf/utils/web_storage/web_storage.dart';
 import 'router.dart';
 
 void main() async {

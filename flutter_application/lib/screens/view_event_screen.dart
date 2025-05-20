@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/controllers/event_instance_controller.dart';
-import 'package:flutter_application/utils/string.dart';
-import 'package:flutter_application/widgets/view_event_widgets/flyer_viewer.dart';
-import 'package:flutter_application/widgets/view_event_widgets/edit_event_modal.dart';
+import 'package:dance_sf/controllers/event_instance_controller.dart';
+import 'package:dance_sf/utils/string.dart';
+import 'package:dance_sf/widgets/view_event_widgets/flyer_viewer.dart';
+import 'package:dance_sf/widgets/view_event_widgets/edit_event_modal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:go_router/go_router.dart';
