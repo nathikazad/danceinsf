@@ -6,6 +6,7 @@ import 'package:flutter_application/widgets/view_event_widgets/edit_event_modal.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
@@ -68,6 +69,7 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
         }
         final eventInstance = snapshot.data!;
         final event = eventInstance.event;
+        final currentUserId = Supabase.instance.client.auth.currentUser?.id;
 
         return Scaffold(
           appBar: AppBar(
@@ -92,29 +94,22 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
               onPressed: () => context.pop(),
             ),
             actions: [
-              FutureBuilder<EventInstance?>(
-                future: _eventFuture,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return const SizedBox.shrink();
-                  }
-                  return IconButton(
-                    icon: Container(
-                      padding: const EdgeInsets.all(10),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: Theme.of(context).colorScheme.secondaryContainer),
-                      child: Icon(
-                        Icons.edit,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 20,
-                      ),
+              if (currentUserId != null && currentUserId == eventInstance.event.organizerId)
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Theme.of(context).colorScheme.secondaryContainer),
+                    child: Icon(
+                      Icons.edit,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
                     ),
-                    onPressed: () => _showEditOptions(context, snapshot.data!),
-                  );
-                },
-              ),
+                  ),
+                  onPressed: () => _showEditOptions(context, eventInstance),
+                ),
               SizedBox(
                 width: 10,
               )

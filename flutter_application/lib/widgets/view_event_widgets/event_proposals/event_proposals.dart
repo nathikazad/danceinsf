@@ -138,7 +138,7 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
           const SizedBox(height: 20),
           const Text(
             'This listing is maintained by the Community',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
@@ -150,7 +150,7 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
                 style: TextStyle(
                   color: Colors.orange,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 12,
                 ),
                 textAlign: TextAlign.center,
               ),
