@@ -41,12 +41,29 @@ function getDayOfMonth(date: Date): number {
   return date.getDate()
 }
 
+// Helper function to get current time in PST
+function getCurrentPSTTime(): Date {
+  const now = new Date()
+  // Set the time to noon to avoid any timezone edge cases
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0)
+}
+
+// Helper function to convert any date to PST
+function toPST(date: Date): Date {
+  // Set the time to noon to avoid any timezone edge cases
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0)
+}
+
 // Helper function to get the week number of the month (1-5)
 function getWeekOfMonth(date: Date): number {
   const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
   const dayOfWeek = firstDay.getDay()
-  const diff = date.getDate() + dayOfWeek - 1
-  return Math.ceil(diff / 7)
+  const dateOfMonth = date.getDate()
+  
+  // Calculate which week of the month this date falls in
+  // If the first day of the month is not Sunday, we need to adjust
+  const adjustedDate = dateOfMonth + dayOfWeek
+  return Math.ceil(adjustedDate / 7)
 }
 
 // Helper function to get the day name
@@ -81,9 +98,10 @@ function generateOnceInstance(event: Event, date: string): EventInstance {
 // Function to generate instances for a weekly event
 function generateWeeklyInstances(event: Event, startDate: Date, endDate: Date): EventInstance[] {
   const instances: EventInstance[] = []
-  const currentDate = new Date(startDate)
+  const currentDate = toPST(startDate)
+  const pstEndDate = toPST(endDate)
 
-  while (currentDate <= endDate) {
+  while (currentDate <= pstEndDate) {
     if (event.weekly_days?.includes(getDayName(currentDate))) {
       instances.push({
         event_id: event.event_id,
@@ -99,9 +117,10 @@ function generateWeeklyInstances(event: Event, startDate: Date, endDate: Date): 
 // Function to generate instances for a monthly event
 function generateMonthlyInstances(event: Event, startDate: Date, endDate: Date): EventInstance[] {
   const instances: EventInstance[] = []
-  const currentDate = new Date(startDate)
+  const currentDate = toPST(startDate)
+  const pstEndDate = toPST(endDate)
 
-  while (currentDate <= endDate) {
+  while (currentDate <= pstEndDate) {
     if (event.monthly_pattern?.some(pattern => matchesMonthlyPattern(currentDate, pattern))) {
       instances.push({
         event_id: event.event_id,
@@ -137,9 +156,9 @@ export async function generateEventInstances(eventIds?: string[], date?: string)
     throw new Error('No events found')
   }
 
-  // Calculate date range
-  const today = new Date()
-  const endDate = new Date()
+  // Calculate date range in PST
+  const today = getCurrentPSTTime()
+  const endDate = new Date(today)
   endDate.setDate(today.getDate() + 30) // Generate instances for next 30 days
 
   // Fetch all existing instances for these events in the date range
