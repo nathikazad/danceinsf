@@ -20,10 +20,13 @@ class EditEventModal extends StatelessWidget {
     if (Supabase.instance.client.auth.currentUser != null) {
       await GoRouter.of(context).push(route);
     } else {
-      await GoRouter.of(context).push('/verify', extra: {
-        'nextRoute': route,
-        'verifyScreenType': VerifyScreenType.editEvent
-      });
+      await GoRouter.of(context).push(
+        '/verify',
+        extra: {
+          'nextRoute': route,
+          'verifyScreenType': VerifyScreenType.editEvent,
+        },
+      );
     }
     onEditComplete();
   }
@@ -35,23 +38,57 @@ class EditEventModal extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: const Icon(Icons.edit),
-            title: Text('Only this event on ${formatDate(eventInstance.date)}'),
-            onTap: () => _handleEditNavigation(
-              context,
-              '/edit-event-instance/${eventInstance.eventInstanceId}'
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Icon(
+                Icons.edit,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
             ),
+            title: Text(
+              'Only this event on ${formatDate(eventInstance.date)}',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontSize: 14),
+            ),
+            onTap:
+                () => _handleEditNavigation(
+                  context,
+                  '/edit-event-instance/${eventInstance.eventInstanceId}',
+                ),
           ),
           ListTile(
-            leading: const Icon(Icons.edit_calendar),
-            title: const Text('All future versions of this event'),
-            onTap: () => _handleEditNavigation(
-              context,
-              '/edit-event/${eventInstance.event.eventId}'
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Icon(
+                Icons.edit_calendar,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
             ),
+            title: Text(
+              'All future versions of this event',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontSize: 14),
+            ),
+            onTap:
+                () => _handleEditNavigation(
+                  context,
+                  '/edit-event/${eventInstance.event.eventId}',
+                ),
           ),
         ],
       ),
     );
   }
-} 
+}

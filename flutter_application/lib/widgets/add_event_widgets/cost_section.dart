@@ -40,18 +40,29 @@ class _CostSectionState extends State<CostSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Cost', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Cost',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Cost',
-            border: OutlineInputBorder(),
-          ),
+          decoration: InputDecoration(
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 12, color: Theme.of(context).colorScheme.tertiary),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              hintText: 'Cost',
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    width: 1,
+                  ))),
           validator: widget.validator,
           keyboardType: TextInputType.number,
         ),
       ],
     );
   }
-} 
+}

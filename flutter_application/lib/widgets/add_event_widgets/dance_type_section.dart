@@ -20,7 +20,9 @@ class DanceTypeSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Type', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Type',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -29,17 +31,27 @@ class DanceTypeSection extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 8),
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: type == EventType.social ? Colors.orange.shade50 : null,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                    backgroundColor: type == EventType.social
+                        ? Theme.of(context).colorScheme.secondaryContainer
+                        : null,
                     side: BorderSide(
-                      color: type == EventType.social ? Colors.orange : Colors.grey.shade300,
+                      color: type == EventType.social
+                          ? Colors.orange
+                          : Colors.grey.shade300,
                     ),
                   ),
                   onPressed: () => onTypeChanged(EventType.social),
                   child: Text(
                     'Social',
-                    style: TextStyle(
-                      color: type == EventType.social ? Colors.orange : Colors.black,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontSize: 12,
+                        color: type == EventType.social
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer),
                   ),
                 ),
               ),
@@ -47,17 +59,25 @@ class DanceTypeSection extends StatelessWidget {
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: type == EventType.class_ ? Colors.orange.shade50 : null,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  backgroundColor: type == EventType.class_
+                      ? Theme.of(context).colorScheme.secondaryContainer
+                      : null,
                   side: BorderSide(
-                    color: type == EventType.class_ ? Colors.orange : Colors.grey.shade300,
+                    color: type == EventType.class_
+                        ? Colors.orange
+                        : Colors.grey.shade300,
                   ),
                 ),
                 onPressed: () => onTypeChanged(EventType.class_),
                 child: Text(
                   'Class',
-                  style: TextStyle(
-                    color: type == EventType.class_ ? Colors.orange : Colors.black,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontSize: 12,
+                      color: type == EventType.class_
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSecondaryContainer),
                 ),
               ),
             ),
@@ -71,36 +91,52 @@ class DanceTypeSection extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 8),
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: style == DanceStyle.bachata ? Colors.orange.shade50 : null,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                    backgroundColor: style == DanceStyle.bachata
+                        ? Theme.of(context).colorScheme.secondaryContainer
+                        : null,
                     side: BorderSide(
-                      color: style == DanceStyle.bachata ? Colors.orange : Colors.grey.shade300,
+                      color: style == DanceStyle.bachata
+                          ? Colors.orange
+                          : Colors.grey.shade300,
                     ),
                   ),
                   onPressed: () => onStyleChanged(DanceStyle.bachata),
-                  child: Text(
-                    'Bachata',
-                    style: TextStyle(
-                      color: style == DanceStyle.bachata ? Colors.orange : Colors.black,
-                    ),
-                  ),
+                  child: Text('Bachata',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontSize: 12,
+                          color: style == DanceStyle.bachata
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer)),
                 ),
               ),
             ),
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: style == DanceStyle.salsa ? Colors.orange.shade50 : null,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  backgroundColor: style == DanceStyle.salsa
+                      ? Theme.of(context).colorScheme.secondaryContainer
+                      : null,
                   side: BorderSide(
-                    color: style == DanceStyle.salsa ? Colors.orange : Colors.grey.shade300,
+                    color: style == DanceStyle.salsa
+                        ? Colors.orange
+                        : Colors.grey.shade300,
                   ),
                 ),
                 onPressed: () => onStyleChanged(DanceStyle.salsa),
-                child: Text(
-                  'Salsa',
-                  style: TextStyle(
-                    color: style == DanceStyle.salsa ? Colors.orange : Colors.black,
-                  ),
-                ),
+                child: Text('Salsa',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontSize: 12,
+                        color: style == DanceStyle.salsa
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer)),
               ),
             ),
           ],
@@ -108,4 +144,4 @@ class DanceTypeSection extends StatelessWidget {
       ],
     );
   }
-} 
+}

@@ -49,35 +49,64 @@ class _LocationSectionState extends State<LocationSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Location', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Location',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         TextFormField(
           controller: _venueController,
-          decoration: const InputDecoration(
-            hintText: 'Venue Name',
-            border: OutlineInputBorder(),
-          ),
+          decoration: InputDecoration(
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 12, color: Theme.of(context).colorScheme.tertiary),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              hintText: 'Venue Name',
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    width: 1,
+                  ))),
           onChanged: (_) => _updateLocation(),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _cityController,
-          decoration: const InputDecoration(
-            hintText: 'City',
-            border: OutlineInputBorder(),
-          ),
+          decoration: InputDecoration(
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 12, color: Theme.of(context).colorScheme.tertiary),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              hintText: 'City',
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    width: 1,
+                  ))),
           onChanged: (_) => _updateLocation(),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _mapsLinkController,
-          decoration: const InputDecoration(
-            hintText: 'Google Map Link',
-            border: OutlineInputBorder(),
-          ),
+          decoration: InputDecoration(
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 12, color: Theme.of(context).colorScheme.tertiary),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              hintText: 'Google Map Link',
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    width: 1,
+                  ))),
           onChanged: (_) => _updateLocation(),
         ),
       ],
     );
   }
-} 
+}

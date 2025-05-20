@@ -30,7 +30,8 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   @override
   void initState() {
     super.initState();
-    _eventFuture = EventInstanceController.fetchEventInstance(widget.eventInstanceId);
+    _eventFuture =
+        EventInstanceController.fetchEventInstance(widget.eventInstanceId);
   }
 
   void _showEditOptions(BuildContext context, EventInstance eventInstance) {
@@ -82,11 +83,25 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 return const SizedBox.shrink();
               }
               return IconButton(
-                icon: const Icon(Icons.edit),
+                icon: Container(
+                  padding: const EdgeInsets.all(10),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Theme.of(context).colorScheme.secondaryContainer),
+                  child: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                ),
                 onPressed: () => _showEditOptions(context, snapshot.data!),
               );
             },
           ),
+          SizedBox(
+            width: 10,
+          )
         ],
       ),
       body: FutureBuilder<EventInstance?>(
@@ -150,16 +165,18 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                   FlyerViewer(url: eventInstance.flyerUrl!),
                 const SizedBox(height: 24),
                 if (eventInstance.hasStarted)
-                  EventRatingSummary(date: eventInstance.date, ratings: eventInstance.ratings, submitRating: (rating) async {
-                    await _rateEvent(rating);
-                  }),
+                  EventRatingSummary(
+                      date: eventInstance.date,
+                      ratings: eventInstance.ratings,
+                      submitRating: (rating) async {
+                        await _rateEvent(rating);
+                      }),
                 const SizedBox(height: 32),
                 ProposalsWidget(
-                  eventInstance: eventInstance,
-                  onEditClicked: () {
-                    _showEditOptions(context, snapshot.data!);
-                  }
-                ),
+                    eventInstance: eventInstance,
+                    onEditClicked: () {
+                      _showEditOptions(context, snapshot.data!);
+                    }),
               ],
             ),
           );
@@ -194,12 +211,14 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   }
 
   Future<void> _rateEvent(int rating) async {
-    final ret = await EventInstanceController.rateEvent(widget.eventInstanceId, rating);
+    final ret =
+        await EventInstanceController.rateEvent(widget.eventInstanceId, rating);
     if (ret != null) {
       setState(() {
         _eventFuture.then((eventInstance) {
           if (eventInstance != null) {
-            final existingIndex = eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
+            final existingIndex =
+                eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
             if (existingIndex != -1) {
               eventInstance.ratings[existingIndex] = ret;
             } else {

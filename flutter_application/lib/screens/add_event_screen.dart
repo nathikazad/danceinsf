@@ -62,7 +62,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
 
         // Create the event using the controller
         await EventController.createEvent(_event, _selectedDateForOnce);
-        
+
         if (mounted) {
           context.pop();
         }
@@ -81,10 +81,25 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Container(
+            padding: const EdgeInsets.only(left: 6),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).colorScheme.secondaryContainer),
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
+          ),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Create New'),
+        title: Text(
+          'Create New',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
+        ),
         centerTitle: true,
         elevation: 0,
       ),
@@ -109,7 +124,8 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             RepeatSection(
               schedule: _event.schedule,
               frequency: _event.frequency,
-              onScheduleChanged: (newSchedule, newFrequency, newSelectedDate) => setState(() {
+              onScheduleChanged: (newSchedule, newFrequency, newSelectedDate) =>
+                  setState(() {
                 _event = _event.copyWith(
                   schedule: newSchedule,
                   frequency: newFrequency,
@@ -190,13 +206,17 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 onPressed: _handleCreate,
-                child: const Text('Create', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text('Create',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineLarge
+                        ?.copyWith(fontSize: 14, color: Colors.white)),
               ),
             ),
           ],
