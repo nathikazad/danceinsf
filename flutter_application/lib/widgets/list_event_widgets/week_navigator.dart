@@ -158,7 +158,7 @@ class WeekNavigator extends StatelessWidget {
                           : (isDark ? Colors.grey[500]! : Colors.grey[400]!);
                   final fillColor = isSelected ? orange : Colors.transparent;
                   return SizedBox(
-                    width: 40,
+                    width: 30,
                     child: OutlinedButton(
                       onPressed:
                           hasEvents ? () => onDaySelected(weekday) : null,
@@ -205,7 +205,7 @@ class Chevrons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= 450) {
+    if (screenWidth >= 375) {
       return Row(
         children: [
           SizedBox(
