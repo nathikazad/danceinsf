@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:dance_sf/screens/list_events_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:dance_sf/utils/local_storage.dart';
 
 final filterControllerProvider = ChangeNotifierProvider<FilterController>((ref) => FilterController());
 
@@ -23,16 +23,41 @@ class FilterController extends ChangeNotifier {
   List<String> _selectedCities = [];
   String _searchText = '';
 
+  FilterController() {
+    _loadSavedFilters();
+  }
+
   // Getters
   List<String> get selectedStyles => _selectedStyles;
   List<String> get selectedFrequencies => _selectedFrequencies;
   List<String> get selectedCities => _selectedCities;
   String get searchText => _searchText;
 
+  // Load saved filters
+  Future<void> _loadSavedFilters() async {
+    final savedFilters = await LocalStorage.loadFilterSettings();
+    _selectedStyles = savedFilters['selectedStyles'] as List<String>;
+    _selectedFrequencies = savedFilters['selectedFrequencies'] as List<String>;
+    _selectedCities = savedFilters['selectedCities'] as List<String>;
+    _searchText = savedFilters['searchText'] as String;
+    notifyListeners();
+  }
+
+  // Save current filters
+  Future<void> _saveFilters() async {
+    await LocalStorage.saveFilterSettings(
+      selectedStyles: _selectedStyles,
+      selectedFrequencies: _selectedFrequencies,
+      selectedCities: _selectedCities,
+      searchText: _searchText,
+    );
+  }
+
   // Methods for modifying state
   void updateSearchText(String text) {
     if (_searchText != text) {
       _searchText = text;
+      _saveFilters();
       notifyListeners();
     }
   }
@@ -100,6 +125,7 @@ class FilterController extends ChangeNotifier {
     } else {
       _selectedStyles.add(style);
     }
+    _saveFilters();
     notifyListeners();
   }
 
@@ -109,6 +135,7 @@ class FilterController extends ChangeNotifier {
     } else {
       _selectedFrequencies.add(frequency);
     }
+    _saveFilters();
     notifyListeners();
   }
 
@@ -118,6 +145,7 @@ class FilterController extends ChangeNotifier {
     } else {
       _selectedCities.add(city);
     }
+    _saveFilters();
     notifyListeners();
   }
 
@@ -147,6 +175,7 @@ class FilterController extends ChangeNotifier {
     }
 
     if (hasChanges) {
+      _saveFilters();
       notifyListeners();
     }
   }
@@ -156,6 +185,7 @@ class FilterController extends ChangeNotifier {
     _selectedFrequencies = [];
     _selectedCities = [];
     _searchText = '';
+    _saveFilters();
     notifyListeners();
   }
 
