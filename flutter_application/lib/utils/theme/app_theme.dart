@@ -27,6 +27,26 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           )),
+      dialogTheme: DialogTheme(
+        backgroundColor: AppColors.lightSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: AppColors.lightSurface,
+        hourMinuteColor: AppColors.lightSecondaryVariant.withOpacity(0.2),
+        hourMinuteTextColor: AppColors.lightOnSecondary,
+        dayPeriodColor: AppColors.lightSecondaryVariant.withOpacity(0.2),
+        dayPeriodTextColor: AppColors.lightOnSecondary,
+        dialHandColor: AppColors.lightPrimary,
+        dialBackgroundColor: AppColors.lightSecondaryVariant.withOpacity(0.12),
+        dialTextColor: AppColors.lightOnSecondary,
+        entryModeIconColor: AppColors.lightPrimary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
       textTheme: TextTheme(
         displayLarge: AppTextStyles.displayLarge,
         displayMedium: AppTextStyles.displayMedium,
@@ -104,6 +124,26 @@ class AppTheme {
         labelLarge: AppTextStyles.labelLarge,
         labelMedium: AppTextStyles.labelMedium,
         labelSmall: AppTextStyles.labelSmall,
+      ),
+      dialogTheme: DialogTheme(
+        backgroundColor: AppColors.darkSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: AppColors.darkSurface,
+        hourMinuteColor: AppColors.darkSecondaryVariant.withOpacity(0.2),
+        hourMinuteTextColor: Colors.white,
+        dayPeriodColor: AppColors.darkSecondaryVariant.withOpacity(0.2),
+        dayPeriodTextColor: Colors.white,
+        dialHandColor: AppColors.lightPrimary, // Your orange color
+        dialBackgroundColor: AppColors.darkSecondaryVariant.withOpacity(0.12),
+        dialTextColor: Colors.white,
+        entryModeIconColor: AppColors.darkPrimary, // Your orange color
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
       cardTheme: CardTheme(
           elevation: 0,
