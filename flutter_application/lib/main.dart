@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/utils/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:web/web.dart' as web;
+import 'package:flutter_application/utils/web_storage/web_storage.dart';
 import 'router.dart';
 
 void main() async {
@@ -56,16 +56,6 @@ class DanceApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
-    // Log app build
-    getSessionId().then((sessionId) {
-      Supabase.instance.client
-          .from('logs')
-          .insert({
-            'text': 'MyApp build method called',
-            'session_id': sessionId,
-          });
-    });
-
     return MaterialApp.router(
       title: 'Dance in SF',
       debugShowCheckedModeBanner: false,
@@ -74,19 +64,5 @@ class DanceApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
     );
-  }
-}
-
-Future<String?> getSessionId() async {
-  try {
-    // Get session ID from browser's localStorage using new web APIs
-    final storage = web.window.localStorage;
-    final sessionId = storage.getItem('session');
-    
-    return sessionId;
-  } catch (e) {
-    print('Error getting session ID from browser: $e');
-    // Fallback to a default session ID if browser call fails
-    return 'default-session-id';
   }
 }
