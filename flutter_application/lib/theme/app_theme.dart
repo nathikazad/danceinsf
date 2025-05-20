@@ -12,6 +12,7 @@ class AppTheme {
         brightness: Brightness.light,
         primary: _sfOrange,
         secondary: _sfOrange,
+        background: Colors.white,
       ),
       scaffoldBackgroundColor: Colors.white,
       appBarTheme: const AppBarTheme(

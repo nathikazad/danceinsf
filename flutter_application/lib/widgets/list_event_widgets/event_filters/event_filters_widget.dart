@@ -76,17 +76,11 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
                   child: const Text('Reset'),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
+                TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text(
-                    'Apply',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(color: Colors.white, fontSize: 14),
-                  ),
+                  child: const Text('Apply'),
                 ),
               ],
             ),

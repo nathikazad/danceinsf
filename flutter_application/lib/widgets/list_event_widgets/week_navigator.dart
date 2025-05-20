@@ -150,7 +150,7 @@ class WeekNavigator extends StatelessWidget {
                       ? orange
                       : hasEvents
                           ? orange
-                          : (isDark ? Colors.grey[700]! : Colors.grey[300]!);
+                          : Theme.of(context).colorScheme.background;
                   final textColor = isSelected
                       ? Colors.white
                       : hasEvents
@@ -209,17 +209,18 @@ class Chevrons extends StatelessWidget {
       return Row(
         children: [
           SizedBox(
+            width: 26,
             child: IconButton(
               icon: Container(
-                height: 30,
-                width: 30,
+                height: 26,
+                width: 26,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(100)),
+                // decoration: BoxDecoration(
+                //     color: Theme.of(context).colorScheme.secondaryContainer,
+                //     borderRadius: BorderRadius.circular(100)),
                 child: const Icon(
                   Icons.chevron_left,
-                  size: 20,
+                  size: 18,
                 ),
               ),
               onPressed: () => onWeekChanged(
@@ -228,17 +229,18 @@ class Chevrons extends StatelessWidget {
             ),
           ),
           SizedBox(
+            width: 26,
             child: IconButton(
               icon: Container(
-                height: 30,
-                width: 30,
+                height: 26,
+                width: 26,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(100)),
+                // decoration: BoxDecoration(
+                //     color: Theme.of(context).colorScheme.secondaryContainer,
+                //     borderRadius: BorderRadius.circular(100)),
                 child: const Icon(
                   Icons.chevron_right,
-                  size: 20,
+                  size: 18,
                 ),
               ),
               onPressed: () => onWeekChanged(
