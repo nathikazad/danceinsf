@@ -68,7 +68,7 @@ function getWeekOfMonth(date: Date): number {
 
 // Helper function to get the day name
 function getDayName(date: Date): string {
-  const days = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa']
+  const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa']
   return days[date.getDay()]
 }
 
