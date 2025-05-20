@@ -19,6 +19,10 @@ class EditEventModal extends StatelessWidget {
   Future<void> _handleEditNavigation(BuildContext context, String route) async {
     if (Supabase.instance.client.auth.currentUser != null) {
       await GoRouter.of(context).push(route);
+      // dismiss the modal
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     } else {
       await GoRouter.of(context).push(
         '/verify',

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/models/event_model.dart';
-import 'package:flutter_application/widgets/list_event_widgets/responsive_row_column.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -111,82 +110,31 @@ class WeekNavigator extends StatelessWidget {
     final weekDays = ['M', 'T', 'W', 'Th', 'F', 'Sa', 'Su'];
     final dateFormat = DateFormat('MM / dd');
     List<String> dateStr = dateFormat.format(weekStart).split("/");
-    return LayoutBuilder(builder: (context, constraints) {
-      final bool isPhoneScreen = constraints.maxWidth < 600;
-      return Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: isPhoneScreen ? 0 : 8, vertical: 8),
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Row(
           children: [
-            ResponsiveRowColumn(
-              constraints: constraints,
-              firstChild: Row(
-                children: [
-                  Text(
-                    dateStr.first,
-                    style: TextStyle(
-                        fontFamily: "Inter",
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.primary),
-                  ),
-                  Text(
-                    " / ${dateStr.last}",
-                    style: TextStyle(
-                        fontFamily: "Inter",
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.tertiary),
-                  ),
-                ],
-              ),
-              secondChild: Row(
-                children: [
-                  SizedBox(
-                    child: IconButton(
-                      icon: Container(
-                        height: isPhoneScreen ? 20 : 30,
-                        width: isPhoneScreen ? 20 : 30,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            borderRadius: BorderRadius.circular(100)),
-                        child: Icon(
-                          Icons.chevron_left,
-                          size: isPhoneScreen ? 15 : 20,
-                        ),
-                      ),
-                      onPressed: () => onWeekChanged(
-                        weekStart.subtract(const Duration(days: 7)),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    child: IconButton(
-                      icon: Container(
-                        height: isPhoneScreen ? 20 : 30,
-                        width: isPhoneScreen ? 20 : 30,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            borderRadius: BorderRadius.circular(100)),
-                        child: Icon(
-                          Icons.chevron_right,
-                          size: isPhoneScreen ? 15 : 20,
-                        ),
-                      ),
-                      onPressed: () => onWeekChanged(
-                        weekStart.add(const Duration(days: 7)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            Row(
+              children: [
+                Text(
+                  dateStr.first,
+                  style: TextStyle(
+                      fontFamily: "Inter",
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.primary),
+                ),
+                Text(
+                  " / ${dateStr.last}",
+                  style: TextStyle(
+                      fontFamily: "Inter",
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.tertiary),
+                ),
+              ],
             ),
+            Chevrons(weekStart: weekStart, onWeekChanged: onWeekChanged),
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -239,8 +187,7 @@ class WeekNavigator extends StatelessWidget {
             ),
           ],
         ),
-      );
-    });
+    );
   }
 }
 
