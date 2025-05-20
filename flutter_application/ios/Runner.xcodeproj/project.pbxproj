@@ -492,6 +492,8 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Dance SF";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "To upload images or flyers of events";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To upload images or flyers of events";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -676,6 +678,8 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Dance SF";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "To upload images or flyers of events";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To upload images or flyers of events";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -700,6 +704,8 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Dance SF";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "To upload images or flyers of events";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To upload images or flyers of events";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
