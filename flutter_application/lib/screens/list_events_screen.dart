@@ -140,6 +140,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
             .subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Dance Events'),
         actions: [
           Builder(
@@ -160,10 +161,24 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       body: Column(
         children: [
           TopBar(
-            onFilterPressed: () => FilterModalWidget.show(
-              context,
-              controller: filterController,
-            ),
+            onFilterPressed: () {
+              final eventsAsync = ref.read(eventsStateProvider);
+              final cities = eventsAsync.when(
+                data: (events) => events
+                    .map((e) => e.event.location.city)
+                    .where((city) => city.isNotEmpty)
+                    .toSet()
+                    .toList()
+                  ..sort(),
+                loading: () => <String>[],
+                error: (_, __) => <String>[],
+              );
+              FilterModalWidget.show(
+                context,
+                controller: filterController,
+                cities: cities,
+              );
+            },
             onAddPressed: () {
               if (ref.read(authProvider).state.user != null) {
                 GoRouter.of(context).push('/add-event');

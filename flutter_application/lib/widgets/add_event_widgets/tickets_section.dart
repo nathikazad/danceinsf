@@ -39,7 +39,7 @@ class _TicketsSectionState extends State<TicketsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Tickets Link',
+        Text('Link to Event',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 4),
@@ -48,7 +48,7 @@ class _TicketsSectionState extends State<TicketsSection> {
             Icon(Icons.info,
                 size: 16, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 4),
-            Text('Link for Customers to Buy Tickets',
+            Text('Link for customers to see more info and buy tickets',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontSize: 10,
                     color: Theme.of(context).colorScheme.tertiary)),

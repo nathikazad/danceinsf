@@ -7,17 +7,19 @@ export 'package:flutter_application/widgets/list_event_widgets/event_filters/eve
 
 class FilterModalWidget extends ConsumerStatefulWidget {
   final FilterController controller;
+  final List<String> cities;
 
   const FilterModalWidget({
     super.key,
     required this.controller,
+    required this.cities,
   });
 
   @override
   ConsumerState<FilterModalWidget> createState() => _FilterModalWidgetState();
 
   static void show(BuildContext context,
-      {required FilterController controller}) {
+      {required FilterController controller, required List<String> cities}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -27,6 +29,7 @@ class FilterModalWidget extends ConsumerStatefulWidget {
       builder: (context) {
         return FilterModalWidget(
           controller: controller,
+          cities: cities,
         );
       },
     );
@@ -36,7 +39,13 @@ class FilterModalWidget extends ConsumerStatefulWidget {
 class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
   final List<String> _styles = ['Salsa', 'Bachata'];
   final List<String> _frequencies = ['Once', 'Weekly', 'Monthly'];
-  final List<String> _cities = ['San Francisco', 'San Jose', 'Oakland'];
+  late final List<String> _cities;
+
+  @override
+  void initState() {
+    super.initState();
+    _cities = widget.cities;
+  }
 
   void _resetFilters() {
     widget.controller.resetFilters();

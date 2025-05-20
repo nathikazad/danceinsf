@@ -153,7 +153,7 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                         icon: SvgIconData("assets/icons/line-md_link.svg"),
                         size: 18,
                       ),
-                      text: 'Buy Tickets',
+                      text: 'Link to Event',
                       linkUrl: eventInstance.ticketLink),
                 if (eventInstance.flyerUrl != null &&
                     eventInstance.flyerUrl!.isNotEmpty)
