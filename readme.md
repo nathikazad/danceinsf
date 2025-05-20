@@ -11,3 +11,5 @@ To sync local migrations with remote
  supabase db pull
 
 flutter run -d chrome
+
+flutter pub run flutter_launcher_icons
