@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EventDetailRow extends StatelessWidget {
   final Widget icon;
   final String text;
-  final String? linkText;
   final String? linkUrl;
-  const EventDetailRow(
-      {required this.icon,
-      required this.text,
-      this.linkText,
-      this.linkUrl,
-      super.key});
+  const EventDetailRow({
+    required this.icon,
+    required this.text,
+    this.linkUrl,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,24 +28,33 @@ class EventDetailRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-              child: Text(text, style: Theme.of(context).textTheme.titleSmall)),
-          if (linkText != null && linkUrl != null)
-            GestureDetector(
-              onTap: () => _launchUrl(context, linkUrl!),
-              child: Text(linkText!,
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 12)),
+            child: GestureDetector(
+              onTap: linkUrl != null ? () => _launchUrl(context, linkUrl!) : null,
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: linkUrl != null 
+                    ? Theme.of(context).colorScheme.primary 
+                    : null,
+                ),
+              ),
             ),
+          ),
         ],
       ),
     );
   }
 
-  void _launchUrl(BuildContext context, String url) {
-    // TODO: Implement url_launcher logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Open link: $url')),
-    );
+  Future<void> _launchUrl(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open link')),
+        );
+      }
+    }
   }
 }

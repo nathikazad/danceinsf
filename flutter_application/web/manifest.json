@@ -1,11 +1,11 @@
 {
-    "name": "flutter_application",
-    "short_name": "flutter_application",
+    "name": "dance_sf",
+    "short_name": "dance_sf",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#f06514",
-    "description": "A new Flutter project.",
+    "description": "Find dance events in SF.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

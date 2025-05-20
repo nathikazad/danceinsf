@@ -35,8 +35,14 @@ class FlyerViewer extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => Scaffold(
                 appBar: AppBar(
-                  title: const Text('Flyer'),
-                  backgroundColor: Colors.orange.shade50,
+                  title: Text(
+                    'Flyer',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
+                  ),
+                  backgroundColor: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.secondary,
                 ),
                 body: PDFView(
                   filePath: file.path,
@@ -68,7 +74,9 @@ class FlyerViewer extends StatelessWidget {
             builder: (context) => Scaffold(
               appBar: AppBar(
                 title: const Text('Flyer'),
-                backgroundColor: Colors.orange.shade50,
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black
+                    : Colors.orange.shade50,
               ),
               body: Center(
                 child: InteractiveViewer(
@@ -117,6 +125,8 @@ class FlyerViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => _viewFlyer(context),
+      child: Padding(
+      padding: const EdgeInsets.only(top: 8),
       child: Row(
         children: [
           Container(
@@ -130,13 +140,16 @@ class FlyerViewer extends StatelessWidget {
               size: 18,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Text(
             'Flyer',
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary, fontSize: 12),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            
           ),
         ],
+        ),
       ),
     );
   }

@@ -34,7 +34,7 @@ class EventsStateNotifier
     }
   }
 
-  Future<void> appendEvents({DateTime? startDate, int windowDays = 90}) async {
+  Future<void> appendEvents(BuildContext context, {DateTime? startDate, int windowDays = 90}) async {
     if (state is! AsyncData) return;
     
     try {
@@ -44,10 +44,21 @@ class EventsStateNotifier
         windowDays: windowDays,
       );
       
-      state = AsyncValue.data({
+      final allEvents = {
         ...{for (var e in currentEvents) e.eventInstanceId: e},
         ...{for (var e in newEvents) e.eventInstanceId: e}
-      }.values.toList());
+      }.values.toList();
+
+      if (allEvents.length == currentEvents.length) {
+        // No new events were added
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No more new events'), duration: Duration(seconds: 2)),
+          );
+        }
+      }
+
+      state = AsyncValue.data(allEvents);
     } catch (error) {
       print('Error appending events: $error');
     }
@@ -105,6 +116,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       // When reaching top, extend range backwards
       _startDate = _startDate.subtract(Duration(days: _daysWindow));
       await ref.read(eventsStateProvider.notifier).appendEvents(
+        context,
         startDate: _startDate,
         windowDays: _daysWindow,
       );
@@ -112,6 +124,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       // When reaching bottom, extend range forwards
       _daysWindow += 30;
       await ref.read(eventsStateProvider.notifier).appendEvents(
+        context,
         startDate: _startDate.add(Duration(days: _daysWindow - 30)),
         windowDays: 30,
       );

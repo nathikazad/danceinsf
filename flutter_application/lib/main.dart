@@ -18,7 +18,7 @@ void main() async {
 
   // Get session ID from browser
   final sessionId = await getSessionId();
-  print('Flutter - Retrieved session ID: $sessionId');
+
 
   if (!kDebugMode && kIsWeb && sessionId != null) {
   // Add log to Supabase
@@ -58,7 +58,6 @@ class DanceApp extends ConsumerWidget {
 
     // Log app build
     getSessionId().then((sessionId) {
-      print('Flutter - Build method using session ID: $sessionId');
       Supabase.instance.client
           .from('logs')
           .insert({
@@ -83,7 +82,6 @@ Future<String?> getSessionId() async {
     // Get session ID from browser's localStorage using new web APIs
     final storage = web.window.localStorage;
     final sessionId = storage.getItem('session');
-    print('Flutter - Retrieved from browser localStorage: $sessionId');
     
     return sessionId;
   } catch (e) {

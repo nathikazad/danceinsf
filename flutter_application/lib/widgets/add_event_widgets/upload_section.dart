@@ -1,4 +1,4 @@
-import 'package:dotted_border/dotted_border.dart';
+// import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -6,6 +6,83 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_application/controllers/flyer_controller.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:image_picker/image_picker.dart';
+
+class CustomDottedBorder extends StatelessWidget {
+  final Widget child;
+  final Color color;
+  final double strokeWidth;
+  final double radius;
+  final EdgeInsets padding;
+
+  const CustomDottedBorder({
+    super.key,
+    required this.child,
+    required this.color,
+    this.strokeWidth = 1,
+    this.radius = 16,
+    this.padding = const EdgeInsets.all(16),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: DottedBorderPainter(
+        color: color,
+        strokeWidth: strokeWidth,
+        radius: radius,
+      ),
+      child: Padding(
+        padding: padding,
+        child: child,
+      ),
+    );
+  }
+}
+
+class DottedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double radius;
+
+  DottedBorderPainter({
+    required this.color,
+    required this.strokeWidth,
+    required this.radius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        Radius.circular(radius),
+      ));
+
+    final dashWidth = 5;
+    final dashSpace = 5;
+    final pathMetrics = path.computeMetrics().first;
+    final distance = pathMetrics.length;
+    var drawn = 0.0;
+
+    while (drawn < distance) {
+      final remaining = distance - drawn;
+      final toDraw = remaining < dashWidth ? remaining : dashWidth.toDouble();
+      canvas.drawPath(
+        pathMetrics.extractPath(drawn, drawn + toDraw),
+        paint,
+      );
+      drawn += toDraw + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
 
 class UploadSection extends StatefulWidget {
   final String? fileUrl;
@@ -159,14 +236,19 @@ class _UploadSectionState extends State<UploadSection> {
         const SizedBox(height: 8),
         GestureDetector(
           onTap: _isUploading ? null : _showUploadOptions,
-          child: DottedBorder(
-            options: RoundedRectDottedBorderOptions(
-              color: Theme.of(context).colorScheme.onSecondaryContainer,
-              dashPattern: [5, 5],
-              radius: Radius.circular(16),
-              strokeWidth: 1,
-              padding: EdgeInsets.all(16),
-            ),
+            //         child: DottedBorder(
+            // options: RoundedRectDottedBorderOptions(
+            //   color: Theme.of(context).colorScheme.onSecondaryContainer,
+            //   dashPattern: [5, 5],
+            //   radius: Radius.circular(16),
+            //   strokeWidth: 1,
+            //   padding: EdgeInsets.all(16),
+            // ),
+          child: CustomDottedBorder(
+            color: Theme.of(context).colorScheme.onSecondaryContainer,
+            radius: 16,
+            strokeWidth: 1,
+            padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: double.infinity,
               height: 140,
@@ -186,7 +268,6 @@ class _UploadSectionState extends State<UploadSection> {
                       const Text('File Uploaded',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      // Text(widget.fileUrl!, style: const TextStyle(fontSize: 12)),
                     ] else ...[
                       CircleAvatar(
                         backgroundColor:

@@ -53,70 +53,74 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Event Details',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
-        ),
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.only(left: 6),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: Theme.of(context).colorScheme.secondaryContainer),
-            child: Icon(
-              Icons.arrow_back_ios,
-              color: Theme.of(context).colorScheme.primary,
-              size: 20,
-            ),
-          ),
-          onPressed: () => context.pop(),
-        ),
-        actions: [
-          FutureBuilder<EventInstance?>(
-            future: _eventFuture,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData || snapshot.data == null) {
-                return const SizedBox.shrink();
-              }
-              return IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(10),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: Theme.of(context).colorScheme.secondaryContainer),
-                  child: Icon(
-                    Icons.edit,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20,
-                  ),
-                ),
-                onPressed: () => _showEditOptions(context, snapshot.data!),
-              );
-            },
-          ),
-          SizedBox(
-            width: 10,
-          )
-        ],
-      ),
-      body: FutureBuilder<EventInstance?>(
-        future: _eventFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Event not found.'));
-          }
-          final eventInstance = snapshot.data!;
-          final event = eventInstance.event;
+    return FutureBuilder<EventInstance?>(
+      future: _eventFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Scaffold(
+            body: Center(child: Text('Event not found.')),
+          );
+        }
+        final eventInstance = snapshot.data!;
+        final event = eventInstance.event;
 
-          return SingleChildScrollView(
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              '${event.name} on ${_formatDate(eventInstance.date)}',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
+            ),
+            leading: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.only(left: 6),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Theme.of(context).colorScheme.secondaryContainer),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+              ),
+              onPressed: () => context.pop(),
+            ),
+            actions: [
+              FutureBuilder<EventInstance?>(
+                future: _eventFuture,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return const SizedBox.shrink();
+                  }
+                  return IconButton(
+                    icon: Container(
+                      padding: const EdgeInsets.all(10),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Theme.of(context).colorScheme.secondaryContainer),
+                      child: Icon(
+                        Icons.edit,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                    onPressed: () => _showEditOptions(context, snapshot.data!),
+                  );
+                },
+              ),
+              SizedBox(
+                width: 10,
+              )
+            ],
+          ),
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +150,6 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                     icon: Icon(Icons.location_on,
                         color: Theme.of(context).colorScheme.primary, size: 18),
                     text: '${eventInstance.venueName}, ${eventInstance.city}',
-                    linkText: 'Directions',
                     linkUrl: eventInstance.url),
                 if (eventInstance.ticketLink != null &&
                     eventInstance.ticketLink!.isNotEmpty)
@@ -155,9 +158,6 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                         icon: SvgIconData("assets/icons/line-md_link.svg"),
                         size: 18,
                       ),
-                      // icon: Icon(Icons.,
-                      //     color: Theme.of(context).colorScheme.primary,
-                      //     size: 18),
                       text: 'Buy Tickets',
                       linkUrl: eventInstance.ticketLink),
                 if (eventInstance.flyerUrl != null &&
@@ -179,9 +179,9 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                     }),
               ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
