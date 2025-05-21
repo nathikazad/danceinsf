@@ -1,7 +1,5 @@
-
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import './auth.dart';
 import './screens/splash_screen.dart' as splash;
 import 'package:dance_sf/screens/verify_screen.dart' as verify;
 import 'screens/list_events_screen.dart' as list_events;
@@ -10,7 +8,7 @@ import './screens/view_event_screen.dart' as view_event;
 import 'utils/local_storage.dart';
 import 'screens/edit_event_screen.dart' as edit_event;
 import 'screens/edit_event_instance_screen.dart' as edit_event_instance;
-
+import 'screens/help_screen.dart' as help;
 final routerProvider = Provider((ref) {
   // final authState = ref.watch(authProvider).state;
 
@@ -35,9 +33,7 @@ final routerProvider = Provider((ref) {
         }
       }
 
-      // if (isVerifyRoute && isLoggedIn) {
-      //   return '/';
-      // }
+    
       return null;
     },
     routes: [
@@ -78,6 +74,10 @@ final routerProvider = Provider((ref) {
         builder: (context, state) => edit_event_instance.EditEventInstanceScreen(
           eventInstanceId: state.pathParameters['instanceId']!,
         ),
+      ),
+      GoRoute(
+        path: '/help',
+        builder: (context, state) =>  help.HelpScreen(),
       ),
     ],
   );

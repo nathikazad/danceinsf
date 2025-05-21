@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dance_sf/auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppDrawer extends ConsumerWidget {
@@ -41,6 +42,32 @@ class AppDrawer extends ConsumerWidget {
                   ),
                 ),
                 title: Text(
+                  'Help & FAQ',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  GoRouter.of(context).push('/help');
+                },
+              ),
+              const SizedBox(height: 25),
+              const Divider(),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(100)),
+                  child: Icon(
+                    Icons.email_outlined,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                title: Text(
                   'Contact',
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
@@ -54,10 +81,8 @@ class AppDrawer extends ConsumerWidget {
                   Navigator.of(context).pop();
                 },
               ),
-              SizedBox(
-                height: 25,
-                child: Divider(),
-              ),
+              const SizedBox(height: 25),
+              const Divider(),
               // ListTile(
               //   leading: Container(
               //       padding: const EdgeInsets.all(8),
