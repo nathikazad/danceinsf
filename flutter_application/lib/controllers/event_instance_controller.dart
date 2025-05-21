@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/string.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
 import 'package:dance_sf/models/proposal_model.dart';
@@ -149,6 +150,36 @@ class EventInstanceController {
           .eq('instance_id', instance.eventInstanceId);
     } catch (error, stackTrace) {
       print('Error updating event instance: $error');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  static Future<void> changeExcitedUser(String eventInstanceId, String userId, bool isExcited) async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('User not logged in');
+
+      final existingExcitedUsers = await supabase
+          .from('event_instances')
+          .select('excited_users')
+          .eq('instance_id', eventInstanceId)
+          .single();
+
+      final excitedUsers = toStringList(existingExcitedUsers['excited_users']);
+
+      if (isExcited) {
+        excitedUsers.add(userId);
+      } else {
+        excitedUsers.remove(userId);
+      }
+
+      await supabase
+          .from('event_instances')
+          .update({'excited_users': excitedUsers})
+          .eq('instance_id', eventInstanceId);
+    } catch (error, stackTrace) {
+      print('Error changing excited user: $error');
       print('Stack trace: $stackTrace');
       rethrow;
     }

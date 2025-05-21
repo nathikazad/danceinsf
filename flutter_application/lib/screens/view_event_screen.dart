@@ -12,6 +12,7 @@ import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';
 import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
+import '../widgets/view_event_widgets/excitement_widget.dart';
 
 class ViewEventScreen extends ConsumerStatefulWidget {
   final String eventInstanceId;
@@ -27,12 +28,22 @@ class ViewEventScreen extends ConsumerStatefulWidget {
 
 class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   late Future<EventInstance?> _eventFuture;
+  bool _isExcited = false;
 
   @override
   void initState() {
     super.initState();
     _eventFuture =
         EventInstanceController.fetchEventInstance(widget.eventInstanceId);
+    _eventFuture.then((eventInstance) {
+      if (eventInstance != null && mounted) {
+        final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+        setState(() {
+          _isExcited = currentUserId != null && 
+              eventInstance.excitedUsers.contains(currentUserId);
+        });
+      }
+    });
   }
 
   void _showEditOptions(BuildContext context, EventInstance eventInstance) {
@@ -158,6 +169,11 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 if (eventInstance.flyerUrl != null &&
                     eventInstance.flyerUrl!.isNotEmpty)
                   FlyerViewer(url: eventInstance.flyerUrl!),
+                const SizedBox(height: 16),
+                ExcitementWidget(
+                  eventInstanceId: widget.eventInstanceId,
+                  initialIsExcited: _isExcited,
+                ),
                 const SizedBox(height: 24),
                 if (eventInstance.hasStarted)
                   EventRatingSummary(

@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/string.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:dance_sf/models/proposal_model.dart';
@@ -19,6 +20,7 @@ class EventInstance {
   final String eventInstanceId;
   final List<Proposal>? proposals;
   final String? flyerUrl;
+  final List<String> excitedUsers;
 
   EventInstance({
     required this.eventInstanceId,
@@ -37,6 +39,7 @@ class EventInstance {
     bool? isCancelled,
     this.proposals,
     String? flyerUrl,
+    this.excitedUsers = const [],
   }) : venueName = venueName ?? event.location.venueName,
        city = city ?? event.location.city,
        url = url ?? event.location.url,
@@ -70,6 +73,7 @@ class EventInstance {
       ratings: ratings,
       isCancelled: instance['is_cancelled'] == true,
       proposals: proposals,
+      excitedUsers: toStringList(instance['excited_users']),
     );
   }
 
@@ -92,6 +96,7 @@ class EventInstance {
     bool? isCancelled,
     List<Proposal>? proposals,
     String? flyerUrl,
+    List<String>? excitedUsers,
   }) {
     return EventInstance(
       eventInstanceId: eventInstanceId ?? this.eventInstanceId,
@@ -110,6 +115,7 @@ class EventInstance {
       isCancelled: isCancelled ?? this.isCancelled,
       proposals: proposals ?? this.proposals,
       flyerUrl: flyerUrl ?? this.flyerUrl,
+      excitedUsers: excitedUsers ?? this.excitedUsers,
     );
   }
 
