@@ -19,16 +19,13 @@ void main() async {
   // Get session ID from browser
   final sessionId = await getSessionId();
 
-
   if (!kDebugMode && kIsWeb && sessionId != null) {
-  // Add log to Supabase
+    // Add log to Supabase
     try {
-      await Supabase.instance.client
-          .from('logs')
-          .insert({
-            'text': 'App initialization started',
-            'session_id': sessionId,
-          });
+      await Supabase.instance.client.from('logs').insert({
+        'text': 'App initialization started',
+        'session_id': sessionId,
+      });
       print('Flutter - Logged with session ID: $sessionId');
     } catch (e) {
       print('Failed to log to Supabase: $e');
@@ -41,12 +38,7 @@ void main() async {
     debugPrint(details.toString());
   };
 
-
-  runApp(
-    const ProviderScope(
-      child: DanceApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: DanceApp()));
 }
 
 class DanceApp extends ConsumerWidget {

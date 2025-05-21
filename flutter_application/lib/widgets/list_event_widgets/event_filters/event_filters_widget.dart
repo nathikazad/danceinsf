@@ -14,6 +14,7 @@ class FilterModalWidget extends ConsumerStatefulWidget {
     required this.controller,
     required this.cities,
   });
+ 
 
   @override
   ConsumerState<FilterModalWidget> createState() => _FilterModalWidgetState();
@@ -69,16 +70,18 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(100)),
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
                   child: const Icon(Icons.tune, size: 18),
                 ),
                 const SizedBox(width: 8),
-                Text('Filters',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(fontSize: 14)),
+                Text(
+                  'Filters',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineSmall?.copyWith(fontSize: 14),
+                ),
                 const Spacer(),
                 TextButton(
                   onPressed: _resetFilters,
@@ -86,10 +89,19 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
                 ),
                 const SizedBox(width: 8),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('Apply'),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -142,27 +154,49 @@ class StyleFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Dance Style',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontSize: 12)),
+        Text(
+          'Dance Style',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontSize: 12),
+        ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
-          children: styles
-              .map((style) => ChoiceChip(
-                    label: Text(
-                      style,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+          children:
+              styles
+                  .map(
+                    (style) => ChoiceChip(
+                      showCheckmark: false,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: BorderSide(
+                          width: 1.5,
+                          color:
+                              selectedStyles.contains(style)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      label: Text(
+                        style,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineSmall?.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color:
+                              selectedStyles.contains(style)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      selected: selectedStyles.contains(style),
+                      onSelected:
+                          (selected) => onStyleSelected(style, selected),
                     ),
-                    selected: selectedStyles.contains(style),
-                    onSelected: (selected) => onStyleSelected(style, selected),
-                  ))
-              .toList(),
+                  )
+                  .toList(),
         ),
       ],
     );
@@ -186,26 +220,48 @@ class FrequencyFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Frequency',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontSize: 12)),
+        Text(
+          'Frequency',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontSize: 12),
+        ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
-          children: frequencies
-              .map((freq) => ChoiceChip(
-                    label: Text(freq,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(fontSize: 12)),
-                    selected: selectedFrequencies.contains(freq),
-                    onSelected: (selected) =>
-                        onFrequencySelected(freq, selected),
-                  ))
-              .toList(),
+          children:
+              frequencies
+                  .map(
+                    (freq) => ChoiceChip(
+                      showCheckmark: false,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: BorderSide(
+                          width: 1.5,
+                          color:
+                              selectedFrequencies.contains(freq)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      label: Text(
+                        freq,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineSmall?.copyWith(
+                          fontSize: 12,
+                          color:
+                              selectedFrequencies.contains(freq)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      selected: selectedFrequencies.contains(freq),
+                      onSelected:
+                          (selected) => onFrequencySelected(freq, selected),
+                    ),
+                  )
+                  .toList(),
         ),
       ],
     );
@@ -229,25 +285,47 @@ class CityFilterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('City',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontSize: 12)),
+        Text(
+          'City',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontSize: 12),
+        ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
-          children: cities
-              .map((city) => ChoiceChip(
-                    label: Text(city,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(fontSize: 12)),
-                    selected: selectedCities.contains(city),
-                    onSelected: (selected) => onCitySelected(city, selected),
-                  ))
-              .toList(),
+          children:
+              cities
+                  .map(
+                    (city) => ChoiceChip(
+                      showCheckmark: false,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: BorderSide(
+                          width: 1.5,
+                          color:
+                              selectedCities.contains(city)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      label: Text(
+                        city,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineSmall?.copyWith(
+                          fontSize: 12,
+                          color:
+                              selectedCities.contains(city)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      selected: selectedCities.contains(city),
+                      onSelected: (selected) => onCitySelected(city, selected),
+                    ),
+                  )
+                  .toList(),
         ),
       ],
     );
