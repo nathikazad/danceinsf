@@ -166,13 +166,16 @@ class EventInstanceController {
           .eq('instance_id', eventInstanceId)
           .single();
 
-      final excitedUsers = toStringList(existingExcitedUsers['excited_users']);
+      var excitedUsers = toStringList(existingExcitedUsers['excited_users']);
 
       if (isExcited) {
         excitedUsers.add(userId);
       } else {
         excitedUsers.remove(userId);
       }
+      // make the excited users unique
+      excitedUsers = excitedUsers.toSet().toList();
+      print('excitedUsers: $excitedUsers');
 
       await supabase
           .from('event_instances')

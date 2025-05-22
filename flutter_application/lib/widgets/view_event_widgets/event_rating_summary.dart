@@ -1,3 +1,4 @@
+import 'package:dance_sf/controllers/event_instance_controller.dart';
 import 'package:dance_sf/widgets/verify_event_widgets/verify_user.dart';
 import 'package:flutter/material.dart';
 import '../../models/event_model.dart';
@@ -7,11 +8,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class EventRatingSummary extends StatefulWidget {
   final DateTime date;
   final List<EventRating> ratings;
-  final Function(int) submitRating;
+  final String eventInstanceId;
+  final Function() onRatingChanged;
+  final Event event;
   const EventRatingSummary(
       {required this.date,
       required this.ratings,
-      required this.submitRating,
+      required this.event,
+      required this.eventInstanceId,
+      required this.onRatingChanged,
       super.key});
 
   @override
@@ -125,6 +130,45 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                     ),
                 ],
               ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'All ${widget.event.name} events got',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 14,
+                        color: brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.favorite,
+                      color: Theme.of(context).colorScheme.primary, size: 18),
+                  Text(
+                    widget.event.rating?.toStringAsFixed(1) ?? '-',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(
+                            color: Theme.of(context).colorScheme.onTertiary,
+                            fontSize: 18),
+                  ),
+                  Text(
+                    ' (${widget.event.ratingCount ?? 0})',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onTertiary
+                                .withOpacity(0.5),
+                            fontSize: 14),
+                  ),
+                ],
+              ),
               const SizedBox(height: 15),
               Text(
                 hasUserRated ? 'Your Rating' : 'Rate this Event',
@@ -144,7 +188,8 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                       final isVerified = await handleRatingVerification(context);
                       if (!isVerified) return;
                       _handleRating(i + 1);
-                      widget.submitRating(i + 1);
+                      await EventInstanceController.rateEvent(widget.eventInstanceId, i + 1);
+                      widget.onRatingChanged();
                     },
                     child: Icon(
                       i < selectedRating ? Icons.favorite : Icons.favorite,

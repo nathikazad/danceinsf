@@ -307,27 +307,46 @@ class EventInstanceCard extends StatelessWidget {
                             fontSize: 16,
                           ),
                         )),
-                    if (rating != null) ...[
+                    if (rating != null || eventInstance.excitedUsers.isNotEmpty) ...[
                       const SizedBox(height: 14),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          SvgPicture.asset(
-                            'assets/icons/heart.svg',
-                            width: 17,
-                            height: 17,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            rating.toStringAsFixed(1),
-                            style: TextStyle(
-                              fontFamily: "Inter",
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onTertiary,
-                              fontSize: 16,
+                          if (eventInstance.excitedUsers.isNotEmpty) ...[
+                            SvgIcon(
+                              icon: SvgIconData('assets/icons/flame.svg'),
+                              size: 16,
+                              color: Colors.orange,
                             ),
-                          ),
+                            const SizedBox(width: 5),
+                            Text(
+                              eventInstance.excitedUsers.length.toString(),
+                              style: TextStyle(
+                                fontFamily: "Inter",
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onTertiary,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          if (rating != null) ...[
+                              SvgIcon(
+                              icon: SvgIconData('assets/icons/heart.svg'),
+                              size: 16,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              rating.toStringAsFixed(1),
+                              style: TextStyle(
+                                fontFamily: "Inter",
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onTertiary,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
@@ -374,3 +393,5 @@ class SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight
   @override
   bool shouldRelayout(covariant SliverGridDelegate oldDelegate) => true;
 }
+
+

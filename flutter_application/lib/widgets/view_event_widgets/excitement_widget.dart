@@ -7,10 +7,12 @@ import 'package:dance_sf/controllers/event_instance_controller.dart';
 class ExcitementWidget extends StatefulWidget {
   final String eventInstanceId;
   final bool initialIsExcited;
+  final Function() onExcitementChanged;
 
   const ExcitementWidget({
     required this.eventInstanceId,
     required this.initialIsExcited,
+    required this.onExcitementChanged,
     super.key,
   });
 
@@ -49,7 +51,7 @@ class _ExcitementWidgetState extends State<ExcitementWidget> {
               final isVerified = await handleRatingVerification(context);
               if (!isVerified) return;
               final currentUserId = Supabase.instance.client.auth.currentUser!.id;
-              EventInstanceController.changeExcitedUser(
+              await EventInstanceController.changeExcitedUser(
                 widget.eventInstanceId, 
                 currentUserId, 
                 !_isExcited
@@ -57,6 +59,7 @@ class _ExcitementWidgetState extends State<ExcitementWidget> {
               setState(() {
                 _isExcited = !_isExcited;
               });
+              widget.onExcitementChanged();
             },
             child: Container(
               width: 50,

@@ -28,21 +28,22 @@ class ViewEventScreen extends ConsumerStatefulWidget {
 
 class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
   late Future<EventInstance?> _eventFuture;
-  bool _isExcited = false;
 
   @override
   void initState() {
     super.initState();
-    _eventFuture =
-        EventInstanceController.fetchEventInstance(widget.eventInstanceId);
-    _eventFuture.then((eventInstance) {
-      if (eventInstance != null && mounted) {
-        final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-        setState(() {
-          _isExcited = currentUserId != null && 
-              eventInstance.excitedUsers.contains(currentUserId);
-        });
-      }
+    _loadEventInstance();
+  }
+
+  void _loadEventInstance() {
+    setState(() {
+      _eventFuture = EventInstanceController.fetchEventInstance(widget.eventInstanceId)
+          .then((eventInstance) {
+        if (eventInstance != null) {
+          print('Number of flames inside loadEventInstance: ${eventInstance.excitedUsers.length}');
+        }
+        return eventInstance;
+      });
     });
   }
 
@@ -68,7 +69,7 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
     return FutureBuilder<EventInstance?>(
       future: _eventFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -81,6 +82,12 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
         final eventInstance = snapshot.data!;
         final event = eventInstance.event;
         final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+        
+        bool isExcited = false;
+        // Update isExcited based on current data
+        if (currentUserId != null) {
+          isExcited = eventInstance.excitedUsers.contains(currentUserId);
+        }
 
         return Scaffold(
           appBar: AppBar(
@@ -169,19 +176,23 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
                 if (eventInstance.flyerUrl != null &&
                     eventInstance.flyerUrl!.isNotEmpty)
                   FlyerViewer(url: eventInstance.flyerUrl!),
-                const SizedBox(height: 16),
-                ExcitementWidget(
-                  eventInstanceId: widget.eventInstanceId,
-                  initialIsExcited: _isExcited,
-                ),
+                if (!eventInstance.hasStarted) ...[ 
+                  const SizedBox(height: 16),
+                  ExcitementWidget(
+                    eventInstanceId: widget.eventInstanceId,
+                    initialIsExcited: isExcited,
+                    onExcitementChanged: _loadEventInstance
+                  ),
+                ],
                 const SizedBox(height: 24),
                 if (eventInstance.hasStarted)
                   EventRatingSummary(
+                      eventInstanceId: widget.eventInstanceId,
                       date: eventInstance.date,
                       ratings: eventInstance.ratings,
-                      submitRating: (rating) async {
-                        await _rateEvent(rating);
-                      }),
+                      onRatingChanged: _loadEventInstance,
+                      event: event
+                ),
                 const SizedBox(height: 32),
                 ProposalsWidget(
                     eventInstance: eventInstance,
@@ -218,27 +229,6 @@ class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
         return 'Repeat Weekly, Every ${schedule.dayOfWeekString.capitalize()}';
       case Frequency.monthly:
         return 'Monthly, Every ${schedule.weekOfMonthString} ${schedule.dayOfWeekString.capitalize()}';
-    }
-  }
-
-  Future<void> _rateEvent(int rating) async {
-    final ret =
-        await EventInstanceController.rateEvent(widget.eventInstanceId, rating);
-    if (ret != null) {
-      setState(() {
-        _eventFuture.then((eventInstance) {
-          if (eventInstance != null) {
-            final existingIndex =
-                eventInstance.ratings.indexWhere((r) => r.userId == ret.userId);
-            if (existingIndex != -1) {
-              eventInstance.ratings[existingIndex] = ret;
-            } else {
-              eventInstance.ratings.add(ret);
-            }
-            _eventFuture = Future.value(eventInstance);
-          }
-        });
-      });
     }
   }
 }

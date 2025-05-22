@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/event_model.dart';
+import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 
 class TopBox extends StatelessWidget {
   final Event event;
@@ -8,6 +9,7 @@ class TopBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('eventInstance.excitedUsers from top box: ${eventInstance.excitedUsers}');
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
       elevation: 0,
@@ -60,54 +62,61 @@ class TopBox extends StatelessWidget {
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 16),
                 ),
-                const SizedBox(height: 8),
-                if (event.ratingCount != null && event.ratingCount! > 0)
-                  Column(
-                    children: [
+                Row(
+                  children: [
+                    if (eventInstance.excitedUsers.isNotEmpty)
                       Row(
                         children: [
-                          const Icon(Icons.favorite,
-                              color: Colors.orange, size: 20),
+                          SvgIcon(
+                            icon: SvgIconData('assets/icons/flame.svg'),
+                            size: 16,
+                            color: Colors.orange,
+                          ),
                           const SizedBox(width: 4),
                           Text(
-                            event.rating?.toStringAsFixed(1) ?? '-',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onTertiary,
-                                    fontSize: 16),
-                          ),
-                          Text(
-                            ' (${event.ratingCount ?? 0})',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onTertiary
-                                        .withOpacity(0.5),
-                                    fontSize: 14),
+                            eventInstance.excitedUsers.length.toString(),
+                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 16),
                           ),
                         ],
                       ),
-                      if (event.ratingCount != null && event.ratingCount! > 0)
-                        Text('Cumulative',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onTertiary
-                                        .withOpacity(0.5),
-                                    fontSize: 12)),
-                    ],
-                  ),
+                    // if (eventInstance.excitedUsers.isNotEmpty && event.ratingCount != null && event.ratingCount! > 0)
+                      const SizedBox(width: 16),
+                    if (event.ratingCount != null && event.ratingCount! > 0)
+
+                          Row(
+                            children: [
+                              const Icon(Icons.favorite,
+                                  color: Colors.orange, size: 20),
+                              const SizedBox(width: 4),
+                              Text(
+                                event.rating?.toStringAsFixed(1) ?? '-',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onTertiary,
+                                        fontSize: 16),
+                              ),
+                              Text(
+                                ' (${event.ratingCount ?? 0})',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onTertiary
+                                            .withOpacity(0.5),
+                                        fontSize: 14),
+                              ),
+                            ],
+                          ),
+
+                  ],
+                ),
               ],
             ),
           ],
