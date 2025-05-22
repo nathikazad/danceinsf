@@ -186,4 +186,28 @@ class EventInstanceController {
       rethrow;
     }
   }
+
+  static Future<Map<String, dynamic>?> getPreviousEvent(String eventId, DateTime instanceDate) async {
+    try {
+      final response = await supabase
+          .from('event_instances')
+          .select('instance_id, instance_date')
+          .eq('event_id', eventId)
+          .lt('instance_date', instanceDate.toIso8601String().split('T')[0])
+          .order('instance_date', ascending: false)
+          .limit(1)
+          .maybeSingle();
+
+      if (response == null) return null;
+
+      return {
+        'instance_id': response['instance_id'],
+        'instance_date': DateTime.parse(response['instance_date']),
+      };
+    } catch (error, stackTrace) {
+      print('Error fetching previous event: $error');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
 } 

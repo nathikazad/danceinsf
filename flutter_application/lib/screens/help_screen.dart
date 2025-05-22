@@ -26,12 +26,12 @@ class HelpScreen extends StatelessWidget {
             _buildFAQItem(
               context,
               'Does it cost anything?',
-              'No, it is a free tool to help people discover bachata events around them.',
+              'No, it is a free tool to help people discover bachata events in San Francisco.',
             ),
             _buildFAQItem(
               context,
               'Does it work only in San Francisco?',
-              'Yes, but if you want it in your city, send an email using the link below.',
+              'Yes only in San Francisco, but if you want it in your city, send an email using the link below.',
             ),
             _buildFAQItem(
               context,
@@ -67,9 +67,15 @@ class HelpScreen extends StatelessWidget {
               ),
             ),
 
+            _buildFAQItem(
+              context,
+              'Do you collect any user data?',
+              'No, we do not collect any user data, we only collect the ratings that users give to events and display them on the event page.',
+            ),
+
             const SizedBox(height: 24),
             const Text(
-              'Need more help?',
+              'Have any questions?',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),

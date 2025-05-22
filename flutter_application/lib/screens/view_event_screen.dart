@@ -13,6 +13,7 @@ import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';
 import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
 import '../widgets/view_event_widgets/excitement_widget.dart';
+import '../widgets/view_event_widgets/previous_event_link.dart';
 
 class ViewEventScreen extends StatefulWidget {
   final String eventInstanceId;
@@ -185,13 +186,18 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                   ),
                 ],
                 const SizedBox(height: 24),
-                // if (eventInstance.hasStarted)
+                if (eventInstance.hasStarted)
                   EventRatingSummary(
                       eventInstanceId: widget.eventInstanceId,
                       date: eventInstance.date,
                       ratings: eventInstance.ratings.where((rating) => rating.eventInstanceId == widget.eventInstanceId).toList(),
                       onRatingChanged: _loadEventInstance,
                       event: event
+                ),
+                if (eventInstance.event.frequency == Frequency.weekly || eventInstance.event.frequency == Frequency.monthly)
+                PreviousEventLink(
+                  eventId: event.eventId,
+                  currentDate: eventInstance.date,
                 ),
                 const SizedBox(height: 32),
                 ProposalsWidget(

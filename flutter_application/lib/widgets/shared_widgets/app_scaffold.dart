@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget child;
@@ -51,13 +52,8 @@ class DownloadBanner extends StatelessWidget {
   Widget _buildDownloadButton(BuildContext context) {
     return TextButton(
       onPressed: () {
-        // TODO: Add your app store links here
-        // For now, we'll just show a snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('App download links coming soon!'),
-          ),
-        );
+
+        launchUrl(Uri.parse('https://play.google.com/store/apps/details?id=com.dancesf.app'));
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.white,
