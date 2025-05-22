@@ -3,7 +3,6 @@ import 'package:dance_sf/controllers/event_instance_controller.dart';
 import 'package:dance_sf/utils/string.dart';
 import 'package:dance_sf/widgets/view_event_widgets/flyer_viewer.dart';
 import 'package:dance_sf/widgets/view_event_widgets/edit_event_modal.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,7 +13,7 @@ import '../widgets/view_event_widgets/top_box.dart';
 import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
 import '../widgets/view_event_widgets/excitement_widget.dart';
 
-class ViewEventScreen extends ConsumerStatefulWidget {
+class ViewEventScreen extends StatefulWidget {
   final String eventInstanceId;
 
   const ViewEventScreen({
@@ -23,10 +22,10 @@ class ViewEventScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ViewEventScreen> createState() => _ViewEventScreenState();
+  State<ViewEventScreen> createState() => _ViewEventScreenState();
 }
 
-class _ViewEventScreenState extends ConsumerState<ViewEventScreen> {
+class _ViewEventScreenState extends State<ViewEventScreen> {
   late Future<EventInstance?> _eventFuture;
 
   @override

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dance_sf/utils/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:dance_sf/utils/web_storage/web_storage.dart';
+import 'package:dance_sf/utils/session/session.dart';
 import 'router.dart';
 
 void main() async {
@@ -41,11 +41,38 @@ void main() async {
   runApp(const ProviderScope(child: DanceApp()));
 }
 
-class DanceApp extends ConsumerWidget {
+class DanceApp extends ConsumerStatefulWidget {
   const DanceApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DanceApp> createState() => _DanceAppState();
+}
+
+class _DanceAppState extends ConsumerState<DanceApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      print('App came back to foreground');
+    } else if (state == AppLifecycleState.paused) {
+      print('App went to background');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(

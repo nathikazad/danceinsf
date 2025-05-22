@@ -9,6 +9,8 @@ import 'utils/local_storage.dart';
 import 'screens/edit_event_screen.dart' as edit_event;
 import 'screens/edit_event_instance_screen.dart' as edit_event_instance;
 import 'screens/help_screen.dart' as help;
+import 'widgets/shared_widgets/app_scaffold.dart';
+
 final routerProvider = Provider((ref) {
   // final authState = ref.watch(authProvider).state;
 
@@ -39,45 +41,61 @@ final routerProvider = Provider((ref) {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const splash.SplashScreen(),
+        builder: (context, state) => const AppScaffold(
+          child: splash.SplashScreen(),
+        ),
       ),
       GoRoute(
         path: '/events',
-        builder: (context, state) => const list_events.EventsScreen(),
+        builder: (context, state) => const AppScaffold(
+          child: list_events.EventsScreen(),
+        ),
       ),
       GoRoute(
         path: '/add-event',
-        builder: (context, state) => const add_event.AddEventScreen(),
+        builder: (context, state) => const AppScaffold(
+          child: add_event.AddEventScreen(),
+        ),
       ),
       GoRoute(
         path: '/event/:eventId',
         builder: (context, state) {
           final eventId = state.pathParameters['eventId']!;
-          return view_event.ViewEventScreen(eventInstanceId: eventId);
+          return AppScaffold(
+            child: view_event.ViewEventScreen(eventInstanceId: eventId),
+          );
         },
       ),
       GoRoute(
         path: '/verify',
         builder: (context, state) {
           final nextRoute = state.extra is Map ? (state.extra as Map)['nextRoute'] as String? : null;
-          return verify.VerifyScreen(nextRoute: nextRoute, extra: state.extra);
+          return AppScaffold(
+            child: verify.VerifyScreen(nextRoute: nextRoute, extra: state.extra),
+          );
         },
       ),
       GoRoute(
         path: '/edit-event/:eventId',
-        builder: (context, state) => edit_event.EditEventScreen(
-          eventId: state.pathParameters['eventId']!,
+        builder: (context, state) => AppScaffold(
+          child: edit_event.EditEventScreen(
+            eventId: state.pathParameters['eventId']!,
+          ),
         ),
       ),
       GoRoute(
         path: '/edit-event-instance/:instanceId',
-        builder: (context, state) => edit_event_instance.EditEventInstanceScreen(
-          eventInstanceId: state.pathParameters['instanceId']!,
+        builder: (context, state) => AppScaffold(
+          child: edit_event_instance.EditEventInstanceScreen(
+            eventInstanceId: state.pathParameters['instanceId']!,
+          ),
         ),
       ),
       GoRoute(
         path: '/help',
-        builder: (context, state) =>  help.HelpScreen(),
+        builder: (context, state) => const AppScaffold(
+          child: help.HelpScreen(),
+        ),
       ),
     ],
   );
