@@ -26,6 +26,7 @@ class EventRatingSummary extends StatefulWidget {
 class _EventRatingSummaryState extends State<EventRatingSummary> {
   int selectedRating = 0;
   final TextEditingController _commentController = TextEditingController();
+  bool _showCommentBox = false;
 
   @override
   void initState() {
@@ -39,9 +40,11 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
           rating: 0,
           createdAt: DateTime.now(),
           userId: '',
+          eventInstanceId: widget.eventInstanceId,
         ),
       );
       selectedRating = userRating.rating.toInt();
+      _commentController.text = userRating.comment ?? '';
     }
   }
 
@@ -53,6 +56,23 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
   void _handleRating(int rating) {
     setState(() {
       selectedRating = rating;
+      _showCommentBox = true;
+    });
+  }
+
+  Future<void> _submitRating() async {
+    final isVerified = await handleRatingVerification(context);
+    if (!isVerified) return;
+    
+    await EventInstanceController.rateEvent(
+      widget.eventInstanceId, 
+      selectedRating,
+      widget.date,
+      comment: _commentController.text.trim(),
+    );
+    widget.onRatingChanged();
+    setState(() {
+      _showCommentBox = false;
     });
   }
 
@@ -99,10 +119,9 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                                 ? Colors.white
                                 : Colors.black)),
                   const SizedBox(width: 8),
-                  if (widget.ratings.isNotEmpty)
+                  if (widget.ratings.isNotEmpty)...[
                     Icon(Icons.favorite,
                         color: Theme.of(context).colorScheme.primary, size: 18),
-                  if (widget.ratings.isNotEmpty)
                     Text(
                       widget.ratings.isNotEmpty
                           ? widget.ratings.first.rating.toStringAsFixed(1)
@@ -114,7 +133,6 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                               color: Theme.of(context).colorScheme.onTertiary,
                               fontSize: 18),
                     ),
-                  if (widget.ratings.isNotEmpty)
                     Text(
                       ' (${widget.ratings.length})',
                       style: Theme.of(context)
@@ -128,47 +146,50 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                                   .withOpacity(0.5),
                               fontSize: 14),
                     ),
+                  ]
                 ],
               ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'All ${widget.event.name} events got',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 14,
-                        color: brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(Icons.favorite,
-                      color: Theme.of(context).colorScheme.primary, size: 18),
-                  Text(
-                    widget.event.rating?.toStringAsFixed(1) ?? '-',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(
-                            color: Theme.of(context).colorScheme.onTertiary,
-                            fontSize: 18),
-                  ),
-                  Text(
-                    ' (${widget.event.ratingCount ?? 0})',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onTertiary
-                                .withOpacity(0.5),
-                            fontSize: 14),
-                  ),
-                ],
-              ),
+              if (widget.event.ratingCount != null && widget.event.ratingCount! > 0) ...[
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'All ${widget.event.name} events got',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 14,
+                          color: brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.favorite,
+                        color: Theme.of(context).colorScheme.primary, size: 18),
+                    Text(
+                      widget.event.rating?.toStringAsFixed(1) ?? '-',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 18),
+                    ),
+                    Text(
+                      ' (${widget.event.ratingCount ?? 0})',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onTertiary
+                                  .withOpacity(0.5),
+                              fontSize: 14),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 15),
               Text(
                 hasUserRated ? 'Your Rating' : 'Rate this Event',
@@ -184,13 +205,7 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                 children: List.generate(
                   5,
                   (i) => GestureDetector(
-                    onTap: () async {
-                      final isVerified = await handleRatingVerification(context);
-                      if (!isVerified) return;
-                      _handleRating(i + 1);
-                      await EventInstanceController.rateEvent(widget.eventInstanceId, i + 1);
-                      widget.onRatingChanged();
-                    },
+                    onTap: () => _handleRating(i + 1),
                     child: Icon(
                       i < selectedRating ? Icons.favorite : Icons.favorite,
                       color: i < selectedRating
@@ -203,6 +218,36 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                   ),
                 ),
               ),
+              if (_showCommentBox) ...[
+                const SizedBox(height: 15),
+                TextField(
+                  controller: _commentController,
+                  decoration: InputDecoration(
+                    hintText: 'Add a comment (optional)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _submitRating,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text('Submit Rating'),
+                ),
+              ],
             ],
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:dance_sf/widgets/view_event_widgets/ratings_section.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/controllers/event_instance_controller.dart';
 import 'package:dance_sf/utils/string.dart';
@@ -184,11 +185,11 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                   ),
                 ],
                 const SizedBox(height: 24),
-                if (eventInstance.hasStarted)
+                // if (eventInstance.hasStarted)
                   EventRatingSummary(
                       eventInstanceId: widget.eventInstanceId,
                       date: eventInstance.date,
-                      ratings: eventInstance.ratings,
+                      ratings: eventInstance.ratings.where((rating) => rating.eventInstanceId == widget.eventInstanceId).toList(),
                       onRatingChanged: _loadEventInstance,
                       event: event
                 ),
@@ -198,6 +199,9 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                     onEditClicked: () {
                       _showEditOptions(context, snapshot.data!);
                     }),
+                const SizedBox(height: 32),
+                if (eventInstance.ratings.isNotEmpty)
+                  RatingsSection(occurrence: eventInstance),
               ],
             ),
           ),

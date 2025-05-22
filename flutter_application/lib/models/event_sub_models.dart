@@ -56,11 +56,13 @@ class EventRating {
   final String? comment;
   final DateTime createdAt;
   final String userId;
+  final String? eventInstanceId;
   EventRating({
     required this.rating,
     this.comment,
     required this.createdAt,
     required this.userId,
+    required this.eventInstanceId,
   });
 
   static EventRating fromMap(Map ratingData) {
@@ -69,6 +71,7 @@ class EventRating {
       comment: ratingData['comment'] as String?,
       userId: ratingData['user_id'] as String,
       createdAt: DateTime.parse(ratingData['created_at']),
+      eventInstanceId: ratingData['instance_id'] as String?,
     );
   }
 }

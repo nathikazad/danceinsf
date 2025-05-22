@@ -10,23 +10,29 @@ class RatingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Recent Ratings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text('Reviews', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 8),
-        ...occurrence.ratings.take(3).map((r) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              const Icon(Icons.favorite, color: Colors.orange, size: 16),
-              const SizedBox(width: 4),
-              Text(r.rating.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              if (r.comment != null && r.comment!.isNotEmpty)
-                Expanded(child: Text('"${r.comment!}"', style: const TextStyle(fontStyle: FontStyle.italic))),
-              const SizedBox(width: 8),
-              Text(_formatDate(r.createdAt), style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
-          ),
-        )),
+        ...(occurrence.ratings
+          .toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt)))
+          .take(10)
+          .map((r) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                const Icon(Icons.favorite, color: Colors.orange, size: 16),
+                const SizedBox(width: 4),
+                Text(r.rating.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: r.comment != null && r.comment!.isNotEmpty
+                    ? Text('"${r.comment!}"', style: const TextStyle(fontStyle: FontStyle.italic))
+                    : const SizedBox(),
+                ),
+                Text(_formatDate(r.createdAt), style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+          )),
       ],
     );
   }
