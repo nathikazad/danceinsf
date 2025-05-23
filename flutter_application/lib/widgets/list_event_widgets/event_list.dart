@@ -171,7 +171,7 @@ class EventInstanceCard extends StatelessWidget {
     super.key,
     required this.eventInstance,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     final start = eventInstance.startTime;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:web/web.dart' as web;
 
 class AppScaffold extends StatelessWidget {
   final Widget child;
@@ -21,15 +21,18 @@ class AppScaffold extends StatelessWidget {
       ),
     );
   }
-} 
+}
 
 class DownloadBanner extends StatelessWidget {
   const DownloadBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Only show on web platform
-    if (!kIsWeb) return const SizedBox.shrink();
+    final String userAgent = web.window.navigator.userAgent.toLowerCase();
+    final bool isMobile = userAgent.contains('android') || 
+                         userAgent.contains('iphone') || 
+                         userAgent.contains('ipad');
+    if (!isMobile) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
@@ -52,8 +55,15 @@ class DownloadBanner extends StatelessWidget {
   Widget _buildDownloadButton(BuildContext context) {
     return TextButton(
       onPressed: () {
-
-        launchUrl(Uri.parse('https://play.google.com/store/apps/details?id=com.dancesf.app'));
+        final String userAgent = web.window.navigator.userAgent.toLowerCase();
+        final String url = userAgent.contains('iphone') || userAgent.contains('ipad')
+            ? 'https://apps.apple.com/us/app/dance-sf/id6746145378'
+            : 'https://play.google.com/store/apps/details?id=com.dancesf.app';
+        // show snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Downloading app from $url')),
+        );
+        launchUrl(Uri.parse(url));
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.white,

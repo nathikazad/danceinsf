@@ -9,7 +9,6 @@ class TopBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('eventInstance.excitedUsers from top box: ${eventInstance.excitedUsers}');
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
       elevation: 0,

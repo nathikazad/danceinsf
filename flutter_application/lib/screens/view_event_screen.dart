@@ -14,6 +14,9 @@ import '../widgets/view_event_widgets/top_box.dart';
 import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
 import '../widgets/view_event_widgets/excitement_widget.dart';
 import '../widgets/view_event_widgets/previous_event_link.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart';
 
 class ViewEventScreen extends StatefulWidget {
   final String eventInstanceId;
@@ -40,9 +43,6 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     setState(() {
       _eventFuture = EventInstanceController.fetchEventInstance(widget.eventInstanceId)
           .then((eventInstance) {
-        if (eventInstance != null) {
-          print('Number of flames inside loadEventInstance: ${eventInstance.excitedUsers.length}');
-        }
         return eventInstance;
       });
     });
@@ -110,7 +110,13 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                   size: 20,
                 ),
               ),
-              onPressed: () => context.pop(),
+              onPressed: () {
+                if (GoRouter.of(context).canPop()) {
+                  GoRouter.of(context).pop();
+                } else {
+                  GoRouter.of(context).go('/events');
+                }
+              },
             ),
             actions: [
               if (currentUserId != null && currentUserId == eventInstance.event.organizerId)
@@ -129,6 +135,34 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                   ),
                   onPressed: () => _showEditOptions(context, eventInstance),
                 ),
+              IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(10),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                  ),
+                  child: Icon(
+                    Icons.ios_share,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                ),
+                onPressed: () {
+                  final url = 'https://wheredothey.dance/event/${eventInstance.eventInstanceId}';
+                  if (kIsWeb) {
+                    Clipboard.setData(ClipboardData(text: url));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Link copied to clipboard!')),
+                    );
+                  } else {
+                    SharePlus.instance.share(
+                      ShareParams(uri: Uri.parse(url))
+                    );
+                  }
+                },
+              ),
               SizedBox(
                 width: 10,
               )

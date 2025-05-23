@@ -1,0 +1,11 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "F2W45BF2AV.com.dancesf.app",
+                "paths": ["*"]
+            }
+        ]
+    }
+} 

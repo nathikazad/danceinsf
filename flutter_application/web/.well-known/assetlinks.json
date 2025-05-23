@@ -1,0 +1,8 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+        "namespace": "android_app",
+        "package_name": "com.dancesf.app",
+        "sha256_cert_fingerprints": ["7E60BADAB8BDF73594E2055D9FF91CCDF1EC73C8F4A3D933BC6DDB8EE9A195"]
+    }
+}] 

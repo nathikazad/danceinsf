@@ -4,39 +4,35 @@ import './screens/splash_screen.dart' as splash;
 import 'package:dance_sf/screens/verify_screen.dart' as verify;
 import 'screens/list_events_screen.dart' as list_events;
 import './screens/add_event_screen.dart' as add_event;
-import './screens/view_event_screen.dart' as view_event;
+import 'package:dance_sf/screens/view_event_screen.dart' as view_event;
 import 'utils/local_storage.dart';
 import 'screens/edit_event_screen.dart' as edit_event;
 import 'screens/edit_event_instance_screen.dart' as edit_event_instance;
 import 'screens/help_screen.dart' as help;
-import 'widgets/shared_widgets/app_scaffold.dart';
+import 'package:dance_sf/utils/app_scaffold/app_scaffold.dart';
 
-final routerProvider = Provider((ref) {
+final routerProvider = Provider<GoRouter>((ref) {
   // final authState = ref.watch(authProvider).state;
 
   return GoRouter(
     initialLocation: '/',
     // refreshListenable: ref.watch(authProvider),
     redirect: (context, state) async {
-      // final isLoggedIn = authState.user != null;
+      print('redirect: ${state.uri.path}');
       
-      // final isAddEventRoute = state.uri.path == '/add-event';
-      // final isVerifyRoute = state.uri.path == '/verify';
-      // if (!isLoggedIn && isAddEventRoute) return '/verify';
-
-      final isHomeRoute = state.uri.path == '/';
-      if (isHomeRoute) {
-        final homeRouteCount = await LocalStorage.getHomeRouteCount();
-        if (homeRouteCount < 5) {
-          await LocalStorage.incrementHomeRouteCount();
-          return '/';
-        } else {
-          return '/events';
-        }
+      // If we're not on the home route, don't redirect
+      if (state.uri.path != '/') {
+        return null;
       }
 
-    
-      return null;
+      // Only handle home route redirect
+      final homeRouteCount = await LocalStorage.getHomeRouteCount();
+      if (homeRouteCount < 5) {
+        await LocalStorage.incrementHomeRouteCount();
+        return '/';
+      } else {
+        return '/events';
+      }
     },
     routes: [
       GoRoute(

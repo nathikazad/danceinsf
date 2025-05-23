@@ -51,7 +51,6 @@ class EventInstanceController {
       final averageRating = eventRatings.isNotEmpty ? eventRatings.map((r) => r.rating).reduce((a, b) => a + b) / eventRatings.length : 0.0;
       final ratingCount = eventRatings.length;
 
-      print('Event data: ${eventData['default_flyer_url']}');
       final event = Event.fromMap(eventData, rating: averageRating, ratingCount: ratingCount, proposals: eventProposals);
 
       // 6. Process instance proposals and ratings from the nested response
