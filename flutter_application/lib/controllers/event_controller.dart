@@ -9,7 +9,6 @@ class EventController {
     startDate ??= DateTime.now();
     final endDate = startDate.add(Duration(days: windowDays));
     try {
-      print('Fetching events from ${startDate.toIso8601String().split('T')[0]} to ${endDate.toIso8601String().split('T')[0]}');
       
       // First fetch event instances within the date range along with their events
       final instancesResponse = await supabase
@@ -60,7 +59,6 @@ class EventController {
         }
       }
 
-      print('Processed ${eventInstances.length} event instances');
       return eventInstances;
     } catch (error, stackTrace) {
       print('Error fetching events');

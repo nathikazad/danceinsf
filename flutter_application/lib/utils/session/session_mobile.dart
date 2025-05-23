@@ -16,16 +16,16 @@ String _generateUUID() {
   return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
 }
 
-Future<String?> getSessionId() async {
+Future<String> getSessionId() async {
   const String sessionKey = 'session_id';
   final prefs = await SharedPreferences.getInstance();
   
   // Try to get existing session ID
-  String? sessionId = prefs.getString(sessionKey);
+  String? existingSessionId = prefs.getString(sessionKey);
   
-  if (sessionId == null) {
-    // Generate new session ID if none exists
-    sessionId = _generateUUID();
+  // Generate new session ID if none exists
+  final sessionId = existingSessionId ?? _generateUUID();
+  if (existingSessionId == null) {
     await prefs.setString(sessionKey, sessionId);
   }
   

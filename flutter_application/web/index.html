@@ -59,12 +59,61 @@
       try {
         const sessionId = getSessionId();
         console.log('Browser - Using session ID for log:', sessionId);
-        await supabaseClient
+        const now = new Date();
+        
+        // Get local date and time
+        const dateOnly = now.toLocaleDateString('en-CA'); // Returns YYYY-MM-DD format
+        const timeOnly = now.toLocaleTimeString('en-US', { 
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+
+        // First fetch existing record
+        const { data: existingLog, error: fetchError } = await supabaseClient
           .from('logs')
-          .insert({ 
-            text: 'Browser page load complete',
-            session_id: sessionId
-          });
+          .select('*')
+          .eq('session_id', sessionId)
+          .eq('created_at', dateOnly)
+          .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+          console.error('Failed to fetch existing log:', fetchError);
+          throw fetchError;
+        }
+
+        if (existingLog) {
+          console.log('Browser - Existing log found:', existingLog);
+          // Update existing record
+          const { error: updateError } = await supabaseClient
+            .from('logs')
+            .update({ 
+              actions: {
+                ...existingLog.actions,
+                timeOnly: 'Browser page load start',
+              }
+            })
+            .eq('session_id', sessionId)
+            .eq('created_at', dateOnly);
+          
+          if (updateError) throw updateError;
+        } else {
+          console.log('Browser - No existing log found, creating new record');
+          // Create new record
+          const { error: insertError } = await supabaseClient
+            .from('logs')
+            .insert({ 
+              actions: {
+                [timeOnly]: 'Browser page load start',
+              },
+              created_at: dateOnly,
+              session_id: sessionId,
+              device: 'web',
+            });
+          
+          if (insertError) throw insertError;
+        }
       } catch (e) {
         console.error('Failed to log to Supabase:', e);
       }

@@ -73,10 +73,8 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
       await ref
           .read(authProvider.notifier)
           .verifyOTP(_fullPhoneNumber, _otpController.text.trim());
-      print('nextRoute: ${widget.nextRoute}');
       if (!mounted) return;
       if (widget.nextRoute != null) {
-        print('nextRoute: ${widget.nextRoute}');
         if (widget.nextRoute == '/back') {
           context.pop(true);
         } else {

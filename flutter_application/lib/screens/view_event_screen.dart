@@ -1,3 +1,4 @@
+import 'package:dance_sf/controllers/log_controller.dart';
 import 'package:dance_sf/widgets/view_event_widgets/ratings_section.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/controllers/event_instance_controller.dart';
@@ -43,6 +44,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     setState(() {
       _eventFuture = EventInstanceController.fetchEventInstance(widget.eventInstanceId)
           .then((eventInstance) {
+        LogController.logNavigation('Viewing event ${eventInstance?.event.name} ${_formatDate(eventInstance?.date)}');
         return eventInstance;
       });
     });
@@ -250,7 +252,10 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime? date) {
+    if (date == null) {
+      return '';
+    }
     return '${_weekdayString(date.weekday)}, ${date.month}/${date.day}';
   }
 

@@ -10,6 +10,7 @@ import 'screens/edit_event_screen.dart' as edit_event;
 import 'screens/edit_event_instance_screen.dart' as edit_event_instance;
 import 'screens/help_screen.dart' as help;
 import 'package:dance_sf/utils/app_scaffold/app_scaffold.dart';
+import 'controllers/log_controller.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // final authState = ref.watch(authProvider).state;
@@ -18,7 +19,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     // refreshListenable: ref.watch(authProvider),
     redirect: (context, state) async {
-      print('redirect: ${state.uri.path}');
+      await LogController.logNavigation("Routing to ${state.uri.path}");
       
       // If we're not on the home route, don't redirect
       if (state.uri.path != '/') {
