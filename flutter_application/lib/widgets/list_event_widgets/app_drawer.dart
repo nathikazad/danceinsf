@@ -157,6 +157,25 @@ class AppDrawer extends ConsumerWidget {
                     ref.read(authProvider.notifier).signOut();
                   },
                 ),
+              if (ref.watch(authProvider).state.user == null)
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Icon(
+                      Icons.login,
+                      size: 25,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  title: const Text('Login'),
+                  onTap: () {
+                    GoRouter.of(context).push('/verify');
+                  },
+                ),
             ],
           ),
         ),

@@ -144,14 +144,17 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
         title: const Text('Dance Events'),
         actions: [
           Builder(
-            builder: (context) => Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(100)),
-              child: IconButton(
-                color: AppColors.darkPrimary,
-                icon: const Icon(Icons.menu),
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
+            builder: (context) => Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(100)),
+                child: IconButton(
+                  color: AppColors.darkPrimary,
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => Scaffold.of(context).openEndDrawer(),
+                ),
               ),
             ),
           ),

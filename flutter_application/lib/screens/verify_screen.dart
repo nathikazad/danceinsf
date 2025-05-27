@@ -201,8 +201,11 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                     borderRadius: BorderRadius.circular(10)),
               ),
               child: _isLoading && !_otpSent
-                  ? CircularProgressIndicator(
-                      color: Theme.of(context).colorScheme.primary)
+                  ? SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                          color: Theme.of(context).colorScheme.primary))
                   : const Text('Send',
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
@@ -245,7 +248,10 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                       borderRadius: BorderRadius.circular(10)),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: const CircularProgressIndicator(color: Colors.white))
                     : const Text('Verify',
                         style:
                             TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),

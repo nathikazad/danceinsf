@@ -29,6 +29,7 @@ class DownloadBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String userAgent = web.window.navigator.userAgent.toLowerCase();
+    print(userAgent);
     final bool isMobile = userAgent.contains('android') || 
                          userAgent.contains('iphone') || 
                          userAgent.contains('ipad');

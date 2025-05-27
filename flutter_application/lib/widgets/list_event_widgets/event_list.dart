@@ -207,6 +207,7 @@ class EventInstanceCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
+                          const SizedBox(width: 2),
                           SvgPicture.asset(
                             'assets/icons/dot.svg',
                             width: 12,
@@ -215,15 +216,29 @@ class EventInstanceCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Text(
-                              eventInstance.event.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "Inter",
-                                fontSize: 19,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                Text(
+                                    eventInstance.event.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "Inter",
+                                      fontSize: 19,
+                                      color: Theme.of(context).colorScheme.secondary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                const SizedBox(width: 6),
+                                Image.asset(
+                                  eventInstance.event.style == DanceStyle.salsa 
+                                    ? 'assets/images/salsa1.png'
+                                    : 'assets/images/bachata2.png',
+                                  width: 20,
+                                  height: 20,
+                                  // color: Theme.of(context).colorScheme.primary,
+                                  // colorBlendMode: BlendMode.difference,
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -253,16 +268,17 @@ class EventInstanceCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           Row(
                             children: [
+                              const SizedBox(width: 2),
                               SvgPicture.asset(
                                 'assets/icons/location.svg',
                                 width: 15,
                                 height: 15,
                                 color: Theme.of(context).colorScheme.primary,
                               ),
-                              const SizedBox(width: 7),
+                              const SizedBox(width: 8),
                               Flexible(
                                 child: Text(
                                   '${eventInstance.venueName}, ${eventInstance.city}',

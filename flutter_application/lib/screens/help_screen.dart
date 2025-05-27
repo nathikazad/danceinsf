@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HelpScreen extends StatelessWidget {
+class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
+
+  @override
+  State<HelpScreen> createState() => _HelpScreenState();
+}
+
+class _HelpScreenState extends State<HelpScreen> {
+  bool _isLoading = false;
+
+  Future<void> _handleDeleteAccount() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Wait for 2 seconds
+    await Future.delayed(const Duration(seconds: 2));
+    
+    // Sign out the user
+    await Supabase.instance.client.auth.signOut();
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +93,29 @@ class HelpScreen extends StatelessWidget {
               ),
             ),
 
+            if (Supabase.instance.client.auth.currentUser != null)
             _buildFAQItem(
               context,
-              'Do you collect any user data?',
-              'No, we do not collect any user data, we only collect the ratings that users give to events and display them on the event page.',
+              'How to delete my account?',
+              'Click the link below to delete your account.',
+              link: InkWell(
+                onTap: _isLoading ? null : _handleDeleteAccount,
+                child: _isLoading 
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      'Delete Account',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+              ),
             ),
 
             const SizedBox(height: 24),
