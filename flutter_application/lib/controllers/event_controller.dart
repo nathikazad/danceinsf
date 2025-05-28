@@ -72,7 +72,7 @@ class EventController {
     try {
       // Convert event type and style to lists for database storage
       final eventTypes = [event.type == EventType.social ? 'Social' : 'Class'];
-      final eventCategories = [event.style == DanceStyle.salsa ? 'Salsa' : 'Bachata'];
+      final eventCategories = event.styles.map((style) => style.name).toList();
       
       // Convert frequency to string
       final recurrenceType = event.frequency.toString().split('.').last.capitalize();
@@ -146,7 +146,7 @@ class EventController {
     try {
       // Convert event type and style to lists for database storage
       final eventTypes = [event.type == EventType.social ? 'Social' : 'Class'];
-      final eventCategories = [event.style == DanceStyle.salsa ? 'Salsa' : 'Bachata'];
+      final eventCategories = event.styles.map((style) => style.name).toList();
       
       // Convert frequency to string
       final recurrenceType = event.frequency.toString().split('.').last.capitalize();

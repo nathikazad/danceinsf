@@ -44,10 +44,17 @@ class EventsStateNotifier
         windowDays: windowDays,
       );
       
-      final allEvents = {
-        ...{for (var e in currentEvents) e.eventInstanceId: e},
-        ...{for (var e in newEvents) e.eventInstanceId: e}
-      }.values.toList();
+      // Create a map of current events by ID
+      final currentEventsMap = {
+        for (var e in currentEvents) e.eventInstanceId: e
+      };
+
+      // Update or add new events
+      for (var newEvent in newEvents) {
+        currentEventsMap[newEvent.eventInstanceId] = newEvent;
+      }
+
+      final allEvents = currentEventsMap.values.toList();
 
       if (allEvents.length == currentEvents.length) {
         // No new events were added
@@ -182,15 +189,16 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 cities: cities,
               );
             },
-            onAddPressed: () {
+            onAddPressed: () async {
               if (ref.read(authProvider).state.user != null) {
-                GoRouter.of(context).push('/add-event');
+                await GoRouter.of(context).push('/add-event');
               } else {
-                GoRouter.of(context).push('/verify',
+                await GoRouter.of(context).push('/verify',
                  extra: {
                   'nextRoute': '/add-event', 
                   'verifyScreenType': VerifyScreenType.addEvent});
               }
+              ref.read(eventsStateProvider.notifier).fetchEvents();
             },
             filterController: filterController,
           ),

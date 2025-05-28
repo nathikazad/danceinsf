@@ -36,7 +36,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
       eventId: '', // Will be set by the database
       name: '',
       type: EventType.social,
-      style: DanceStyle.bachata,
+      styles: [DanceStyle.bachata],
       frequency: Frequency.once,
       location: Location(venueName: '', city: '', url: ''),
       schedule: SchedulePattern.once(),
@@ -112,12 +112,18 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             const SizedBox(height: 20),
             DanceTypeSection(
               type: _event.type,
-              style: _event.style,
+              styles: _event.styles,
               onTypeChanged: (type) => setState(() {
                 _event = _event.copyWith(type: type);
               }),
               onStyleChanged: (style) => setState(() {
-                _event = _event.copyWith(style: style);
+                List<DanceStyle> styles = List<DanceStyle>.from(_event.styles);
+                if (!styles.contains(style)) {
+                  styles.add(style);
+                } else if (styles.length > 1) {
+                  styles.remove(style);
+                }
+                _event = _event.copyWith(styles: styles);
               }),
             ),
             const SizedBox(height: 20),

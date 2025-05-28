@@ -22,7 +22,7 @@ class TopBox extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  event.style == DanceStyle.bachata ? 'Bachata' : 'Salsa',
+                  event.styles.map((style) => style.name).join(' & '),
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 16),

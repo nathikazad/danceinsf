@@ -10,6 +10,23 @@ enum DanceStyle {
   bachata
 }
 
+
+extension DanceStyleExtension on DanceStyle {
+ 
+  static DanceStyle fromString(String style) {
+    return DanceStyle.values.firstWhere(
+      (e) => e.toString().split('.').last.toLowerCase() == style.toLowerCase()
+    );
+  }
+
+  String get name {
+    return switch (this) {
+      DanceStyle.salsa => 'Salsa',
+      DanceStyle.bachata => 'Bachata',
+    };
+  }
+}
+
 enum Frequency {
   once,
   weekly,

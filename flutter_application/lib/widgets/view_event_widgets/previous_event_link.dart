@@ -49,26 +49,20 @@ class _PreviousEventLinkState extends State<PreviousEventLink> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Previous instance of this event was on'),
+          // const Text('Click  to view or rate the event of'),
           const SizedBox(width: 4),
-          TextButton(
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
+          GestureDetector(
+              onTap: () => GoRouter.of(context).push('/event/$previousInstanceId'),
+              child: Text(
+                'View or Rate the previous event of ${previousDate.month}/${previousDate.day}',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
-            onPressed: () => GoRouter.of(context).push('/event/$previousInstanceId'),
-            child: Text(
-              '${previousDate.month}/${previousDate.day}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-          ),
         ],
       ),
     );

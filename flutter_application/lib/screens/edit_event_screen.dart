@@ -67,7 +67,6 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         _event = _event.copyWith(name: _nameController.text);
-        // Get and print the differences between original and current state
         final differences = Event.getDifferences(_oldEvent, _event);
         if (_event.organizerId == Supabase.instance.client.auth.currentUser?.id) {
           await EventController.updateEvent(_event);
@@ -120,12 +119,18 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
             const SizedBox(height: 20),
             DanceTypeSection(
               type: _event.type,
-              style: _event.style,
+              styles: _event.styles,
               onTypeChanged: (type) => setState(() {
                 _event = _event.copyWith(type: type);
               }),
               onStyleChanged: (style) => setState(() {
-                _event = _event.copyWith(style: style);
+                List<DanceStyle> styles = List<DanceStyle>.from(_event.styles);
+                if (!styles.contains(style)) {
+                  styles.add(style);
+                } else if (styles.length > 1) {
+                  styles.remove(style);
+                }
+                _event = _event.copyWith(styles: styles);
               }),
             ),
             const SizedBox(height: 20),

@@ -3,13 +3,13 @@ import '../../models/event_model.dart';
 
 class DanceTypeSection extends StatelessWidget {
   final EventType type;
-  final DanceStyle style;
+  final List<DanceStyle> styles;
   final Function(EventType) onTypeChanged;
   final Function(DanceStyle) onStyleChanged;
 
   const DanceTypeSection({
     required this.type,
-    required this.style,
+    required this.styles,
     required this.onTypeChanged,
     required this.onStyleChanged,
     super.key,
@@ -93,11 +93,11 @@ class DanceTypeSection extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)),
-                    backgroundColor: style == DanceStyle.bachata
+                    backgroundColor: styles.contains(DanceStyle.bachata)
                         ? Theme.of(context).colorScheme.secondaryContainer
                         : null,
                     side: BorderSide(
-                      color: style == DanceStyle.bachata
+                      color: styles.contains(DanceStyle.bachata)
                           ? Colors.orange
                           : Colors.grey.shade300,
                     ),
@@ -106,7 +106,7 @@ class DanceTypeSection extends StatelessWidget {
                   child: Text('Bachata',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontSize: 12,
-                          color: style == DanceStyle.bachata
+                          color: styles.contains(DanceStyle.bachata)
                               ? Theme.of(context).colorScheme.primary
                               : Theme.of(context)
                                   .colorScheme
@@ -119,11 +119,11 @@ class DanceTypeSection extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5)),
-                  backgroundColor: style == DanceStyle.salsa
+                  backgroundColor: styles.contains(DanceStyle.salsa)
                       ? Theme.of(context).colorScheme.secondaryContainer
                       : null,
                   side: BorderSide(
-                    color: style == DanceStyle.salsa
+                    color: styles.contains(DanceStyle.salsa)
                         ? Colors.orange
                         : Colors.grey.shade300,
                   ),
@@ -132,7 +132,7 @@ class DanceTypeSection extends StatelessWidget {
                 child: Text('Salsa',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontSize: 12,
-                        color: style == DanceStyle.salsa
+                        color: styles.contains(DanceStyle.salsa)
                             ? Theme.of(context).colorScheme.primary
                             : Theme.of(context)
                                 .colorScheme

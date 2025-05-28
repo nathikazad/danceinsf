@@ -228,16 +228,24 @@ class EventInstanceCard extends StatelessWidget {
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                const SizedBox(width: 6),
-                                Image.asset(
-                                  eventInstance.event.style == DanceStyle.salsa 
-                                    ? 'assets/images/salsa1.png'
-                                    : 'assets/images/bachata2.png',
-                                  width: 20,
-                                  height: 20,
-                                  // color: Theme.of(context).colorScheme.primary,
-                                  // colorBlendMode: BlendMode.difference,
-                                ),
+                                if (eventInstance.event.styles.contains(DanceStyle.salsa)) ...[
+                                  const SizedBox(width: 6),
+                                  Image.asset(
+                                    'assets/images/salsa1.png',
+                                    width: 20,
+                                    height: 20,
+                                    color: Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ],
+                                if (eventInstance.event.styles.contains(DanceStyle.bachata)) ...[
+                                  const SizedBox(width: 6),
+                                  Image.asset(
+                                    'assets/images/bachata2.png',
+                                    width: 20,
+                                    height: 20,
+                                    color: Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ],
                               ],
                             ),
                           ),

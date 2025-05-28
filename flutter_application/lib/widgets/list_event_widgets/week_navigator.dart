@@ -136,53 +136,67 @@ class WeekNavigator extends StatelessWidget {
             ),
             Chevrons(weekStart: weekStart, onWeekChanged: onWeekChanged),
             Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(7, (index) {
-                  final weekday = index + 1;
-                  final isSelected = weekday == selectedWeekday;
-                  final hasEvents =
-                      daysWithEventsForCurrentWeek.contains(weekday);
-                  final theme = Theme.of(context);
-                  final isDark = theme.brightness == Brightness.dark;
-                  final orange = const Color(0xFFFF7A00);
-                  final borderColor = isSelected
-                      ? orange
-                      : hasEvents
-                          ? orange
-                          : Theme.of(context).colorScheme.background;
-                  final textColor = isSelected
-                      ? Colors.white
-                      : hasEvents
-                          ? orange
-                          : (isDark ? Colors.grey[500]! : Colors.grey[400]!);
-                  final fillColor = isSelected ? orange : Colors.transparent;
-                  return SizedBox(
-                    width: 30,
-                    child: OutlinedButton(
-                      onPressed:
-                          hasEvents ? () => onDaySelected(weekday) : null,
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        minimumSize: const Size(40, 40),
-                        backgroundColor: fillColor,
-                        side: BorderSide(color: borderColor, width: 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+              child: GestureDetector(
+                onHorizontalDragEnd: (details) {
+                  // Determine swipe direction based on velocity
+                  if (details.primaryVelocity != null) {
+                    if (details.primaryVelocity! > 0) {
+                      // Swipe right - go to previous week
+                      onWeekChanged(weekStart.subtract(const Duration(days: 7)));
+                    } else if (details.primaryVelocity! < 0) {
+                      // Swipe left - go to next week
+                      onWeekChanged(weekStart.add(const Duration(days: 7)));
+                    }
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(7, (index) {
+                    final weekday = index + 1;
+                    final isSelected = weekday == selectedWeekday;
+                    final hasEvents =
+                        daysWithEventsForCurrentWeek.contains(weekday);
+                    final theme = Theme.of(context);
+                    final isDark = theme.brightness == Brightness.dark;
+                    final orange = const Color(0xFFFF7A00);
+                    final borderColor = isSelected
+                        ? orange
+                        : hasEvents
+                            ? orange
+                            : Theme.of(context).colorScheme.background;
+                    final textColor = isSelected
+                        ? Colors.white
+                        : hasEvents
+                            ? orange
+                            : (isDark ? Colors.grey[500]! : Colors.grey[400]!);
+                    final fillColor = isSelected ? orange : Colors.transparent;
+                    return SizedBox(
+                      width: 30,
+                      child: OutlinedButton(
+                        onPressed:
+                            hasEvents ? () => onDaySelected(weekday) : null,
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 5),
+                          minimumSize: const Size(40, 40),
+                          backgroundColor: fillColor,
+                          side: BorderSide(color: borderColor, width: 1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        child: Text(
+                          weekDays[index],
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textColor,
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        weekDays[index],
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: textColor,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
             ),
           ],

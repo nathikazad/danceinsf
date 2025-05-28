@@ -138,130 +138,138 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                 color: Theme.of(context).colorScheme.onSecondary,
                 fontSize: 18)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 16),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                _getMessage(),
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 14),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 15),
-            Row(
-              children: [
-                Flexible(
-                  flex: 2,
-                  child: TextField(
-                    controller: _countryCodeController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: '+1',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18, horizontal: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  flex: 5,
-                  child: TextField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: '234 5323 212',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18, horizontal: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isLoading || _otpSent ? null : _sendOTP,
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    Theme.of(context).colorScheme.secondaryContainer,
-                foregroundColor: Theme.of(context).colorScheme.primary,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              child: _isLoading && !_otpSent
-                  ? SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.primary))
-                  : const Text('Send',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          fontFamily: "Inter")),
-            ),
-            if (_otpSent) ...[
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 24),
-              Text(
-                'Enter OTP Code',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary, fontSize: 14),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _otpController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: 'OTP Code',
-                  hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 16),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _getMessage(),
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 12),
-                  border:
-                      OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                      fontSize: 14),
+                  textAlign: TextAlign.center,
                 ),
+              ),
+              const SizedBox(height: 15),
+              Row(
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: TextField(
+                      controller: _countryCodeController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        hintText: '+1',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 18, horizontal: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    flex: 5,
+                    child: TextField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        hintText: '234 5323 212',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 18, horizontal: 12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _isLoading ? null : _verifyOTP,
+                onPressed: _isLoading || _otpSent ? null : _sendOTP,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
+                  foregroundColor: Theme.of(context).colorScheme.primary,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ),
-                child: _isLoading
+                child: _isLoading && !_otpSent
                     ? SizedBox(
                         height: 24,
                         width: 24,
-                        child: const CircularProgressIndicator(color: Colors.white))
-                    : const Text('Verify',
-                        style:
-                            TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                        child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.primary))
+                    : const Text('Send',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            fontFamily: "Inter")),
               ),
+              if (_otpSent) ...[
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 24),
+                Text(
+                  'Enter OTP Code',
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.secondary, fontSize: 14),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _otpController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: 'OTP Code',
+                    hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 12),
+                    border:
+                        OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _verifyOTP,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: const CircularProgressIndicator(color: Colors.white))
+                      : const Text('Verify',
+                          style:
+                              TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                ),
+              ],
+              if (_error != null) ...[
+                const SizedBox(height: 16),
+                Text(_error!, style: const TextStyle(color: Colors.red)),
+              ],
             ],
-            if (_error != null) ...[
-              const SizedBox(height: 16),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            ],
-          ],
+          ),
         ),
       ),
     );

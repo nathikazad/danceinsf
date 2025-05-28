@@ -44,6 +44,7 @@ async function main() {
 
     // Generate instances for all events
     const result = await generateEventInstances();
+    // const result = await generateEventInstances(["fa3e5385-1190-4cb4-9d5c-39d4268e6c93"], "2025-05-29");
     console.log("Result:", result);
   } catch (err) {
     console.error("Error:", err);

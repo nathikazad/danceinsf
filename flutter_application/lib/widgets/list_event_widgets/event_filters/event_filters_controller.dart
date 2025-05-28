@@ -81,9 +81,9 @@ class FilterController extends ChangeNotifier {
         final styleMatches = selectedStyles.any((style) {
           switch (style) {
             case 'Salsa':
-              return event.style == DanceStyle.salsa;
+              return event.styles.contains(DanceStyle.salsa);
             case 'Bachata':
-              return event.style == DanceStyle.bachata;
+              return event.styles.contains(DanceStyle.bachata);
             default:
               return false;
           }

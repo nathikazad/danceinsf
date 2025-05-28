@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:dance_sf/models/event_instance_model.dart';
 import 'package:dance_sf/models/event_sub_models.dart';
 import 'package:dance_sf/models/schedule_model.dart';
@@ -12,7 +13,7 @@ class Event {
   final String eventId;
   final String name;
   final EventType type;
-  final DanceStyle style;
+  final List<DanceStyle> styles;
   final Frequency frequency;
   final Location location;
   final String? linkToEvent;
@@ -31,7 +32,7 @@ class Event {
     required this.eventId,
     required this.name,
     required this.type,
-    required this.style,
+    required this.styles,
     required this.frequency,
     required this.location,
     required this.schedule,
@@ -49,24 +50,25 @@ class Event {
 
   // Factory method to create Event from map
   static Event fromMap(Map eventData, {double? rating, int ratingCount = 0, List<Proposal>? proposals}) {
+    
     final eventTypes = toStringList(eventData['event_type']);
-    final eventCategories = toStringList(eventData['event_category']);
     final weeklyDays = toStringList(eventData['weekly_days']);
     final monthlyPattern = toStringList(eventData['monthly_pattern']);
+    final eventCategories = toStringList(eventData['event_category']).map((category) => DanceStyleExtension.fromString(category)).toList();
 
     return Event(
       eventId: eventData['event_id'],
       name: eventData['name'],
       type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
-      style: eventCategories.contains('Salsa') ? DanceStyle.salsa : DanceStyle.bachata,
+      styles: eventCategories,
       frequency: Frequency.fromString(eventData['recurrence_type']),
       location: Location(
-        venueName: eventData['default_venue_name'] ?? '',
-        city: eventData['default_city'] ?? '',
-        url: eventData['default_google_maps_link'] ?? '',
+        venueName: eventData['default_venue_name'],
+        city: eventData['default_city'],
+        url: eventData['default_google_maps_link'],
       ),
-      flyerUrl: eventData['default_flyer_url'] ?? '',
-      linkToEvent: eventData['default_ticket_link'] ?? '',
+      flyerUrl: eventData['default_flyer_url'],
+      linkToEvent: eventData['default_ticket_link'],
       schedule: SchedulePattern.fromMap(
         eventData['recurrence_type'],
         weeklyDays,
@@ -87,7 +89,7 @@ class Event {
     String? eventId,
     String? name,
     EventType? type,
-    DanceStyle? style,
+    List<DanceStyle>? styles,
     Frequency? frequency,
     Location? location,
     String? linkToEvent,
@@ -104,7 +106,7 @@ class Event {
       eventId: eventId ?? this.eventId,
       name: name ?? this.name,
       type: type ?? this.type,
-      style: style ?? this.style,
+      styles: styles ?? this.styles,
       frequency: frequency ?? this.frequency,
       location: location ?? this.location,
       linkToEvent: linkToEvent ?? this.linkToEvent,
@@ -155,11 +157,20 @@ class Event {
       }
     }
 
+    void addIfDifferentStyles(String key, List<DanceStyle> value1, List<DanceStyle> value2) {
+      if (!listEquals(value1, value2)) {
+        differences[key] = {
+          'old': value1.map((style) => style.name).toList(),
+          'new': value2.map((style) => style.name).toList(),
+        };
+      }
+    }
+
     // Compare basic fields
     addIfDifferent('eventId', event1.eventId, event2.eventId);
     addIfDifferent('name', event1.name, event2.name);
     addIfDifferent('type', event1.type, event2.type);
-    addIfDifferent('style', event1.style, event2.style);
+    addIfDifferentStyles('styles', event1.styles, event2.styles);
     addIfDifferent('frequency', event1.frequency, event2.frequency);
     addIfDifferent('linkToEvent', event1.linkToEvent, event2.linkToEvent);
     addIfDifferent('cost', event1.cost, event2.cost);
