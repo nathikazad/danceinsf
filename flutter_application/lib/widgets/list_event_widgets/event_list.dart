@@ -15,7 +15,7 @@ class EventsList extends StatelessWidget {
   final AsyncValue<List<EventInstance>> eventsAsync;
   final WeekNavigatorController weekNavigatorController;
   final void Function(DateTime) handleDateUpdate;
-  final Future<void> Function(bool) onRangeUpdate;  
+  final Future<void> Function(bool) onRangeUpdate;
   const EventsList({
     super.key,
     required this.eventsAsync,
@@ -29,11 +29,13 @@ class EventsList extends StatelessWidget {
     return Expanded(
       child: eventsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Text('Error: ${error.toString()}'),
-        ),
+        error:
+            (error, stackTrace) =>
+                Center(child: Text('Error: ${error.toString()}')),
         data: (eventInstances) {
-          final groupedInstances = Event.groupEventInstancesByDate(eventInstances);
+          final groupedInstances = Event.groupEventInstancesByDate(
+            eventInstances,
+          );
           final dateKeys = groupedInstances.keys.toList()..sort();
           if (dateKeys.isEmpty) {
             return const Center(
@@ -61,31 +63,30 @@ class EventsList extends StatelessWidget {
               }
               return true;
             },
-            child: 
-            RefreshIndicator(
+            child: RefreshIndicator(
               onRefresh: () async {
                 await onRangeUpdate(true);
               },
               child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              controller: weekNavigatorController.scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount: dateKeys.length,
-              itemBuilder: (context, dateIndex) {
-                final date = dateKeys[dateIndex];
-                final eventInstancesForDate = groupedInstances[date]!;
-                weekNavigatorController.dateKeys[date] =
-                    weekNavigatorController.dateKeys[date] ?? GlobalKey();
-                return GroupedEventsForDate(
-                  date: date,
-                  eventInstancesForDate: eventInstancesForDate,
-                  dateFormat: dateFormat,
-                  isLast: dateIndex == dateKeys.length - 1,
-                  keyForDate: weekNavigatorController.dateKeys[date]!,
-                );
-              },
+                physics: const AlwaysScrollableScrollPhysics(),
+                controller: weekNavigatorController.scrollController,
+                padding: const EdgeInsets.all(16),
+                itemCount: dateKeys.length,
+                itemBuilder: (context, dateIndex) {
+                  final date = dateKeys[dateIndex];
+                  final eventInstancesForDate = groupedInstances[date]!;
+                  weekNavigatorController.dateKeys[date] =
+                      weekNavigatorController.dateKeys[date] ?? GlobalKey();
+                  return GroupedEventsForDate(
+                    date: date,
+                    eventInstancesForDate: eventInstancesForDate,
+                    dateFormat: dateFormat,
+                    isLast: dateIndex == dateKeys.length - 1,
+                    keyForDate: weekNavigatorController.dateKeys[date]!,
+                  );
+                },
+              ),
             ),
-          ),
           );
         },
       ),
@@ -110,67 +111,67 @@ class GroupedEventsForDate extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final screenWidth = constraints.maxWidth;
-      final crossAxisCount = screenWidth > 600 ? 2 : 1;
-      return Column(
-        key: keyForDate,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                SvgIcon(icon: SvgIconData('assets/icons/calendar.svg')),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  dateFormat.format(date),
-                  style: TextStyle(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = constraints.maxWidth;
+        final crossAxisCount = screenWidth > 600 ? 2 : 1;
+        return Column(
+          key: keyForDate,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  SvgIcon(icon: SvgIconData('assets/icons/calendar.svg')),
+                  SizedBox(width: 10),
+                  Text(
+                    dateFormat.format(date),
+                    style: TextStyle(
                       fontFamily: "Inter",
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Theme.of(context).colorScheme.secondary),
-                ),
-              ],
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          GridView.builder(
+            GridView.builder(
               itemCount: eventInstancesForDate.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-                height: 150.0,
-              ),
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                    height: 130.0,
+                  ),
               itemBuilder: (context, index) {
                 return EventInstanceCard(
-                    eventInstance: eventInstancesForDate[index]);
-              }),
-          // ...eventInstancesForDate.map((eventInstance) {
-          //   return EventInstanceCard(
-          //     eventInstance: eventInstance,
-          //   );
-          // }).toList(),
-          // if (!isLast)
-          //   const Divider(height: 32, thickness: 3, color: Colors.grey),
-        ],
-      );
-    });
+                  eventInstance: eventInstancesForDate[index],
+                );
+              },
+            ),
+            // ...eventInstancesForDate.map((eventInstance) {
+            //   return EventInstanceCard(
+            //     eventInstance: eventInstance,
+            //   );
+            // }).toList(),
+            // if (!isLast)
+            //   const Divider(height: 32, thickness: 3, color: Colors.grey),
+          ],
+        );
+      },
+    );
   }
 }
 
 class EventInstanceCard extends StatelessWidget {
   final EventInstance eventInstance;
 
-  const EventInstanceCard({
-    super.key,
-    required this.eventInstance,
-  });
+  const EventInstanceCard({super.key, required this.eventInstance});
 
   @override
   Widget build(BuildContext context) {
@@ -188,13 +189,12 @@ class EventInstanceCard extends StatelessWidget {
         height: 120,
         child: Card(
           margin: const EdgeInsets.only(bottom: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           elevation: 0,
-          color: brightness == Brightness.light
-              ? Colors.white
-              : Color.fromRGBO(43, 33, 28, 1),
+          color:
+              brightness == Brightness.light
+                  ? Colors.white
+                  : Color.fromRGBO(43, 33, 28, 1),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             child: Row(
@@ -243,13 +243,11 @@ class EventInstanceCard extends StatelessWidget {
                               const SizedBox(width: 7),
                               Text(
                                 '${start.format(context)} - ${end.format(context)}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.labelMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
                               ),
                             ],
                           ),
@@ -266,13 +264,12 @@ class EventInstanceCard extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   '${eventInstance.venueName}, ${eventInstance.city}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.labelMedium?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -288,25 +285,29 @@ class EventInstanceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: brightness == Brightness.light
-                              ? const Color(0xFFFFF3EA)
-                              : AppColors.darkBackground,
-                          borderRadius: BorderRadius.circular(8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            brightness == Brightness.light
+                                ? const Color(0xFFFFF3EA)
+                                : AppColors.darkBackground,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        eventInstance.cost == 0.0
+                            ? 'Free'
+                            : '\$${eventInstance.cost.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontFamily: "Inter",
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 16,
                         ),
-                        child: Text(
-                          eventInstance.cost == 0.0
-                              ? 'Free'
-                              : '\$${eventInstance.cost.toStringAsFixed(0)}',
-                          style: TextStyle(
-                            fontFamily: "Inter",
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 16,
-                          ),
-                        )),
+                      ),
+                    ),
                     if (rating != null) ...[
                       const SizedBox(height: 14),
                       Row(
