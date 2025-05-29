@@ -124,7 +124,7 @@ class _EventRatingSummaryState extends State<EventRatingSummary> {
                         color: Theme.of(context).colorScheme.primary, size: 18),
                     Text(
                       widget.ratings.isNotEmpty
-                          ? widget.ratings.first.rating.toStringAsFixed(1)
+                          ? (widget.ratings.map((r) => r.rating).reduce((a, b) => a + b) / widget.ratings.length).toStringAsFixed(1)
                           : '-',
                       style: Theme.of(context)
                           .textTheme

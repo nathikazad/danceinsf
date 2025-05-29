@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Events</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        #content {
+            color: #333;
+            font-size: 1.2rem;
+            text-align: left;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            white-space: pre-wrap;
+            max-width: 800px;
+            width: 100%;
+        }
+        #copyButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #copyButton:hover {
+            background-color: #45a049;
+        }
+        #copyButton:active {
+            background-color: #3d8b40;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">Loading...</div>
+    <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+    <script>
+        function copyToClipboard() {
+            const content = document.getElementById('content').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                const button = document.getElementById('copyButton');
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        fetch('https://swsvvoysafsqsgtvpnqg.supabase.co/functions/v1/list_events')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('content').textContent = data;
+            })
+            .catch(error => {
+                document.getElementById('content').textContent = 'Error loading data: ' + error.message;
+            });
+    </script>
+</body>
+</html>

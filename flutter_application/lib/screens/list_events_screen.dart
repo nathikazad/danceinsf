@@ -244,6 +244,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
             weekNavigatorController: _weekNavigatorController,
             handleDateUpdate: _handleDateUpdate,
             onRangeUpdate: _handleRangeUpdate,
+            fetchEvents: ref.read(eventsStateProvider.notifier).fetchEvents,
           ),
         ],
       ),

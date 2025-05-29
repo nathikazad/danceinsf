@@ -192,7 +192,8 @@ export async function generateEventInstances(eventIds?: string[], date?: string)
     switch (event.recurrence_type) {
       case 'Once':
         if (!date) {
-          throw new Error('Date is required for one-time events')
+          break;
+          // throw new Error('Date is required for one-time events')
         }
         instances = [generateOnceInstance(event, date)]
         break

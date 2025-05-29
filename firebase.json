@@ -22,6 +22,10 @@
     ],
     "rewrites": [
       {
+        "source": "/list",
+        "destination": "/list.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

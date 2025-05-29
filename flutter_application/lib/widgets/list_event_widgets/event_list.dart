@@ -16,12 +16,14 @@ class EventsList extends StatelessWidget {
   final WeekNavigatorController weekNavigatorController;
   final void Function(DateTime) handleDateUpdate;
   final Future<void> Function(bool) onRangeUpdate;  
+  final Future<void> Function() fetchEvents;
   const EventsList({
     super.key,
     required this.eventsAsync,
     required this.weekNavigatorController,
     required this.handleDateUpdate,
     required this.onRangeUpdate,
+    required this.fetchEvents,
   });
   @override
   Widget build(BuildContext context) {
@@ -49,10 +51,10 @@ class EventsList extends StatelessWidget {
                 final scrollController =
                     weekNavigatorController.scrollController;
                 if (scrollController.position.pixels == 0) {
-                  print('Top reached');
-                  if (kIsWeb) {
-                    onRangeUpdate(true);
-                  }
+                  // print('Top reached');
+                  // if (kIsWeb) {
+                  //   onRangeUpdate(true);
+                  // }
                 } else if (scrollController.position.pixels ==
                     scrollController.position.maxScrollExtent) {
                   print('Bottom reached');
@@ -82,6 +84,7 @@ class EventsList extends StatelessWidget {
                   dateFormat: dateFormat,
                   isLast: dateIndex == dateKeys.length - 1,
                   keyForDate: weekNavigatorController.dateKeys[date]!,
+                  fetchEvents: fetchEvents,
                 );
               },
             ),
@@ -100,12 +103,14 @@ class GroupedEventsForDate extends StatelessWidget {
   final DateFormat dateFormat;
   final bool isLast;
   final GlobalKey keyForDate;
+  final Future<void> Function() fetchEvents;
   const GroupedEventsForDate({
     required this.date,
     required this.eventInstancesForDate,
     required this.dateFormat,
     required this.isLast,
     required this.keyForDate,
+    required this.fetchEvents,
     super.key,
   });
   @override
@@ -149,7 +154,9 @@ class GroupedEventsForDate extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 return EventInstanceCard(
-                    eventInstance: eventInstancesForDate[index]);
+                    eventInstance: eventInstancesForDate[index],
+                    fetchEvents: fetchEvents,
+                  );
               }),
           // ...eventInstancesForDate.map((eventInstance) {
           //   return EventInstanceCard(
@@ -166,10 +173,11 @@ class GroupedEventsForDate extends StatelessWidget {
 
 class EventInstanceCard extends StatelessWidget {
   final EventInstance eventInstance;
-
+  final Future<void> Function() fetchEvents;
   const EventInstanceCard({
     super.key,
-    required this.eventInstance,
+    required this.eventInstance,  
+    required this.fetchEvents,
   });
   
   @override
@@ -180,8 +188,9 @@ class EventInstanceCard extends StatelessWidget {
     // final ratingCount = eventInstance.event.ratingCount;
     final brightness = Theme.of(context).brightness;
     return InkWell(
-      onTap: () {
-        GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}');
+      onTap: () async {
+        await GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}');
+        await fetchEvents();
       },
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
@@ -216,37 +225,43 @@ class EventInstanceCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Row(
-                              children: [
-                                Text(
-                                    eventInstance.event.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: "Inter",
-                                      fontSize: 19,
-                                      color: Theme.of(context).colorScheme.secondary,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      eventInstance.event.name,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: "Inter",
+                                        fontSize: 19,
+                                        color: Theme.of(context).colorScheme.secondary,
+                                      ),
                                     ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                if (eventInstance.event.styles.contains(DanceStyle.salsa)) ...[
-                                  const SizedBox(width: 6),
-                                  Image.asset(
-                                    'assets/images/salsa1.png',
-                                    width: 20,
-                                    height: 20,
-                                    color: Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ],
-                                if (eventInstance.event.styles.contains(DanceStyle.bachata)) ...[
-                                  const SizedBox(width: 6),
-                                  Image.asset(
-                                    'assets/images/bachata2.png',
-                                    width: 20,
-                                    height: 20,
-                                    color: Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ],
-                              ],
+                                    if (eventInstance.event.styles.contains(DanceStyle.salsa)) ...[
+                                      const SizedBox(width: 6),
+                                      Image.asset(
+                                        'assets/images/salsa1.png',
+                                        width: 20,
+                                        height: 20,
+                                        color: Theme.of(context).colorScheme.secondary,
+                                      ),
+                                    ],
+                                    if (eventInstance.event.styles.contains(DanceStyle.bachata)) ...[
+                                      const SizedBox(width: 6),
+                                      Image.asset(
+                                        'assets/images/bachata2.png',
+                                        width: 20,
+                                        height: 20,
+                                        color: Theme.of(context).colorScheme.secondary,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -336,7 +351,7 @@ class EventInstanceCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          if (eventInstance.excitedUsers.isNotEmpty) ...[
+                          if (eventInstance.excitedUsers.isNotEmpty && !eventInstance.hasStarted) ...[
                             SvgIcon(
                               icon: SvgIconData('assets/icons/flame.svg'),
                               size: 16,
