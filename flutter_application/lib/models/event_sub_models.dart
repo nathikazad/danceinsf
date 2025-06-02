@@ -11,6 +11,15 @@ enum DanceStyle {
 }
 
 
+extension EventTypeExtension on EventType {
+  String get name {
+    return switch (this) {
+      EventType.social => 'Social',
+      EventType.class_ => 'Class',
+    };
+  }
+}
+
 extension DanceStyleExtension on DanceStyle {
  
   static DanceStyle fromString(String style) {

@@ -21,6 +21,7 @@ class FilterController extends ChangeNotifier {
   List<String> _selectedStyles = [];
   List<String> _selectedFrequencies = [];
   List<String> _selectedCities = [];
+  List<String> _selectedEventTypes = ["Social"];
   String _searchText = '';
 
   FilterController() {
@@ -31,6 +32,7 @@ class FilterController extends ChangeNotifier {
   List<String> get selectedStyles => _selectedStyles;
   List<String> get selectedFrequencies => _selectedFrequencies;
   List<String> get selectedCities => _selectedCities;
+  List<String> get selectedEventTypes => _selectedEventTypes;
   String get searchText => _searchText;
 
   // Load saved filters
@@ -115,6 +117,13 @@ class FilterController extends ChangeNotifier {
         }
       }
 
+      // Filter by event type
+      if (selectedEventTypes.isNotEmpty) {
+        if (!selectedEventTypes.contains(event.type.name)) {
+          return false;
+        }
+      }
+
       return true;
     }).toList();
   }
@@ -149,35 +158,14 @@ class FilterController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateFilters({
-    List<String>? styles,
-    List<String>? frequencies,
-    List<String>? cities,
-    String? search,
-  }) {
-    bool hasChanges = false;
-
-    if (styles != null && !listEquals(_selectedStyles, styles)) {
-      _selectedStyles = styles;
-      hasChanges = true;
+  void toggleEventType(String eventType) {
+    if (_selectedEventTypes.contains(eventType)) {
+      _selectedEventTypes.remove(eventType);
+    } else {
+      _selectedEventTypes.add(eventType);
     }
-    if (frequencies != null && !listEquals(_selectedFrequencies, frequencies)) {
-      _selectedFrequencies = frequencies;
-      hasChanges = true;
-    }
-    if (cities != null && !listEquals(_selectedCities, cities)) {
-      _selectedCities = cities;
-      hasChanges = true;
-    }
-    if (search != null && _searchText != search) {
-      _searchText = search;
-      hasChanges = true;
-    }
-
-    if (hasChanges) {
-      _saveFilters();
-      notifyListeners();
-    }
+    _saveFilters();
+    notifyListeners();
   }
 
   void resetFilters() {
@@ -185,16 +173,11 @@ class FilterController extends ChangeNotifier {
     _selectedFrequencies = [];
     _selectedCities = [];
     _searchText = '';
+    _selectedEventTypes = ["Social"];
     _saveFilters();
     notifyListeners();
   }
 
-  bool hasActiveFilters() {
-    return _selectedStyles.isNotEmpty ||
-        _selectedFrequencies.isNotEmpty ||
-        _selectedCities.isNotEmpty ||
-        _searchText.isNotEmpty;
-  }
 
   int countActiveFilters() {
     int count = 0;

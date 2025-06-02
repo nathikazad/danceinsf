@@ -45,7 +45,8 @@ Deno.serve(async (req) => {
           name,
           default_venue_name,
           default_city,
-          event_type
+          event_type,
+          default_start_time
         )
       `)
       .gte('instance_date', monday.toISOString().split('T')[0])
@@ -64,10 +65,24 @@ Deno.serve(async (req) => {
       const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
       const venueName = event.venue_name || event.events.default_venue_name
       const city = event.city || event.events.default_city
-      return `${dayName}: ${event.events.name} (${city}) - sfdn.cc/${event.short_url_prefix.toLowerCase()}`
+      
+      // Format time in AM/PM from default_start_time (hh:mm:ss)
+      const [hours, minutes] = event.events.default_start_time.split(':').map(Number)
+      const ampm = hours >= 12 ? 'pm' : 'am'
+      const formattedHours = hours % 12 || 12
+      const formattedTime = minutes === 0 
+        ? `${formattedHours}${ampm}`
+        : `${formattedHours}:${minutes.toString().padStart(2, '0')}${ampm}`
+      
+      return `${dayName}: ${event.events.name} (${city}) ${formattedTime} - sfdn.cc/${event.short_url_prefix.toLowerCase()}`
     }).join('\n')
 
-    return new Response(formattedEvents, {
+    // Format the date range for the header
+    const headerDate = `${monday.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} - ${sunday.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}`
+    
+    const fullResponse = `Socials for week ${headerDate}\n\n${formattedEvents}\n\nVisit https://wheredothey.dance for more info`
+
+    return new Response(fullResponse, {
       headers: {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*'

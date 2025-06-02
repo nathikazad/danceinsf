@@ -22,7 +22,7 @@
     ],
     "rewrites": [
       {
-        "source": "/list",
+        "source": "/compile-list",
         "destination": "/list.html"
       },
       {

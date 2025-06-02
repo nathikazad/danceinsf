@@ -41,6 +41,7 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
   final List<String> _styles = ['Salsa', 'Bachata'];
   final List<String> _frequencies = ['Once', 'Weekly', 'Monthly'];
   late final List<String> _cities;
+  final List<String> _eventTypes = ['Social', 'Class'];
 
   @override
   void initState() {
@@ -107,10 +108,20 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
             ),
             const SizedBox(height: 16),
             StyleFilterSection(
+              name: 'Dance Style',
               styles: _styles,
               selectedStyles: widget.controller.selectedStyles,
               onStyleSelected: (style, selected) {
                 widget.controller.toggleStyle(style);
+              },
+            ),
+            const SizedBox(height: 16),
+            StyleFilterSection(
+              name: 'Event Type',
+              styles: _eventTypes,
+              selectedStyles: widget.controller.selectedEventTypes,
+              onStyleSelected: (eventType, selected) {
+                widget.controller.toggleEventType(eventType);
               },
             ),
             const SizedBox(height: 16),
@@ -138,12 +149,14 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
 }
 
 class StyleFilterSection extends StatelessWidget {
+  final String name;
   final List<String> styles;
   final List<String> selectedStyles;
   final Function(String, bool) onStyleSelected;
 
   const StyleFilterSection({
     super.key,
+    required this.name,
     required this.styles,
     required this.selectedStyles,
     required this.onStyleSelected,
@@ -155,7 +168,7 @@ class StyleFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Dance Style',
+          name,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontSize: 12),
@@ -294,6 +307,7 @@ class CityFilterSection extends StatelessWidget {
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
+          runSpacing: 8,
           children:
               cities
                   .map(
