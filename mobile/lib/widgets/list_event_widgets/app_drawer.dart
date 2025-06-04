@@ -3,12 +3,17 @@ import 'package:dance_sf/auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dance_sf/providers/locale_provider.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final currentLocale = ref.watch(localeProvider);
+
     return Drawer(
       child: SafeArea(
         child: Padding(
@@ -26,6 +31,46 @@ class AppDrawer extends ConsumerWidget {
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.secondary)),
               ),
+              // Language Selector
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Icon(
+                    Icons.language,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                title: Text(
+                  l10n.settingsLanguage,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                trailing: DropdownButton<Locale>(
+                  value: currentLocale,
+                  underline: const SizedBox(),
+                  items: [
+                    DropdownMenuItem(
+                      value: const Locale('en'),
+                      child: Text(l10n.settingsLanguageEnglish),
+                    ),
+                    DropdownMenuItem(
+                      value: const Locale('es'),
+                      child: Text(l10n.settingsLanguageSpanish),
+                    ),
+                  ],
+                  onChanged: (Locale? newLocale) {
+                    if (newLocale != null) {
+                      ref.read(localeProvider.notifier).setLocale(newLocale);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 25),
+              const Divider(),
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),

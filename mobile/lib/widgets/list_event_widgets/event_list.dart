@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/foundation.dart';
 import 'package:dance_sf/utils/theme/app_color.dart';
 import 'package:dance_sf/widgets/list_event_widgets/week_navigator.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
@@ -9,6 +8,18 @@ import '../../models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dance_sf/utils/string.dart';
+
+String formatDateWithCapitalization(DateTime date, DateFormat dateFormat) {
+  final formatted = dateFormat.format(date);
+  // Split by spaces and capitalize each word
+  return formatted.split(' ').map((word) {
+    // Skip words like "de" in Spanish
+    if (word.toLowerCase() == 'de') return word;
+    return word.capitalize();
+  }).join(' ');
+}
 
 // EventsList widget
 class EventsList extends StatelessWidget {
@@ -27,19 +38,21 @@ class EventsList extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('EEEE, MMM d');
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+    final dateFormat = DateFormat(l10n.dateFormat, locale.languageCode);
     return Expanded(
       child: eventsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
-          child: Text('Error: ${error.toString()}'),
+          child: Text(l10n.errorLoadingEvents(error.toString())),
         ),
         data: (eventInstances) {
           final groupedInstances = Event.groupEventInstancesByDate(eventInstances);
           final dateKeys = groupedInstances.keys.toList()..sort();
           if (dateKeys.isEmpty) {
-            return const Center(
-              child: Text('No events found in the next 7 days'),
+            return Center(
+              child: Text(l10n.noEventsFound),
             );
           }
           return NotificationListener<ScrollNotification>(
@@ -127,11 +140,11 @@ class GroupedEventsForDate extends StatelessWidget {
             child: Row(
               children: [
                 SvgIcon(icon: SvgIconData('assets/icons/calendar.svg')),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Text(
-                  dateFormat.format(date),
+                  formatDateWithCapitalization(date, dateFormat),
                   style: TextStyle(
                       fontFamily: "Inter",
                       fontWeight: FontWeight.w600,
@@ -182,6 +195,7 @@ class EventInstanceCard extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final start = eventInstance.startTime;
     final end = eventInstance.endTime;
     final rating = eventInstance.event.rating;
@@ -337,7 +351,7 @@ class EventInstanceCard extends StatelessWidget {
                         ),
                         child: Text(
                           eventInstance.cost == 0.0
-                              ? 'Free'
+                              ? l10n.free
                               : '\$${eventInstance.cost.toStringAsFixed(0)}',
                           style: TextStyle(
                             fontFamily: "Inter",

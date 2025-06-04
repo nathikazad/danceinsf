@@ -1,0 +1,29 @@
+{
+    "appTitle": "Dance in ",
+    "appSubtitle": "Don't Think, Just Dance",
+    "buttonFindEvents": "Find Local Events In San Francisco",
+    "settingsLanguage": "Language",
+    "settingsLanguageEnglish": "English",
+    "settingsLanguageSpanish": "Spanish",
+    "searchHint": "Search",
+    "danceEvents": "Dance Events",
+    "noEventsFound": "No events found in the next 7 days",
+    "noMoreEvents": "No more new events",
+    "free": "Free",
+    "errorLoadingEvents": "Error loading events: {error}",
+    "@errorLoadingEvents": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "dateFormat": "EEEE, MMM d",
+    "@dateFormat": {
+        "description": "The format pattern for displaying dates. EEEE is full weekday name, MMM is abbreviated month name, d is day of month"
+    },
+    "weekdayAbbreviations": "M,T,W,Th,F,Sa,Su",
+    "@weekdayAbbreviations": {
+        "description": "Comma-separated list of weekday abbreviations (Monday through Sunday)"
+    }
+} 

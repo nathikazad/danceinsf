@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:dance_sf/screens/list_events_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dance_sf/utils/local_storage.dart';
+import 'package:dance_sf/utils/app_storage.dart';
 
 final filterControllerProvider = ChangeNotifierProvider<FilterController>((ref) => FilterController());
 
@@ -37,7 +37,7 @@ class FilterController extends ChangeNotifier {
 
   // Load saved filters
   Future<void> _loadSavedFilters() async {
-    final savedFilters = await LocalStorage.loadFilterSettings();
+    final savedFilters = await AppStorage.loadFilterSettings();
     _selectedStyles = savedFilters['selectedStyles'] as List<String>;
     _selectedFrequencies = savedFilters['selectedFrequencies'] as List<String>;
     _selectedCities = savedFilters['selectedCities'] as List<String>;
@@ -47,7 +47,7 @@ class FilterController extends ChangeNotifier {
 
   // Save current filters
   Future<void> _saveFilters() async {
-    await LocalStorage.saveFilterSettings(
+    await AppStorage.saveFilterSettings(
       selectedStyles: _selectedStyles,
       selectedFrequencies: _selectedFrequencies,
       selectedCities: _selectedCities,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dance_sf/utils/theme/app_color.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EventSearchBar extends StatefulWidget {
   final String initialValue;
@@ -42,12 +43,14 @@ class _EventSearchBarState extends State<EventSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: TextField(
         controller: _controller,
         decoration: InputDecoration(
-          hintText: 'Search',
+          hintText: l10n.searchHint,
           prefixIcon: const Icon(
             Icons.search,
             size: 20,

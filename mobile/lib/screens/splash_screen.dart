@@ -1,5 +1,7 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -8,6 +10,8 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
@@ -20,7 +24,9 @@ class SplashScreen extends StatelessWidget {
               SizedBox(
                 height: 260,
                 child: Image.asset(
-                  'assets/images/sf_dance.png',
+                  AppStorage.zone == 'San Francisco' ?
+                  'assets/images/sf_dance.png' :
+                  'assets/images/mx_dance.png',
                   fit: BoxFit.contain,
                 ),
               ),
@@ -31,7 +37,7 @@ class SplashScreen extends StatelessWidget {
                 text: TextSpan(
                   style: textTheme.headlineMedium,
                   children: [
-                    const TextSpan(text: 'Dance in '),
+                    TextSpan(text: l10n.appTitle),
                     TextSpan(
                       text: 'SF',
                       style: textTheme.headlineMedium?.copyWith(
@@ -44,7 +50,7 @@ class SplashScreen extends StatelessWidget {
               const SizedBox(height: 12),
               // Subtitle
               Text(
-                "Don't Think, Just Dance",
+                l10n.appSubtitle,
                 style: textTheme.titleMedium?.copyWith(
                   color: colorScheme.primary,
                 ),
@@ -68,16 +74,16 @@ class SplashScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Find Local Events In San Francisco',
-                          style: TextStyle(
+                          l10n.buttonFindEvents,
+                          style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward_rounded),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward_rounded),
                       ],
                     ),
                   ),

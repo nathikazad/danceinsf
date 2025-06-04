@@ -1,0 +1,29 @@
+{
+    "appTitle": "Baila en ",
+    "appSubtitle": "No Pienses, Solo Baila",
+    "buttonFindEvents": "Eventos Locales en San Francisco",
+    "settingsLanguage": "Idioma",
+    "settingsLanguageEnglish": "Inglés",
+    "settingsLanguageSpanish": "Español",
+    "searchHint": "Buscar",
+    "danceEvents": "Eventos de Baile",
+    "noEventsFound": "No se encontraron eventos en los próximos 7 días",
+    "noMoreEvents": "No hay más eventos nuevos",
+    "free": "Gratis",
+    "errorLoadingEvents": "Error al cargar eventos: {error}",
+    "@errorLoadingEvents": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "dateFormat": "EEEE, d 'de' MMM",
+    "@dateFormat": {
+        "description": "The format pattern for displaying dates. EEEE is full weekday name, MMM is abbreviated month name, d is day of month"
+    },
+    "weekdayAbbreviations": "L,M,X,J,V,S,D",
+    "@weekdayAbbreviations": {
+        "description": "Comma-separated list of weekday abbreviations (Monday through Sunday)"
+    }
+} 

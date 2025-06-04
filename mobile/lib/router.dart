@@ -5,7 +5,7 @@ import 'package:dance_sf/screens/verify_screen.dart' as verify;
 import 'screens/list_events_screen.dart' as list_events;
 import './screens/add_event_screen.dart' as add_event;
 import 'package:dance_sf/screens/view_event_screen.dart' as view_event;
-import 'utils/local_storage.dart';
+import 'utils/app_storage.dart';
 import 'screens/edit_event_screen.dart' as edit_event;
 import 'screens/edit_event_instance_screen.dart' as edit_event_instance;
 import 'screens/help_screen.dart' as help;
@@ -25,11 +25,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (state.uri.path != '/') {
         return null;
       }
-      // await LocalStorage.clearHomeRouteCount();
+      await AppStorage.clearHomeRouteCount();
       // Only handle home route redirect
-      final homeRouteCount = await LocalStorage.getHomeRouteCount();
+      final homeRouteCount = await AppStorage.getHomeRouteCount();
       if (homeRouteCount < 5) {
-        await LocalStorage.incrementHomeRouteCount();
+        await AppStorage.incrementHomeRouteCount();
         return '/';
       } else {
         return '/events';

@@ -1,11 +1,12 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LocalStorage {
+class AppStorage {
   static const String _homeRouteCountKey = 'home_route_count';
   static const String _selectedStylesKey = 'selected_styles';
   static const String _selectedFrequenciesKey = 'selected_frequencies';
   static const String _selectedCitiesKey = 'selected_cities';
   static const String _searchTextKey = 'search_text';
+  static const String _zoneKey = 'selected_zone';
 
   static Future<void> incrementHomeRouteCount() async {
     final prefs = await SharedPreferences.getInstance();
@@ -47,5 +48,20 @@ class LocalStorage {
       'selectedCities': prefs.getStringList(_selectedCitiesKey) ?? [],
       'searchText': prefs.getString(_searchTextKey) ?? '',
     };
+  }
+  
+  static String _zone = 'San Francisco';
+
+  static String get zone => _zone;
+
+  static Future<void> setZone(String zone) async {
+    _zone = zone;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_zoneKey, zone);
+  }
+
+  static Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    _zone = prefs.getString(_zoneKey) ?? 'San Francisco';
   }
 } 

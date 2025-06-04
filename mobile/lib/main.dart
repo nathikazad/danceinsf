@@ -1,15 +1,20 @@
 import 'package:dance_sf/controllers/log_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:dance_sf/utils/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
 import 'router.dart';
+import 'providers/locale_provider.dart';
+import 'package:dance_sf/utils/app_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppStorage.init();
 
   print('Initializing Supabase');
   await Supabase.initialize(
@@ -110,6 +115,7 @@ class _DanceAppState extends ConsumerState<DanceApp> with WidgetsBindingObserver
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'Dance in SF',
@@ -118,6 +124,17 @@ class _DanceAppState extends ConsumerState<DanceApp> with WidgetsBindingObserver
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
+      locale: locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('es'), // Spanish
+      ],
     );
   }
 }

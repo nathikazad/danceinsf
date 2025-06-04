@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WeekNavigatorController {
   final ScrollController scrollController = ScrollController();
@@ -107,7 +108,8 @@ class WeekNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final weekDays = ['M', 'T', 'W', 'Th', 'F', 'Sa', 'Su'];
+    final l10n = AppLocalizations.of(context)!;
+    final weekDays = l10n.weekdayAbbreviations.split(',');
     final dateFormat = DateFormat('MM / dd');
     List<String> dateStr = dateFormat.format(weekStart).split("/");
     return Padding(
@@ -176,7 +178,7 @@ class WeekNavigator extends StatelessWidget {
                         onPressed:
                             hasEvents ? () => onDaySelected(weekday) : null,
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 5),
+                          padding: const EdgeInsets.symmetric(vertical: 5),
                           minimumSize: const Size(40, 40),
                           backgroundColor: fillColor,
                           side: BorderSide(color: borderColor, width: 1),

@@ -1,14 +1,7 @@
 import 'package:dance_sf/utils/string.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
-
-String _zone = "San Francisco";
-
-void setZone(String zone) {
-  _zone = zone;
-}
-
-String get zone => _zone;
+import '../utils/app_storage.dart';
 
 class EventController {
   static final supabase = Supabase.instance.client;
@@ -25,7 +18,7 @@ class EventController {
           .gte('instance_date', startDate.toIso8601String().split('T')[0])
           .lte('instance_date', endDate.toIso8601String().split('T')[0])
           .eq('events.is_archived', false)
-          .eq('events.zone', _zone);
+          .eq('events.zone', AppStorage.zone);
 
       print("instancesResponse: ${instancesResponse.length}");
       
@@ -122,7 +115,7 @@ class EventController {
         'monthly_pattern': monthlyPattern,
         'is_archived': false,
         'creator_id': Supabase.instance.client.auth.currentUser!.id,
-        'zone': zone,
+        'zone': AppStorage.zone,
       };
 
       // Create the event in the database

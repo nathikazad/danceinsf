@@ -3,6 +3,7 @@ import 'package:dance_sf/auth.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:dance_sf/screens/verify_screen.dart';
 import 'package:dance_sf/utils/theme/app_color.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -141,6 +142,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final eventsAsync = ref.watch(filteredEventsProvider);
     final filterController = ref.watch(filterControllerProvider);
     final weekStart = _weekStart ??
@@ -149,7 +151,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Dance Events'),
+        title: Text(l10n.danceEvents),
         actions: [
           Builder(
             builder: (context) => Padding(
