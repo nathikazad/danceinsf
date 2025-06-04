@@ -18,6 +18,12 @@ class LocalStorage {
     return prefs.getInt(_homeRouteCountKey) ?? 0;
   }
 
+  // clear route count
+  static Future<void> clearHomeRouteCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_homeRouteCountKey);
+  }
+
   // Save filter settings
   static Future<void> saveFilterSettings({
     required List<String> selectedStyles,

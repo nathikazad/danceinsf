@@ -25,7 +25,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (state.uri.path != '/') {
         return null;
       }
-
+      // await LocalStorage.clearHomeRouteCount();
       // Only handle home route redirect
       final homeRouteCount = await LocalStorage.getHomeRouteCount();
       if (homeRouteCount < 5) {
