@@ -106,6 +106,7 @@ class Event {
     List<Proposal>? proposals,
     String? creatorId,
     String? organizerId,
+    String? flyerUrl,
   }) {
     return Event(
       eventId: eventId ?? this.eventId,
@@ -125,6 +126,7 @@ class Event {
       proposals: proposals ?? this.proposals,
       creatorId: creatorId ?? this.creatorId,
       organizerId: organizerId ?? this.organizerId,
+      flyerUrl: flyerUrl ?? this.flyerUrl,
     );
   }
 

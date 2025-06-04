@@ -74,12 +74,18 @@ function getDayName(date: Date): string {
 
 // Helper function to check if a date matches a monthly pattern
 function matchesMonthlyPattern(date: Date, pattern: string): boolean {
-  const [week, day] = pattern.split('-')
-  const weekNum = parseInt(week)
-  const currentWeek = getWeekOfMonth(date)
-  const currentDay = getDayName(date)
+  // Split the pattern by comma to handle multiple patterns
+  const patterns = pattern.split(',')
   
-  return currentWeek === weekNum && currentDay === day
+  // Check if any of the patterns match
+  return patterns.some(singlePattern => {
+    const [week, day] = singlePattern.trim().split('-')
+    const weekNum = parseInt(week)
+    const currentWeek = getWeekOfMonth(date)
+    const currentDay = getDayName(date)
+    
+    return currentWeek === weekNum && currentDay === day
+  })
 }
 
 // Helper function to check if a date matches a weekly pattern

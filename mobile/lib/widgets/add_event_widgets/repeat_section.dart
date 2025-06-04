@@ -23,7 +23,7 @@ class _RepeatSectionState extends State<RepeatSection> {
   late Frequency _frequency;
   late DateTime? _selectedDate;
   late DayOfWeek? _selectedDay;
-  late int? _selectedWeek;
+  late Set<int> _selectedWeeks;
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _RepeatSectionState extends State<RepeatSection> {
     _frequency = widget.frequency;
     _selectedDate = widget.selectedDate ?? DateTime.now();
     _selectedDay = widget.schedule.dayOfWeek;
-    _selectedWeek = widget.schedule.weekOfMonth;
+    _selectedWeeks = widget.schedule.weeksOfMonth?.toSet() ?? {1};
   }
 
   Future<void> _pickDate(BuildContext context) async {
@@ -61,8 +61,10 @@ class _RepeatSectionState extends State<RepeatSection> {
       case Frequency.monthly:
         _selectedDate = null;
         _selectedDay ??= DayOfWeek.monday;
-        _selectedWeek ??= 1;
-        newSchedule = SchedulePattern.monthly(_selectedDay!, _selectedWeek!);
+        if (_selectedWeeks.isEmpty) {
+          _selectedWeeks = {1};
+        }
+        newSchedule = SchedulePattern.monthly(_selectedDay!, _selectedWeeks.toList()..sort());
         break;
     }
     widget.onScheduleChanged(newSchedule, _frequency, _selectedDate);
@@ -158,14 +160,14 @@ class _RepeatSectionState extends State<RepeatSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Week of Month',
+        Text('Weeks of Month',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           children: [1, 2, 3, 4].map((week) {
-            final isSelected = _selectedWeek == week;
+            final isSelected = _selectedWeeks.contains(week);
             String label = ['1st', '2nd', '3rd', '4th'][week - 1];
             return ChoiceChip(
               showCheckmark: false,
@@ -186,7 +188,13 @@ class _RepeatSectionState extends State<RepeatSection> {
               ),
               selected: isSelected,
               onSelected: (selected) {
-                setState(() => _selectedWeek = week);
+                setState(() {
+                  if (selected) {
+                    _selectedWeeks.add(week);
+                  } else if (_selectedWeeks.length > 1) {
+                    _selectedWeeks.remove(week);
+                  }
+                });
                 _updateSchedule();
               },
             );

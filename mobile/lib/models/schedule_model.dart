@@ -3,25 +3,25 @@ import 'package:dance_sf/models/event_model.dart';
 class SchedulePattern {
   final Frequency frequency;
   final DayOfWeek? dayOfWeek;  // For 'weekly' and 'monthly' frequency
-  final int? weekOfMonth;      // For 'monthly' frequency (1-5)
+  final List<int>? weeksOfMonth;      // For 'monthly' frequency (1-4)
 
   SchedulePattern({
     required this.frequency,
     this.dayOfWeek,
-    this.weekOfMonth,
+    this.weeksOfMonth,
   }) {
     // Validate the pattern based on frequency
     switch (frequency) {
       case Frequency.once:
-        assert(dayOfWeek == null && weekOfMonth == null, 'Day of week and week of month should be null for once frequency');
+        assert(dayOfWeek == null && weeksOfMonth == null, 'Day of week and weeks of month should be null for once frequency');
         break;
       case Frequency.weekly:
         assert(dayOfWeek != null, 'Day of week is required for weekly frequency');
-        assert(weekOfMonth == null, 'Week of month should be null for weekly frequency');
+        assert(weeksOfMonth == null, 'Weeks of month should be null for weekly frequency');
         break;
       case Frequency.monthly:
-        assert(dayOfWeek != null && weekOfMonth != null, 'Both day of week and week of month are required for monthly frequency');
-        assert(weekOfMonth! >= 1 && weekOfMonth! <= 5, 'Week of month must be between 1 and 5');
+        assert(dayOfWeek != null && weeksOfMonth != null, 'Both day of week and weeks of month are required for monthly frequency');
+        assert(weeksOfMonth!.every((week) => week >= 1 && week <= 4), 'Weeks of month must be between 1 and 4');
         break;
     }
   }
@@ -39,11 +39,11 @@ class SchedulePattern {
     );
   }
 
-  factory SchedulePattern.monthly(DayOfWeek day, int weekOfMonth) {
+  factory SchedulePattern.monthly(DayOfWeek day, List<int> weeksOfMonth) {
     return SchedulePattern(
       frequency: Frequency.monthly,
       dayOfWeek: day,
-      weekOfMonth: weekOfMonth,
+      weeksOfMonth: weeksOfMonth,
     );
   }
 
@@ -68,14 +68,27 @@ class SchedulePattern {
         return SchedulePattern.once();
       case 'monthly':
         if (monthlyPattern?.isNotEmpty == true) {
-          final pattern = monthlyPattern!.first.split('-');
-          if (pattern.length == 2) {
-            final weekNumber = int.tryParse(pattern[0].replaceAll(RegExp(r'[^0-9]'), '')) ?? 1;
-            final dayIndex = _parseDayOfWeek(pattern[1]);
-            return SchedulePattern.monthly(
-              DayOfWeek.values[dayIndex],
-              weekNumber,
-            );
+          final weekNumbers = <int>[];
+          DayOfWeek? selectedDay;
+          
+          for (final pattern in monthlyPattern!) {
+            final parts = pattern.split('-');
+            if (parts.length == 2) {
+              final weekNumber = int.tryParse(parts[0].replaceAll(RegExp(r'[^0-9]'), '')) ?? 1;
+              final dayIndex = _parseDayOfWeek(parts[1]);
+              
+              // Store the day if not set yet
+              selectedDay ??= DayOfWeek.values[dayIndex];
+              
+              // Only add week number if it's not already included
+              if (!weekNumbers.contains(weekNumber)) {
+                weekNumbers.add(weekNumber);
+              }
+            }
+          }
+          
+          if (selectedDay != null && weekNumbers.isNotEmpty) {
+            return SchedulePattern.monthly(selectedDay, weekNumbers);
           }
         }
         return SchedulePattern.once();
@@ -102,15 +115,15 @@ class SchedulePattern {
   }
 
   String get shortMonthlyPattern {
-    if (frequency != Frequency.monthly || dayOfWeek == null || weekOfMonth == null) return '';
-    final string = switch (weekOfMonth) {
+    if (frequency != Frequency.monthly || dayOfWeek == null || weeksOfMonth == null) return '';
+    final weekStrings = weeksOfMonth!.map((week) => switch (week) {
       1 => '1st',
       2 => '2nd',
       3 => '3rd',
       4 => '4th',
       _ => ''
-    };
-    return '$string-$shortDayOfWeekString';
+    }).join(',');
+    return '$weekStrings-$shortDayOfWeekString';
   }
 
   String get shortWeeklyPattern {
@@ -119,12 +132,13 @@ class SchedulePattern {
   }
 
   String get weekOfMonthString {
-    return switch (weekOfMonth) {
+    if (weeksOfMonth == null) return '';
+    return weeksOfMonth!.map((week) => switch (week) {
       1 => 'First',
       2 => 'Second',
       3 => 'Third',
       4 => 'Fourth',
       _ => ''
-    };
+    }).join(', ');
   }
 }

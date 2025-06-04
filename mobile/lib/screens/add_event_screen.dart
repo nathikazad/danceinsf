@@ -196,7 +196,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             UploadSection(
               fileUrl: _event.description,
               onFileChanged: (url) => setState(() {
-                _event = _event.copyWith(description: url);
+                _event = _event.copyWith(flyerUrl: url);
               }),
             ),
             // const SizedBox(height: 20),

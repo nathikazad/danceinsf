@@ -89,7 +89,7 @@ class EventController {
         weeklyDays = [event.schedule.shortWeeklyPattern];
       } else if (event.schedule.frequency == Frequency.monthly && 
                 event.schedule.dayOfWeek != null && 
-                event.schedule.weekOfMonth != null) {
+                event.schedule.weeksOfMonth != null) {
         monthlyPattern = [event.schedule.shortMonthlyPattern];
       }
 
@@ -163,7 +163,7 @@ class EventController {
         weeklyDays = [event.schedule.shortWeeklyPattern];
       } else if (event.schedule.frequency == Frequency.monthly && 
                 event.schedule.dayOfWeek != null && 
-                event.schedule.weekOfMonth != null) {
+                event.schedule.weeksOfMonth != null) {
         monthlyPattern = [event.schedule.shortMonthlyPattern];
       }
 
