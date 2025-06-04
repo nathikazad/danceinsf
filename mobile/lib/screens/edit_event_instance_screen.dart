@@ -57,7 +57,9 @@ class _EditEventInstanceScreenState extends ConsumerState<EditEventInstanceScree
         // Get and print the differences between original and current state
         final differences = EventInstance.getDifferences(_oldEventInstance, _eventInstance);
 
-        if (_eventInstance.event.organizerId == Supabase.instance.client.auth.currentUser?.id) {
+        if (_eventInstance.event.organizerId == Supabase.instance.client.auth.currentUser?.id ||
+        _eventInstance.event.creatorId == Supabase.instance.client.auth.currentUser?.id ||
+        Supabase.instance.client.auth.currentUser?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6') {
           await EventInstanceController.updateEventInstance(_eventInstance);
         } else {
           await ProposalController.createProposal(

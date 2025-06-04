@@ -86,7 +86,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
   // Add state for date range
   DateTime _startDate = DateTime.now();
-  int _daysWindow = 14;
+  int _daysWindow = 90;
 
   @override
   void initState() {

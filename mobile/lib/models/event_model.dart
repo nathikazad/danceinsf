@@ -27,6 +27,7 @@ class Event {
   List<Proposal>? proposals;
   final String? flyerUrl;
   final String? organizerId;
+  final String creatorId;
 
   Event({
     required this.eventId,
@@ -38,6 +39,7 @@ class Event {
     required this.schedule,
     required this.startTime,
     required this.endTime,
+    required this.creatorId,
     this.linkToEvent,
     this.cost = 0.0,
     this.description,
@@ -82,6 +84,7 @@ class Event {
       ratingCount: ratingCount,
       proposals: proposals,
       organizerId: eventData['organizer_id'],
+      creatorId: eventData['creator_id'],
     );
   }
 
@@ -101,6 +104,8 @@ class Event {
     double? rating,
     int? ratingCount,
     List<Proposal>? proposals,
+    String? creatorId,
+    String? organizerId,
   }) {
     return Event(
       eventId: eventId ?? this.eventId,
@@ -118,6 +123,8 @@ class Event {
       rating: rating ?? this.rating,
       ratingCount: ratingCount ?? this.ratingCount,
       proposals: proposals ?? this.proposals,
+      creatorId: creatorId ?? this.creatorId,
+      organizerId: organizerId ?? this.organizerId,
     );
   }
 

@@ -121,7 +121,10 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
               },
             ),
             actions: [
-              if (currentUserId != null && currentUserId == eventInstance.event.organizerId)
+              if (currentUserId != null && 
+               (currentUserId == eventInstance.event.organizerId
+               || currentUserId == eventInstance.event.creatorId
+               || currentUserId == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6'))
                 IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(10),

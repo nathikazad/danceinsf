@@ -12,6 +12,7 @@ import '../widgets/add_event_widgets/name_field.dart';
 import '../widgets/add_event_widgets/dance_type_section.dart';
 import '../models/event_model.dart';
 import '../controllers/event_controller.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddEventScreen extends ConsumerStatefulWidget {
   const AddEventScreen({super.key});
@@ -43,6 +44,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
       startTime: const TimeOfDay(hour: 0, minute: 0),
       endTime: const TimeOfDay(hour: 0, minute: 0),
       cost: 0.0,
+      creatorId: Supabase.instance.client.auth.currentUser!.id,
     );
   }
 
