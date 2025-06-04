@@ -18,6 +18,7 @@ import '../widgets/view_event_widgets/previous_event_link.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ViewEventScreen extends StatefulWidget {
   final String eventInstanceId;
@@ -69,6 +70,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return FutureBuilder<EventInstance?>(
       future: _eventFuture,
       builder: (context, snapshot) {
@@ -78,8 +80,8 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
           );
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Scaffold(
-            body: Center(child: Text('Event not found.')),
+          return Scaffold(
+            body: Center(child: Text(l10n.eventNotFound)),
           );
         }
         final eventInstance = snapshot.data!;
@@ -87,7 +89,6 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
         final currentUserId = Supabase.instance.client.auth.currentUser?.id;
         
         bool isExcited = false;
-        // Update isExcited based on current data
         if (currentUserId != null) {
           isExcited = eventInstance.excitedUsers.contains(currentUserId);
         }
@@ -159,7 +160,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                   if (kIsWeb) {
                     Clipboard.setData(ClipboardData(text: url));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Link copied to clipboard!')),
+                      SnackBar(content: Text(l10n.linkCopied)),
                     );
                   } else {
                     SharePlus.instance.share(
@@ -168,9 +169,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                   }
                 },
               ),
-              SizedBox(
-                width: 10,
-              )
+              const SizedBox(width: 10)
             ],
           ),
           body: SingleChildScrollView(
@@ -178,17 +177,13 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Main Info Card
                 TopBox(event: event, eventInstance: eventInstance),
                 const SizedBox(height: 24),
-                // Event Details
                 EventDetailRow(
                     icon: SvgIcon(
                       icon: SvgIconData('assets/icons/calendar.svg'),
                       size: 18,
                     ),
-                    // icon: Icon(Icons.calendar_today,
-                    //     color: Theme.of(context).colorScheme.primary, size: 18),
                     text: _formatDate(eventInstance.date)),
                 EventDetailRow(
                     icon: Icon(Icons.access_time,
@@ -198,7 +193,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                 EventDetailRow(
                     icon: Icon(Icons.refresh,
                         color: Theme.of(context).colorScheme.primary, size: 18),
-                    text: _formatRecurrence(event.frequency, event.schedule)),
+                    text: _formatRecurrence(event.frequency, event.schedule, l10n)),
                 EventDetailRow(
                     icon: Icon(Icons.location_on,
                         color: Theme.of(context).colorScheme.primary, size: 18),
@@ -211,7 +206,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                         icon: SvgIconData("assets/icons/line-md_link.svg"),
                         size: 18,
                       ),
-                      text: 'Link to Event',
+                      text: l10n.linkToEvent,
                       linkUrl: eventInstance.ticketLink),
                 if (eventInstance.flyerUrl != null &&
                     eventInstance.flyerUrl!.isNotEmpty)
@@ -272,14 +267,39 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     return '${format(start)} - ${format(end)}';
   }
 
-  String _formatRecurrence(Frequency freq, SchedulePattern schedule) {
+  String _formatRecurrence(Frequency freq, SchedulePattern schedule, AppLocalizations l10n) {
     switch (freq) {
       case Frequency.once:
-        return 'One-time';
+        return l10n.oneTime;
       case Frequency.weekly:
-        return 'Repeat Weekly, Every ${schedule.dayOfWeekString.capitalize()}';
+        return l10n.repeatWeekly(_getLocalizedDayName(schedule.dayOfWeek, l10n));
       case Frequency.monthly:
-        return 'Monthly, Every ${schedule.weekOfMonthString} ${schedule.dayOfWeekString.capitalize()}';
+        final weekNumber = schedule.weeksOfMonth != null && schedule.weeksOfMonth!.isNotEmpty ? schedule.weeksOfMonth!.first : 1;
+        final weekString = _getWeekOfMonthString(weekNumber, l10n);
+        return l10n.repeatMonthly(weekString, _getLocalizedDayName(schedule.dayOfWeek, l10n));
     }
+  }
+
+  String _getWeekOfMonthString(int weekOfMonth, AppLocalizations l10n) {
+    switch (weekOfMonth) {
+      case 1:
+        return l10n.weekOfMonthFirst;
+      case 2:
+        return l10n.weekOfMonthSecond;
+      case 3:
+        return l10n.weekOfMonthThird;
+      case 4:
+        return l10n.weekOfMonthFourth;
+      case 5:
+        return l10n.weekOfMonthLast;
+      default:
+        return '';
+    }
+  }
+
+  String _getLocalizedDayName(DayOfWeek? dayOfWeek, AppLocalizations l10n) {
+    if (dayOfWeek == null) return '';
+    final names = l10n.weekdayNames.split(',');
+    return names[dayOfWeek.index].trim().capitalize();
   }
 }

@@ -1,14 +1,14 @@
 {
     "appTitle": "Baila en ",
     "appSubtitle": "No Pienses, Solo Baila",
-    "buttonFindEvents": "Eventos Locales en San Francisco",
+    "buttonFindEvents": "Encuentra Eventos en San Francisco",
     "settingsLanguage": "Idioma",
     "settingsLanguageEnglish": "Inglés",
     "settingsLanguageSpanish": "Español",
     "searchHint": "Buscar",
     "danceEvents": "Eventos de Baile",
-    "noEventsFound": "No se encontraron eventos en los próximos 7 días",
-    "noMoreEvents": "No hay más eventos nuevos",
+    "noEventsFound": "No se encontraron eventos",
+    "noMoreEvents": "No hay más eventos",
     "free": "Gratis",
     "errorLoadingEvents": "Error al cargar eventos: {error}",
     "@errorLoadingEvents": {
@@ -22,8 +22,51 @@
     "@dateFormat": {
         "description": "The format pattern for displaying dates. EEEE is full weekday name, MMM is abbreviated month name, d is day of month"
     },
+    "weekdayNames": "lunes,martes,miércoles,jueves,viernes,sábado,domingo",
+    "@weekdayNames": {
+        "description": "Comma-separated list of full weekday names, starting with Monday"
+    },
     "weekdayAbbreviations": "L,M,X,J,V,S,D",
     "@weekdayAbbreviations": {
         "description": "Comma-separated list of weekday abbreviations (Monday through Sunday)"
+    },
+    "eventNotFound": "Evento no encontrado.",
+    "linkCopied": "¡Enlace copiado al portapapeles!",
+    "linkToEvent": "Enlace al Evento",
+    "oneTime": "Una vez",
+    "repeatWeekly": "Repetir Semanal, Cada {day}",
+    "@repeatWeekly": {
+        "placeholders": {
+            "day": {
+                "type": "String"
+            }
+        }
+    },
+    "repeatMonthly": "Mensual, Cada {week} {day}",
+    "@repeatMonthly": {
+        "placeholders": {
+            "week": {
+                "type": "String"
+            },
+            "day": {
+                "type": "String"
+            }
+        }
+    },
+    "weekOfMonthFirst": "primer",
+    "weekOfMonthSecond": "segundo",
+    "weekOfMonthThird": "tercer",
+    "weekOfMonthFourth": "cuarto",
+    "weekOfMonthLast": "último",
+    "areYouExcited": "¿Estás emocionado por este evento?",
+    "maintainedByCommunity": "Esta lista es mantenida por la Comunidad",
+    "suggestCorrection": "Sugerir una corrección",
+    "suggestedCorrections": "Correcciones Sugeridas ({count})",
+    "@suggestedCorrections": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     }
 } 

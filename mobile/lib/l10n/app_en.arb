@@ -1,7 +1,7 @@
 {
     "appTitle": "Dance in ",
     "appSubtitle": "Don't Think, Just Dance",
-    "buttonFindEvents": "Find Local Events In San Francisco",
+    "buttonFindEvents": "Find Events In San Francisco",
     "settingsLanguage": "Language",
     "settingsLanguageEnglish": "English",
     "settingsLanguageSpanish": "Spanish",
@@ -22,8 +22,51 @@
     "@dateFormat": {
         "description": "The format pattern for displaying dates. EEEE is full weekday name, MMM is abbreviated month name, d is day of month"
     },
+    "weekdayNames": "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday",
+    "@weekdayNames": {
+        "description": "Comma-separated list of full weekday names, starting with Monday"
+    },
     "weekdayAbbreviations": "M,T,W,Th,F,Sa,Su",
     "@weekdayAbbreviations": {
         "description": "Comma-separated list of weekday abbreviations (Monday through Sunday)"
+    },
+    "eventNotFound": "Event not found.",
+    "linkCopied": "Link copied to clipboard!",
+    "linkToEvent": "Link to Event",
+    "oneTime": "One-time",
+    "repeatWeekly": "Repeat Weekly, Every {day}",
+    "@repeatWeekly": {
+        "placeholders": {
+            "day": {
+                "type": "String"
+            }
+        }
+    },
+    "repeatMonthly": "Monthly, Every {week} {day}",
+    "@repeatMonthly": {
+        "placeholders": {
+            "week": {
+                "type": "String"
+            },
+            "day": {
+                "type": "String"
+            }
+        }
+    },
+    "weekOfMonthFirst": "first",
+    "weekOfMonthSecond": "second",
+    "weekOfMonthThird": "third",
+    "weekOfMonthFourth": "fourth",
+    "weekOfMonthLast": "last",
+    "areYouExcited": "Are you excited for this event?",
+    "maintainedByCommunity": "This listing is maintained by the Community",
+    "suggestCorrection": "Suggest a correction",
+    "suggestedCorrections": "Suggested Corrections ({count})",
+    "@suggestedCorrections": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     }
 } 

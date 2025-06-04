@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:dance_sf/models/proposal_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'proposal_item.dart';
 // import 'proposal_form.dart';
 
@@ -95,6 +96,7 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
   }
 
   Widget _buildEditProposalsHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return InkWell(
       onTap: () {
         setState(() {
@@ -111,7 +113,7 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Suggested Corrections ($totalProposals)',
+              l10n.suggestedCorrections(totalProposals),
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -130,24 +132,25 @@ class _ProposalsWidgetState extends State<ProposalsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 20),
-          const Text(
-            'This listing is maintained by the Community',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+          Text(
+            l10n.maintainedByCommunity,
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           if (!hasUserProposal)
             GestureDetector(
               onTap: _handleSuggestEdit,
-              child: const Text(
-                'Suggest a correction',
-                style: TextStyle(
+              child: Text(
+                l10n.suggestCorrection,
+                style: const TextStyle(
                   color: Colors.orange,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,

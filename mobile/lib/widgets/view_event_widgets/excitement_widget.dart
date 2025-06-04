@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dance_sf/widgets/verify_event_widgets/verify_user.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 import 'package:dance_sf/controllers/event_instance_controller.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ExcitementWidget extends StatefulWidget {
   final String eventInstanceId;
@@ -31,6 +32,7 @@ class _ExcitementWidgetState extends State<ExcitementWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
@@ -41,7 +43,7 @@ class _ExcitementWidgetState extends State<ExcitementWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Are you excited for this event?',
+            l10n.areYouExcited,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurface,
             ),
