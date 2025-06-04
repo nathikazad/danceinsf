@@ -20,12 +20,14 @@ class EventInstance {
   final String eventInstanceId;
   final List<Proposal>? proposals;
   final String? flyerUrl;
+  final String shortUrl;
   final List<String> excitedUsers;
 
   EventInstance({
     required this.eventInstanceId,
     required this.event,
     required this.date,
+    required this.shortUrl,
     String? venueName,
     String? city,
     String? url,
@@ -74,6 +76,7 @@ class EventInstance {
       isCancelled: instance['is_cancelled'] == true,
       proposals: proposals,
       excitedUsers: toStringList(instance['excited_users']),
+      shortUrl: instance['short_url_prefix'],
     );
   }
 
@@ -99,6 +102,7 @@ class EventInstance {
     List<String>? excitedUsers,
   }) {
     return EventInstance(
+      shortUrl: shortUrl,
       eventInstanceId: eventInstanceId ?? this.eventInstanceId,
       event: event ?? this.event,
       date: date ?? this.date,

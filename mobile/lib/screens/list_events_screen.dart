@@ -86,13 +86,13 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
   // Add state for date range
   DateTime _startDate = DateTime.now();
-  int _daysWindow = 30;
+  int _daysWindow = 14;
 
   @override
   void initState() {
     super.initState();
     // Initial fetch
-    ref.read(eventsStateProvider.notifier).fetchEvents();
+    ref.read(eventsStateProvider.notifier).fetchEvents(startDate: _startDate, windowDays: _daysWindow);
   }
 
   @override
@@ -119,22 +119,23 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   }
 
   Future<void> _handleRangeUpdate(bool isTop) async {
+    print('handleRangeUpdate called with isTop: $isTop');
     if (isTop) {
       // When reaching top, extend range backwards
-      _startDate = _startDate.subtract(Duration(days: _daysWindow));
+      _startDate = _startDate.subtract(Duration(days: 7));
       await ref.read(eventsStateProvider.notifier).appendEvents(
         context,
         startDate: _startDate,
-        windowDays: _daysWindow,
+        windowDays: 7,
       );
     } else {
       // When reaching bottom, extend range forwards
-      _daysWindow += 30;
       await ref.read(eventsStateProvider.notifier).appendEvents(
         context,
-        startDate: _startDate.add(Duration(days: _daysWindow - 30)),
-        windowDays: 30,
+        startDate: _startDate.add(Duration(days: _daysWindow)),
+        windowDays: 14,
       );
+      _daysWindow += 14;
     }
   }
 

@@ -152,7 +152,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                   ),
                 ),
                 onPressed: () {
-                  final url = 'https://wheredothey.dance/event/${eventInstance.eventInstanceId}';
+                  final url = 'https://sfdn.cc/${eventInstance.shortUrl.toLowerCase()}';
                   if (kIsWeb) {
                     Clipboard.setData(ClipboardData(text: url));
                     ScaffoldMessenger.of(context).showSnackBar(
