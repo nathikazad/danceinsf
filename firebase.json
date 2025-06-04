@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "source": "flutter_application",
+    "source": "mobile",
     "ignore": [
       "firebase.json",
       "**/.*",
