@@ -12,6 +12,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 
+CREATE EXTENSION IF NOT EXISTS "pg_net" WITH SCHEMA "extensions";
+
+
+
+
+
+
 COMMENT ON SCHEMA "public" IS 'standard public schema';
 
 
@@ -58,6 +65,39 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 
 
+CREATE OR REPLACE FUNCTION "public"."generate_unique_short_url"() RETURNS character varying
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+    chars text := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    result varchar(4);
+    i integer;
+    exists boolean;
+BEGIN
+    LOOP
+        result := '';
+        FOR i IN 1..4 LOOP
+            result := result || substr(chars, floor(random() * length(chars) + 1)::integer, 1);
+        END LOOP;
+        
+        -- Check if this code already exists
+        SELECT EXISTS (
+            SELECT 1 FROM public.event_instances 
+            WHERE short_url_prefix = result
+        ) INTO exists;
+        
+        -- If code doesn't exist, return it
+        IF NOT exists THEN
+            RETURN result;
+        END IF;
+    END LOOP;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."generate_unique_short_url"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."get_event_ratings"("event_ids" "uuid"[]) RETURNS TABLE("event_id" "uuid", "average_rating" numeric, "rating_count" bigint)
     LANGUAGE "plpgsql"
     AS $$
@@ -77,6 +117,19 @@ $$;
 
 
 ALTER FUNCTION "public"."get_event_ratings"("event_ids" "uuid"[]) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."set_short_url_prefix"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+    NEW.short_url_prefix := generate_unique_short_url();
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."set_short_url_prefix"() OWNER TO "postgres";
 
 SET default_tablespace = '';
 
@@ -99,7 +152,9 @@ CREATE TABLE IF NOT EXISTS "public"."event_instances" (
     "special_notes" "text",
     "is_cancelled" boolean DEFAULT false,
     "created_at" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    "updated_at" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    "excited_users" "uuid"[] DEFAULT '{}'::"uuid"[] NOT NULL,
+    "short_url_prefix" character varying(4)
 );
 
 
@@ -127,7 +182,9 @@ CREATE TABLE IF NOT EXISTS "public"."events" (
     "created_at" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     "organizer_id" "uuid",
-    "default_flyer_url" "text"
+    "default_flyer_url" "text",
+    "creator_id" "uuid",
+    "zone" "text" DEFAULT 'San Francisco '::"text" NOT NULL
 );
 
 
@@ -164,8 +221,10 @@ ALTER TABLE "public"."event_ratings" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."logs" (
     "id" bigint NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "text" "text",
-    "session_id" "uuid"
+    "session_id" "uuid",
+    "actions" "jsonb",
+    "device" "text",
+    "user_id" "uuid"
 );
 
 
@@ -242,6 +301,15 @@ ALTER TABLE ONLY "public"."proposals"
 
 
 ALTER TABLE ONLY "public"."event_instances"
+    ADD CONSTRAINT "unique_short_url_prefix" UNIQUE ("short_url_prefix");
+
+
+
+CREATE OR REPLACE TRIGGER "set_short_url_prefix_trigger" BEFORE INSERT ON "public"."event_instances" FOR EACH ROW EXECUTE FUNCTION "public"."set_short_url_prefix"();
+
+
+
+ALTER TABLE ONLY "public"."event_instances"
     ADD CONSTRAINT "event_instances_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "public"."events"("event_id") ON DELETE CASCADE;
 
 
@@ -253,6 +321,11 @@ ALTER TABLE ONLY "public"."events"
 
 ALTER TABLE ONLY "public"."instance_ratings"
     ADD CONSTRAINT "instance_ratings_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."event_instances"("instance_id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."logs"
+    ADD CONSTRAINT "logs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
 
 
 
@@ -274,6 +347,9 @@ ALTER TABLE ONLY "public"."proposals"
 
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
+
+
+
 
 
 GRANT USAGE ON SCHEMA "public" TO "postgres";
@@ -451,9 +527,27 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
+
+
+
+
+
+
+GRANT ALL ON FUNCTION "public"."generate_unique_short_url"() TO "anon";
+GRANT ALL ON FUNCTION "public"."generate_unique_short_url"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."generate_unique_short_url"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."get_event_ratings"("event_ids" "uuid"[]) TO "anon";
 GRANT ALL ON FUNCTION "public"."get_event_ratings"("event_ids" "uuid"[]) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_event_ratings"("event_ids" "uuid"[]) TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."set_short_url_prefix"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_short_url_prefix"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_short_url_prefix"() TO "service_role";
 
 
 
@@ -581,3 +675,8 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 
 
 RESET ALL;
+
+--
+-- Dumped schema changes for auth and storage
+--
+

@@ -33,17 +33,10 @@ class AppDrawer extends ConsumerWidget {
               ),
               // Language Selector
               ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Icon(
-                    Icons.language,
-                    size: 25,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                leading: Icon(
+                  Icons.language,
+                  size: 25,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
                   l10n.settingsLanguage,
@@ -55,11 +48,17 @@ class AppDrawer extends ConsumerWidget {
                   items: [
                     DropdownMenuItem(
                       value: const Locale('en'),
-                      child: Text(l10n.settingsLanguageEnglish),
+                      child: Text(
+                        l10n.settingsLanguageEnglish,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                     DropdownMenuItem(
                       value: const Locale('es'),
-                      child: Text(l10n.settingsLanguageSpanish),
+                      child: Text(
+                        l10n.settingsLanguageSpanish,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ],
                   onChanged: (Locale? newLocale) {
@@ -72,19 +71,10 @@ class AppDrawer extends ConsumerWidget {
               const SizedBox(height: 25),
               const Divider(),
               ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(100)),
-                  child: Icon(
-                    Icons.help_outline,
-                    size: 25,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                leading: Icon(
+                  Icons.help_outline,
+                  size: 25,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
                   'Help & FAQ',
@@ -98,19 +88,10 @@ class AppDrawer extends ConsumerWidget {
               const SizedBox(height: 25),
               const Divider(),
               ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(100)),
-                  child: Icon(
-                    Icons.email_outlined,
-                    size: 25,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                leading: Icon(
+                  Icons.email_outlined,
+                  size: 25,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
                   'Contact',
@@ -128,75 +109,30 @@ class AppDrawer extends ConsumerWidget {
               ),
               const SizedBox(height: 25),
               const Divider(),
-              // ListTile(
-              //   leading: Container(
-              //       padding: const EdgeInsets.all(8),
-              //       decoration: BoxDecoration(
-              //           color: Theme.of(context)
-              //               .colorScheme
-              //               .primary
-              //               .withOpacity(0.1),
-              //           borderRadius: BorderRadius.circular(100)),
-              //       child: Icon(
-              //         Icons.chat,
-              //         size: 25,
-              //         color: Theme.of(context).colorScheme.primary,
-              //       )),
-              //   title: Text(
-              //     'Groupchat',
-              //     style: Theme.of(context).textTheme.labelLarge,
-              //   ),
-              //   onTap: () {
-              //     // TODO: Implement Groupchat navigation
-              //     Navigator.of(context).pop();
-              //   },
-              // ),
-              // SizedBox(
-              //   height: 25,
-              //   child: Divider(),
-              // ),
-              // ListTile(
-              //   leading: Container(
-              //       padding: const EdgeInsets.all(8),
-              //       decoration: BoxDecoration(
-              //           color: Theme.of(context)
-              //               .colorScheme
-              //               .primary
-              //               .withOpacity(0.1),
-              //           borderRadius: BorderRadius.circular(100)),
-              //       child: Icon(
-              //         Icons.edit,
-              //         size: 25,
-              //         color: Theme.of(context).colorScheme.primary,
-              //       )),
-              //   title: Text(
-              //     'Edits',
-              //     style: Theme.of(context).textTheme.labelLarge,
-              //   ),
-              //   onTap: () {
-              //     // TODO: Implement Edits navigation
-              //     Navigator.of(context).pop();
-              //   },
-              // ),
-              // SizedBox(
-              //   height: 25,
-              //   child: Divider(),
-              // ),
+              if (ref.watch(authProvider).state.user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
+                ListTile(
+                  leading: Icon(
+                    Icons.admin_panel_settings,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: const Text('Admin'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    GoRouter.of(context).push('/activity');
+                  },
+                ),
+              if (ref.watch(authProvider).state.user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
+                const SizedBox(height: 25),
+              if (ref.watch(authProvider).state.user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
+                const Divider(),
               if (ref.watch(authProvider).state.user != null)
                 ListTile(
-                  leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(100)),
-                      child: Icon(
-                        Icons.logout,
-                        size: 25,
-                        color: Theme.of(context).colorScheme.primary,
-                      )),
+                  leading: Icon(
+                    Icons.logout,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   title: const Text('Revoke OTP'),
                   onTap: () {
                     ref.read(authProvider.notifier).signOut();
@@ -204,17 +140,10 @@ class AppDrawer extends ConsumerWidget {
                 ),
               if (ref.watch(authProvider).state.user == null)
                 ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Icon(
-                      Icons.login,
-                      size: 25,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  leading: Icon(
+                    Icons.login,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   title: const Text('Login'),
                   onTap: () {

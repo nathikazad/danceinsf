@@ -101,4 +101,17 @@ class LogController {
       }).eq('session_id', sessionId);
     }
   }
+
+  static Future<List<Map<String, dynamic>>> fetchLogs() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('logs')
+          .select()
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Failed to fetch logs: $e');
+      return [];
+    }
+  }
 }
