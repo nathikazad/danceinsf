@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/event_model.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RepeatSection extends StatefulWidget {
   final SchedulePattern schedule;
@@ -71,11 +72,12 @@ class _RepeatSectionState extends State<RepeatSection> {
   }
 
   Widget _buildDatePicker(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Date',
+        Text(l10n.date,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
@@ -92,7 +94,7 @@ class _RepeatSectionState extends State<RepeatSection> {
             children: [
               Text(
                 _selectedDate == null
-                    ? 'Date'
+                    ? l10n.date
                     : '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}',
                 style: const TextStyle(fontSize: 16),
               ),
@@ -105,10 +107,11 @@ class _RepeatSectionState extends State<RepeatSection> {
   }
 
   Widget _buildDaySelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Day of Week',
+        Text(l10n.dayOfWeek,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
@@ -157,10 +160,11 @@ class _RepeatSectionState extends State<RepeatSection> {
   };
 
   Widget _buildWeekSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Weeks of Month',
+        Text(l10n.weeksOfMonth,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
@@ -168,7 +172,7 @@ class _RepeatSectionState extends State<RepeatSection> {
           spacing: 8,
           children: [1, 2, 3, 4].map((week) {
             final isSelected = _selectedWeeks.contains(week);
-            String label = ['1st', '2nd', '3rd', '4th'][week - 1];
+            String label = [l10n.first, l10n.second, l10n.third, l10n.fourth][week - 1];
             return ChoiceChip(
               showCheckmark: false,
               shape: RoundedRectangleBorder(
@@ -200,19 +204,18 @@ class _RepeatSectionState extends State<RepeatSection> {
             );
           }).toList(),
         ),
-        SizedBox(
-          height: 8,
-        )
+        const SizedBox(height: 8),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Repeat',
+        Text(l10n.repeat,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 14, color: Theme.of(context).colorScheme.secondary)),
         const SizedBox(height: 8),
@@ -235,7 +238,7 @@ class _RepeatSectionState extends State<RepeatSection> {
                   setState(() => _frequency = Frequency.once);
                   _updateSchedule();
                 },
-                child: Text('Once',
+                child: Text(l10n.once,
                     style: TextStyle(
                         fontFamily: "Inter",
                         fontWeight: FontWeight.w500,
@@ -262,7 +265,7 @@ class _RepeatSectionState extends State<RepeatSection> {
                   setState(() => _frequency = Frequency.weekly);
                   _updateSchedule();
                 },
-                child: Text('Weekly',
+                child: Text(l10n.weekly,
                     style: TextStyle(
                         fontFamily: "Inter",
                         fontWeight: FontWeight.w500,
@@ -289,7 +292,7 @@ class _RepeatSectionState extends State<RepeatSection> {
                   setState(() => _frequency = Frequency.monthly);
                   _updateSchedule();
                 },
-                child: Text('Monthly',
+                child: Text(l10n.monthly,
                     style: TextStyle(
                         fontFamily: "Inter",
                         fontWeight: FontWeight.w500,

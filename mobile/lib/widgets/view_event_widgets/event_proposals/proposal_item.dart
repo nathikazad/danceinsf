@@ -6,9 +6,8 @@ import 'package:dance_sf/utils/string.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:dance_sf/utils/theme/app_text_styles.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProposalItem extends StatefulWidget {
   final Proposal proposal;
@@ -39,9 +38,9 @@ class _ProposalItemState extends State<ProposalItem> {
         if (result != true) {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Need to verify your phone number to vote on proposals'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.needToVerify),
+              duration: const Duration(seconds: 2),
             ),
           );
           return;
@@ -49,9 +48,9 @@ class _ProposalItemState extends State<ProposalItem> {
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to verify phone number. Please try again.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.verificationFailed),
+            duration: const Duration(seconds: 2),
           ),
         );
         return;
@@ -65,6 +64,7 @@ class _ProposalItemState extends State<ProposalItem> {
 
   Widget _buildFormattedText(Map<String, dynamic> changes) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,35 +83,12 @@ class _ProposalItemState extends State<ProposalItem> {
             text: TextSpan(
               style: AppTextStyles.bodyLarge.copyWith(color: colorScheme.onSurface),
               children: [
-                TextSpan(text: 'Change ${formattedKey.capitalize()} from '),
                 TextSpan(
-                  text: oldValue.isEmpty ? 'None' : oldValue,
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.bold,
+                  text: l10n.changeFromTo(
+                    formattedKey.capitalize(),
+                    oldValue.isEmpty ? l10n.none : oldValue,
+                    newValue.isEmpty ? l10n.none : newValue,
                   ),
-                  recognizer: oldValue.startsWith('http') ? (TapGestureRecognizer()
-                    ..onTap = () async {
-                      final url = Uri.parse(oldValue);
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url);
-                      }
-                    }) : null,
-                ),
-                const TextSpan(text: ' to '),
-                TextSpan(
-                  text: newValue.isEmpty ? 'None' : newValue,
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  recognizer: newValue.startsWith('http') ? (TapGestureRecognizer()
-                    ..onTap = () async {
-                      final url = Uri.parse(newValue);
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url);
-                      }
-                    }) : null,
                 ),
               ],
             ),
@@ -123,7 +100,7 @@ class _ProposalItemState extends State<ProposalItem> {
 
   @override
   Widget build(BuildContext context) {
-    print('proposal: ${widget.proposal.changes}');
+    final l10n = AppLocalizations.of(context)!;
     final formattedDate = DateFormat('MM/dd').format(widget.proposal.createdAt);
 
     return Card(
@@ -153,7 +130,7 @@ class _ProposalItemState extends State<ProposalItem> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.isForAllEvents ? 'For All Events' : 'Only This Event',
+                  widget.isForAllEvents ? l10n.forAllEvents : l10n.onlyThisEventInstance,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],

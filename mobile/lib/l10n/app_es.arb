@@ -58,7 +58,7 @@
     "weekOfMonthThird": "tercer",
     "weekOfMonthFourth": "cuarto",
     "weekOfMonthLast": "último",
-    "areYouExcited": "¿Estás emocionado por este evento?",
+    "areYouExcited": "¿Vas a ir a este evento?",
     "maintainedByCommunity": "Esta lista es mantenida por la Comunidad",
     "suggestCorrection": "Sugerir una corrección",
     "suggestedCorrections": "Correcciones Sugeridas ({count})",
@@ -68,5 +68,44 @@
                 "type": "int"
             }
         }
-    }
+    },
+    "onlyThisEvent": "Solo este evento el {date}",
+    "@onlyThisEvent": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "allFutureEvents": "Todas las versiones futuras de este evento",
+    "needToVerify": "Necesitas verificar tu número de teléfono para votar en propuestas",
+    "verificationFailed": "Error al verificar el número de teléfono. Por favor, inténtalo de nuevo.",
+    "changeFromTo": "Cambiar {field} de {oldValue} a {newValue}",
+    "@changeFromTo": {
+        "placeholders": {
+            "field": {
+                "type": "String"
+            },
+            "oldValue": {
+                "type": "String"
+            },
+            "newValue": {
+                "type": "String"
+            }
+        }
+    },
+    "none": "Ninguno",
+    "forAllEvents": "Para Todos los Eventos",
+    "onlyThisEventInstance": "Solo Este Evento",
+    "date": "Fecha",
+    "dayOfWeek": "Día de la Semana",
+    "weeksOfMonth": "Semanas del Mes",
+    "repeat": "Repetir",
+    "once": "Una vez",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "first": "1º",
+    "second": "2º",
+    "third": "3º",
+    "fourth": "4º"
 } 

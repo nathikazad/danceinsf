@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/event_model.dart';
 import '../../screens/verify_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EditEventModal extends StatelessWidget {
   final EventInstance eventInstance;
@@ -37,6 +38,7 @@ class EditEventModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -55,7 +57,7 @@ class EditEventModal extends StatelessWidget {
               ),
             ),
             title: Text(
-              'Only this event on ${formatDate(eventInstance.date)}',
+              l10n.onlyThisEvent(formatDate(eventInstance.date)),
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontSize: 14),
@@ -80,7 +82,7 @@ class EditEventModal extends StatelessWidget {
               ),
             ),
             title: Text(
-              'All future versions of this event',
+              l10n.allFutureEvents,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontSize: 14),

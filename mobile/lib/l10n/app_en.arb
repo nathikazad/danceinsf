@@ -58,7 +58,7 @@
     "weekOfMonthThird": "third",
     "weekOfMonthFourth": "fourth",
     "weekOfMonthLast": "last",
-    "areYouExcited": "Are you excited for this event?",
+    "areYouExcited": "Are you going for this event?",
     "maintainedByCommunity": "This listing is maintained by the Community",
     "suggestCorrection": "Suggest a correction",
     "suggestedCorrections": "Suggested Corrections ({count})",
@@ -68,5 +68,44 @@
                 "type": "int"
             }
         }
-    }
+    },
+    "onlyThisEvent": "Only this event on {date}",
+    "@onlyThisEvent": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "allFutureEvents": "All future versions of this event",
+    "needToVerify": "Need to verify your phone number to vote on proposals",
+    "verificationFailed": "Failed to verify phone number. Please try again.",
+    "changeFromTo": "Change {field} from {oldValue} to {newValue}",
+    "@changeFromTo": {
+        "placeholders": {
+            "field": {
+                "type": "String"
+            },
+            "oldValue": {
+                "type": "String"
+            },
+            "newValue": {
+                "type": "String"
+            }
+        }
+    },
+    "none": "None",
+    "forAllEvents": "For All Events",
+    "onlyThisEventInstance": "Only This Event",
+    "date": "Date",
+    "dayOfWeek": "Day of Week",
+    "weeksOfMonth": "Weeks of Month",
+    "repeat": "Repeat",
+    "once": "Once",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "first": "1st",
+    "second": "2nd",
+    "third": "3rd",
+    "fourth": "4th"
 } 
