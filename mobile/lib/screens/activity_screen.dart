@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../controllers/log_controller.dart';
 import '../utils/app_scaffold/app_scaffold.dart';
+import 'activity_by_date_screen.dart';
 
 final logsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   return await LogController.fetchLogs();
@@ -27,39 +29,38 @@ class ActivityScreen extends ConsumerWidget {
               );
             }
 
-            return ListView.builder(
-              itemCount: logs.length,
-              itemBuilder: (context, index) {
-                final log = logs[index];
-                final actions = log['actions'] as Map<String, dynamic>?;
-                final createdAt = DateTime.parse(log['created_at']);
-                final device = log['device'] as String?;
-                final userId = log['user_id'] as String?;
+            // Group logs by date
+            final Map<String, List<Map<String, dynamic>>> groupedLogs = {};
+            for (var log in logs) {
+              final createdAt = DateTime.parse(log['created_at']);
+              final dateKey = '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
+              groupedLogs.putIfAbsent(dateKey, () => []).add(log);
+            }
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Date: ${createdAt.toLocal().toString().split('.')[0]}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        if (device != null) Text('Device: $device'),
-                        if (userId != null) Text('User ID: $userId'),
-                        if (actions != null) ...[
-                          const SizedBox(height: 8),
-                          const Text('Actions:', style: TextStyle(fontWeight: FontWeight.bold)),
-                          ...actions.entries.map((entry) => Padding(
-                            padding: const EdgeInsets.only(left: 16, top: 4),
-                            child: Text('${entry.key}: ${entry.value}'),
-                          )),
-                        ],
-                      ],
-                    ),
+            // Sort dates in descending order
+            final sortedDates = groupedLogs.keys.toList()
+              ..sort((a, b) => b.compareTo(a));
+
+            return ListView.builder(
+              itemCount: sortedDates.length,
+              itemBuilder: (context, index) {
+                final date = sortedDates[index];
+                final dateTime = DateTime.parse(date);
+
+                return ListTile(
+                  title: Text(
+                    '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  trailing: Text('${groupedLogs[date]!.length} activities'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ActivityByDateScreen(date: date),
+                        ),
+                      );
+                    },
                 );
               },
             );

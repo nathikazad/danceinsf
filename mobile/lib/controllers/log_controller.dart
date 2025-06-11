@@ -29,6 +29,13 @@ class LogController {
 
   static Future<void> _syncToDatabase() async {
     if (_pendingLogs.isEmpty) return;
+    
+    // Skip database operations in debug mode
+    if (kDebugMode) {
+      print('Debug mode: Skipping database sync');
+      _pendingLogs.clear();
+      return;
+    }
 
     try {
       final sessionId = await getSessionId();
@@ -73,7 +80,6 @@ class LogController {
 
       // Clear pending logs only after successful write
       _pendingLogs.clear();
-      // print('Successfully synced logs to database');
       
     } catch (e) {
       print('Failed to sync logs to Supabase: $e');
@@ -93,6 +99,12 @@ class LogController {
   }
 
   static Future<void> signedInCallback() async {
+    // Skip database operations in debug mode
+    if (kDebugMode) {
+      print('Debug mode: Skipping signedInCallback database update');
+      return;
+    }
+
     final sessionId = await getSessionId();
     final currentUser = Supabase.instance.client.auth.currentUser;
     if (currentUser != null) {
@@ -111,6 +123,104 @@ class LogController {
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       print('Failed to fetch logs: $e');
+      return [];
+    }
+  }
+
+  static Future<({
+    List<Map<String, dynamic>> logs,
+    Map<String, int> userIdCounts,
+    Map<String, int> sessionIdCounts
+  })> fetchByDate(String date) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('logs')
+          .select()
+          .eq('created_at', date)
+          .order('created_at', ascending: false);
+      
+      final logs = List<Map<String, dynamic>>.from(response);
+      
+      // Extract unique user IDs and session IDs from the logs
+      final userIds = logs
+          .map((log) => log['user_id'] as String?)
+          .where((id) => id != null)
+          .map((id) => id!)
+          .toSet()
+          .toList();
+      
+      final sessionIds = logs
+          .map((log) => log['session_id'] as String?)
+          .where((id) => id != null)
+          .map((id) => id!)
+          .toSet()
+          .toList();
+      
+      // Get total counts for the specific IDs
+      final userIdCounts = await _fetchTotalUserCounts(userIds);
+      final sessionIdCounts = await _fetchTotalSessionCounts(sessionIds);
+      
+      return (
+        logs: logs,
+        userIdCounts: userIdCounts,
+        sessionIdCounts: sessionIdCounts
+      );
+    } catch (e) {
+      print('Failed to fetch logs by date: $e');
+      return (
+        logs: <Map<String, dynamic>>[],
+        userIdCounts: <String, int>{},
+        sessionIdCounts: <String, int>{}
+      );
+    }
+  }
+
+  static Future<Map<String, int>> _fetchTotalUserCounts(List<String> userIds) async {
+    if (userIds.isEmpty) return {};
+    
+    try {
+      final response = await Supabase.instance.client
+          .rpc('get_user_counts', params: {'user_ids': userIds});
+      
+      final counts = <String, int>{};
+      for (final row in response) {
+        counts[row['user_id'] as String] = (row['count'] as num).toInt();
+      }
+      return counts;
+    } catch (e) {
+      print('Failed to fetch total user counts: $e');
+      return {};
+    }
+  }
+
+  static Future<Map<String, int>> _fetchTotalSessionCounts(List<String> sessionIds) async {
+    if (sessionIds.isEmpty) return {};
+    
+    try {
+      final response = await Supabase.instance.client
+          .rpc('get_session_counts', params: {'session_ids': sessionIds});
+      
+      final counts = <String, int>{};
+      for (final row in response) {
+        counts[row['session_id'] as String] = (row['count'] as num).toInt();
+      }
+      return counts;
+    } catch (e) {
+      print('Failed to fetch total session counts: $e');
+      return {};
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchLogsByUserOrSession(String id, {bool isUserId = true}) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('logs')
+          .select()
+          .eq(isUserId ? 'user_id' : 'session_id', id)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Failed to fetch logs by ${isUserId ? 'user' : 'session'}: $e');
       return [];
     }
   }
