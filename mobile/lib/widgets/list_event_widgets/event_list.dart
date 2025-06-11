@@ -203,8 +203,11 @@ class EventInstanceCard extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     return InkWell(
       onTap: () async {
-        await GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}');
-        await fetchEvents();
+        final result = await GoRouter.of(context).push('/event/${eventInstance.eventInstanceId}', extra: eventInstance);
+        if (result == true) {
+          // Refresh events if edit was made
+          fetchEvents();
+        }
       },
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(

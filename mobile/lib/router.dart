@@ -11,6 +11,7 @@ import 'screens/edit_event_instance_screen.dart' as edit_event_instance;
 import 'screens/help_screen.dart' as help;
 import 'package:dance_sf/utils/app_scaffold/app_scaffold.dart';
 import 'controllers/log_controller.dart';
+import 'package:dance_sf/models/event_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // final authState = ref.watch(authProvider).state;
@@ -58,8 +59,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/event/:eventId',
         builder: (context, state) {
           final eventId = state.pathParameters['eventId']!;
+          final initialEvent = state.extra as EventInstance?;
           return AppScaffold(
-            child: view_event.ViewEventScreen(eventInstanceId: eventId),
+            child: view_event.ViewEventScreen(
+              eventInstanceId: eventId,
+              initialEventInstance: initialEvent,
+            ),
           );
         },
       ),

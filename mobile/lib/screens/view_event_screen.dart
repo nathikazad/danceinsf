@@ -22,10 +22,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ViewEventScreen extends StatefulWidget {
   final String eventInstanceId;
+  final EventInstance? initialEventInstance;
 
   const ViewEventScreen({
     super.key,
     required this.eventInstanceId,
+    this.initialEventInstance,
   });
 
   @override
@@ -34,6 +36,7 @@ class ViewEventScreen extends StatefulWidget {
 
 class _ViewEventScreenState extends State<ViewEventScreen> {
   late Future<EventInstance?> _eventFuture;
+  bool _editButtonClicked = false;
 
   @override
   void initState() {
@@ -75,6 +78,9 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
       future: _eventFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+          if (widget.initialEventInstance != null) {
+            return _buildEventContent(widget.initialEventInstance!, l10n);
+          }
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -84,169 +90,177 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
             body: Center(child: Text(l10n.eventNotFound)),
           );
         }
-        final eventInstance = snapshot.data!;
-        final event = eventInstance.event;
-        final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-        
-        bool isExcited = false;
-        if (currentUserId != null) {
-          isExcited = eventInstance.excitedUsers.contains(currentUserId);
-        }
+        return _buildEventContent(snapshot.data!, l10n);
+      },
+    );
+  }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              '${event.name} on ${_formatDate(eventInstance.date)}',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
+  Widget _buildEventContent(EventInstance eventInstance, AppLocalizations l10n) {
+    final event = eventInstance.event;
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    
+    bool isExcited = false;
+    if (currentUserId != null) {
+      isExcited = eventInstance.excitedUsers.contains(currentUserId);
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          '${event.name} on ${_formatDate(eventInstance.date)}',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.only(left: 6),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).colorScheme.secondaryContainer),
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
             ),
-            leading: IconButton(
+          ),
+          onPressed: () {
+            if (GoRouter.of(context).canPop()) {
+              GoRouter.of(context).pop(_editButtonClicked);
+            } else {
+              GoRouter.of(context).go('/events');
+            }
+          },
+        ),
+        actions: [
+          if (currentUserId != null && 
+           (currentUserId == eventInstance.event.organizerId
+           || currentUserId == eventInstance.event.creatorId
+           || currentUserId == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6'))
+            IconButton(
               icon: Container(
-                padding: const EdgeInsets.only(left: 6),
+                padding: const EdgeInsets.all(10),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100),
                     color: Theme.of(context).colorScheme.secondaryContainer),
                 child: Icon(
-                  Icons.arrow_back_ios,
+                  Icons.edit,
                   color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
               ),
               onPressed: () {
-                if (GoRouter.of(context).canPop()) {
-                  GoRouter.of(context).pop();
-                } else {
-                  GoRouter.of(context).go('/events');
-                }
+                setState(() {
+                  _editButtonClicked = true;
+                });
+                _showEditOptions(context, eventInstance);
               },
             ),
-            actions: [
-              if (currentUserId != null && 
-               (currentUserId == eventInstance.event.organizerId
-               || currentUserId == eventInstance.event.creatorId
-               || currentUserId == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6'))
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(10),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: Theme.of(context).colorScheme.secondaryContainer),
-                    child: Icon(
-                      Icons.edit,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20,
-                    ),
-                  ),
-                  onPressed: () => _showEditOptions(context, eventInstance),
-                ),
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(10),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                  ),
-                  child: Icon(
-                    Icons.ios_share,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20,
-                  ),
-                ),
-                onPressed: () {
-                  final url = 'https://sfdn.cc/${eventInstance.shortUrl.toLowerCase()}';
-                  if (kIsWeb) {
-                    Clipboard.setData(ClipboardData(text: url));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.linkCopied)),
-                    );
-                  } else {
-                    SharePlus.instance.share(
-                      ShareParams(uri: Uri.parse(url))
-                    );
-                  }
-                },
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(10),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).colorScheme.secondaryContainer,
               ),
-              const SizedBox(width: 10)
-            ],
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TopBox(event: event, eventInstance: eventInstance),
-                const SizedBox(height: 24),
-                EventDetailRow(
-                    icon: SvgIcon(
-                      icon: SvgIconData('assets/icons/calendar.svg'),
-                      size: 18,
-                    ),
-                    text: _formatDate(eventInstance.date)),
-                EventDetailRow(
-                    icon: Icon(Icons.access_time,
-                        color: Theme.of(context).colorScheme.primary, size: 18),
-                    text: _formatTimeRange(
-                        eventInstance.startTime, eventInstance.endTime)),
-                EventDetailRow(
-                    icon: Icon(Icons.refresh,
-                        color: Theme.of(context).colorScheme.primary, size: 18),
-                    text: _formatRecurrence(event.frequency, event.schedule, l10n)),
-                EventDetailRow(
-                    icon: Icon(Icons.location_on,
-                        color: Theme.of(context).colorScheme.primary, size: 18),
-                    text: '${eventInstance.venueName}, ${eventInstance.city}',
-                    linkUrl: eventInstance.url),
-                if (eventInstance.ticketLink != null &&
-                    eventInstance.ticketLink!.isNotEmpty)
-                  EventDetailRow(
-                      icon: SvgIcon(
-                        icon: SvgIconData("assets/icons/line-md_link.svg"),
-                        size: 18,
-                      ),
-                      text: l10n.linkToEvent,
-                      linkUrl: eventInstance.ticketLink),
-                if (eventInstance.flyerUrl != null &&
-                    eventInstance.flyerUrl!.isNotEmpty)
-                  FlyerViewer(url: eventInstance.flyerUrl!),
-                if (!eventInstance.hasStarted) ...[ 
-                  const SizedBox(height: 16),
-                  ExcitementWidget(
-                    eventInstanceId: widget.eventInstanceId,
-                    initialIsExcited: isExcited,
-                    onExcitementChanged: _loadEventInstance
-                  ),
-                ],
-                const SizedBox(height: 24),
-                if (eventInstance.hasStarted)
-                  EventRatingSummary(
-                      eventInstanceId: widget.eventInstanceId,
-                      date: eventInstance.date,
-                      ratings: eventInstance.ratings.where((rating) => rating.eventInstanceId == widget.eventInstanceId).toList(),
-                      onRatingChanged: _loadEventInstance,
-                      event: event
-                ),
-                if (eventInstance.event.frequency == Frequency.weekly || eventInstance.event.frequency == Frequency.monthly)
-                PreviousEventLink(
-                  eventId: event.eventId,
-                  currentDate: eventInstance.date,
-                ),
-                const SizedBox(height: 32),
-                ProposalsWidget(
-                    eventInstance: eventInstance,
-                    onEditClicked: () {
-                      _showEditOptions(context, snapshot.data!);
-                    }),
-                const SizedBox(height: 32),
-                if (eventInstance.ratings.isNotEmpty)
-                  RatingsSection(occurrence: eventInstance),
-              ],
+              child: Icon(
+                Icons.ios_share,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
             ),
+            onPressed: () {
+              final url = 'https://sfdn.cc/${eventInstance.shortUrl.toLowerCase()}';
+              if (kIsWeb) {
+                Clipboard.setData(ClipboardData(text: url));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.linkCopied)),
+                );
+              } else {
+                SharePlus.instance.share(
+                  ShareParams(uri: Uri.parse(url))
+                );
+              }
+            },
           ),
-        );
-      },
+          const SizedBox(width: 10)
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TopBox(event: event, eventInstance: eventInstance),
+            const SizedBox(height: 24),
+            EventDetailRow(
+                icon: SvgIcon(
+                  icon: SvgIconData('assets/icons/calendar.svg'),
+                  size: 18,
+                ),
+                text: _formatDate(eventInstance.date)),
+            EventDetailRow(
+                icon: Icon(Icons.access_time,
+                    color: Theme.of(context).colorScheme.primary, size: 18),
+                text: _formatTimeRange(
+                    eventInstance.startTime, eventInstance.endTime)),
+            EventDetailRow(
+                icon: Icon(Icons.refresh,
+                    color: Theme.of(context).colorScheme.primary, size: 18),
+                text: _formatRecurrence(event.frequency, event.schedule, l10n)),
+            EventDetailRow(
+                icon: Icon(Icons.location_on,
+                    color: Theme.of(context).colorScheme.primary, size: 18),
+                text: '${eventInstance.venueName}, ${eventInstance.city}',
+                linkUrl: eventInstance.url),
+            if (eventInstance.ticketLink != null &&
+                eventInstance.ticketLink!.isNotEmpty)
+              EventDetailRow(
+                  icon: SvgIcon(
+                    icon: SvgIconData("assets/icons/line-md_link.svg"),
+                    size: 18,
+                  ),
+                  text: l10n.linkToEvent,
+                  linkUrl: eventInstance.ticketLink),
+            if (eventInstance.flyerUrl != null &&
+                eventInstance.flyerUrl!.isNotEmpty)
+              FlyerViewer(url: eventInstance.flyerUrl!),
+            if (!eventInstance.hasStarted) ...[ 
+              const SizedBox(height: 16),
+              ExcitementWidget(
+                eventInstanceId: widget.eventInstanceId,
+                initialIsExcited: isExcited,
+                onExcitementChanged: _loadEventInstance
+              ),
+            ],
+            const SizedBox(height: 24),
+            if (eventInstance.hasStarted)
+              EventRatingSummary(
+                  eventInstanceId: widget.eventInstanceId,
+                  date: eventInstance.date,
+                  ratings: eventInstance.ratings.where((rating) => rating.eventInstanceId == widget.eventInstanceId).toList(),
+                  onRatingChanged: _loadEventInstance,
+                  event: event
+            ),
+            if (eventInstance.event.frequency == Frequency.weekly || eventInstance.event.frequency == Frequency.monthly)
+            PreviousEventLink(
+              eventId: event.eventId,
+              currentDate: eventInstance.date,
+            ),
+            const SizedBox(height: 32),
+            ProposalsWidget(
+                eventInstance: eventInstance,
+                onEditClicked: () {
+                  _showEditOptions(context, eventInstance);
+                }),
+            const SizedBox(height: 32),
+            if (eventInstance.ratings.isNotEmpty)
+              RatingsSection(occurrence: eventInstance),
+          ],
+        ),
+      ),
     );
   }
 
