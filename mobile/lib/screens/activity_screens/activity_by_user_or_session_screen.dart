@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../controllers/log_controller.dart';
-import '../utils/app_scaffold/app_scaffold.dart';
+import '../../controllers/log_controller.dart';
+import '../../models/log.dart';
+import '../../utils/app_scaffold/app_scaffold.dart';
 
-final userOrSessionLogsProvider = FutureProvider.family<List<Map<String, dynamic>>, ({String id, bool isUserId})>((ref, params) async {
-  return LogController.fetchLogsByUserOrSession(params.id, isUserId: params.isUserId);
+final userOrSessionLogsProvider = FutureProvider.family<List<Log>, ({String id, bool isUserId})>((ref, params) async {
+  final logs = await LogController.fetchLogsByUserOrSession(params.id, isUserId: params.isUserId);
+  // Sort by most recent first
+  logs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  return logs;
 });
 
 class ActivityByUserOrSessionScreen extends ConsumerStatefulWidget {
@@ -46,11 +50,7 @@ class _ActivityByUserOrSessionScreenState extends ConsumerState<ActivityByUserOr
               itemCount: logs.length,
               itemBuilder: (context, index) {
                 final log = logs[index];
-                final actions = log['actions'] as Map<String, dynamic>?;
-                final createdAt = DateTime.parse(log['created_at']);
-                final device = log['device'] as String?;
-                final userId = log['user_id'] as String?;
-                final sessionId = log['session_id'] as String?;
+                final createdAt = log.createdAt;
 
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -67,13 +67,13 @@ class _ActivityByUserOrSessionScreenState extends ConsumerState<ActivityByUserOr
                           'Time: ${createdAt.toLocal().toString().split('.')[0].split(' ')[1]}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        if (device != null) Text('Device: $device'),
-                        if (userId != null && !widget.isUserId) ...[
+                        if (log.device != null) Text('Device: ${log.device}'),
+                        if (log.userId != null && !widget.isUserId) ...[
                           const SizedBox(height: 4),
                           InkWell(
-                            onTap: () => context.push('/activity/user/$userId'),
+                            onTap: () => context.push('/activity/user/${log.userId}'),
                             child: Text(
-                              'User ID: $userId',
+                              'User ID: ${log.userId}',
                               style: const TextStyle(
                                 color: Colors.blue,
                                 decoration: TextDecoration.underline,
@@ -81,20 +81,26 @@ class _ActivityByUserOrSessionScreenState extends ConsumerState<ActivityByUserOr
                             ),
                           ),
                         ],
-                        if (sessionId != null && widget.isUserId) ...[
-                          const SizedBox(height: 4),
-                          InkWell(
-                            onTap: () => context.push('/activity/session/$sessionId'),
-                            child: Text(
-                              'Session ID: $sessionId',
-                              style: const TextStyle(
-                                color: Colors.blue,
-                                decoration: TextDecoration.underline,
+                        const SizedBox(height: 4),
+                        InkWell(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ActivityByUserOrSessionScreen(
+                                id: log.sessionId,
+                                isUserId: false,
                               ),
                             ),
                           ),
-                        ],
-                        if (actions != null) ...[
+                          child: Text(
+                            'Session ID: ${log.sessionId}',
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                        if (log.actions.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           InkWell(
                             onTap: () {
@@ -114,7 +120,7 @@ class _ActivityByUserOrSessionScreenState extends ConsumerState<ActivityByUserOr
                           ),
                           if (expandedIndex == index) ...[
                             const SizedBox(height: 8),
-                            ...actions.entries.map((entry) => Padding(
+                            ...log.actions.entries.map((entry) => Padding(
                               padding: const EdgeInsets.only(left: 16, top: 4),
                               child: Text('${entry.key}: ${entry.value}'),
                             )),

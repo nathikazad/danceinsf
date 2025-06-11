@@ -13,7 +13,7 @@ import 'screens/help_screen.dart' deferred as help;
 import 'package:dance_sf/utils/app_scaffold/app_scaffold.dart';
 import 'controllers/log_controller.dart';
 import 'package:dance_sf/models/event_model.dart';
-import 'screens/activity_screen.dart' deferred as activity;
+import 'screens/activity_screens/activity_screen.dart' deferred as activity;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DeferredScreen extends StatefulWidget {

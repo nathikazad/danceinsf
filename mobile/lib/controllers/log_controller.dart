@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 import '../utils/session/session.dart';
+import '../models/log.dart';
 
 class LogController {
   static DateTime? currentDate;
@@ -54,7 +55,7 @@ class LogController {
         if (existingLogs != null) {
           print('Updating existing log');
           currentDateId = existingLogs['id'];
-          currentActions = existingLogs['actions'];
+          currentActions = Map<String, String>.from(existingLogs['actions']);
         } else {
           print('Creating new log');
           final currentUser = Supabase.instance.client.auth.currentUser;
@@ -114,13 +115,13 @@ class LogController {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchLogs() async {
+  static Future<List<Log>> fetchLogs() async {
     try {
       final response = await Supabase.instance.client
           .from('logs')
           .select()
           .order('created_at', ascending: false);
-      return List<Map<String, dynamic>>.from(response);
+      return (response as List).map((json) => Log.fromJson(json)).toList();
     } catch (e) {
       print('Failed to fetch logs: $e');
       return [];
@@ -128,7 +129,7 @@ class LogController {
   }
 
   static Future<({
-    List<Map<String, dynamic>> logs,
+    List<Log> logs,
     Map<String, int> userIdCounts,
     Map<String, int> sessionIdCounts
   })> fetchByDate(String date) async {
@@ -139,20 +140,18 @@ class LogController {
           .eq('created_at', date)
           .order('created_at', ascending: false);
       
-      final logs = List<Map<String, dynamic>>.from(response);
+      final logs = (response as List).map((json) => Log.fromJson(json)).toList();
       
       // Extract unique user IDs and session IDs from the logs
       final userIds = logs
-          .map((log) => log['user_id'] as String?)
+          .map((log) => log.userId)
           .where((id) => id != null)
           .map((id) => id!)
           .toSet()
           .toList();
       
       final sessionIds = logs
-          .map((log) => log['session_id'] as String?)
-          .where((id) => id != null)
-          .map((id) => id!)
+          .map((log) => log.sessionId)
           .toSet()
           .toList();
       
@@ -168,7 +167,7 @@ class LogController {
     } catch (e) {
       print('Failed to fetch logs by date: $e');
       return (
-        logs: <Map<String, dynamic>>[],
+        logs: <Log>[],
         userIdCounts: <String, int>{},
         sessionIdCounts: <String, int>{}
       );
@@ -211,14 +210,14 @@ class LogController {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchLogsByUserOrSession(String id, {bool isUserId = true}) async {
+  static Future<List<Log>> fetchLogsByUserOrSession(String id, {bool isUserId = true}) async {
     try {
       final response = await Supabase.instance.client
           .from('logs')
           .select()
           .eq(isUserId ? 'user_id' : 'session_id', id)
           .order('created_at', ascending: false);
-      return List<Map<String, dynamic>>.from(response);
+      return (response as List).map((json) => Log.fromJson(json)).toList();
     } catch (e) {
       print('Failed to fetch logs by ${isUserId ? 'user' : 'session'}: $e');
       return [];

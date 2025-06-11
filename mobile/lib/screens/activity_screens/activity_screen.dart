@@ -1,11 +1,12 @@
+import 'package:dance_sf/models/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../controllers/log_controller.dart';
-import '../utils/app_scaffold/app_scaffold.dart';
+import '../../controllers/log_controller.dart';
+import '../../utils/app_scaffold/app_scaffold.dart';
 import 'activity_by_date_screen.dart';
 
-final logsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final logsProvider = FutureProvider<List<Log>>((ref) async {
   return await LogController.fetchLogs();
 });
 
@@ -30,9 +31,9 @@ class ActivityScreen extends ConsumerWidget {
             }
 
             // Group logs by date
-            final Map<String, List<Map<String, dynamic>>> groupedLogs = {};
+            final Map<String, List<Log>> groupedLogs = {};
             for (var log in logs) {
-              final createdAt = DateTime.parse(log['created_at']);
+              final createdAt = log.createdAt;
               final dateKey = '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
               groupedLogs.putIfAbsent(dateKey, () => []).add(log);
             }
