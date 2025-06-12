@@ -86,14 +86,22 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   final _weekNavigatorController = WeekNavigatorController();
 
   // Add state for date range
-  DateTime _startDate = DateTime.now();
+  DateTime _startDate = DateTime.now().subtract(Duration(days: 7));
   int _daysWindow = 90;
 
   @override
   void initState() {
     super.initState();
     // Initial fetch
-    ref.read(eventsStateProvider.notifier).fetchEvents(startDate: _startDate, windowDays: _daysWindow);
+    ref.read(eventsStateProvider.notifier).fetchEvents(startDate: _startDate, windowDays: _daysWindow).then((_) {
+      // After fetching events, scroll to today's date
+      if (mounted) {
+        final today = DateTime.now();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _weekNavigatorController.scrollToClosestDate(today);
+        });
+      }
+    });
   }
 
   @override
