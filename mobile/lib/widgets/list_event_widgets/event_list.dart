@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:dance_sf/utils/string.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 String formatDateWithCapitalization(DateTime date, DateFormat dateFormat) {
   final formatted = dateFormat.format(date);
@@ -28,7 +29,9 @@ class EventsList extends StatelessWidget {
   final void Function(DateTime) handleDateUpdate;
   final Future<void> Function(bool) onRangeUpdate;  
   final Future<void> Function() fetchEvents;
-  const EventsList({
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+
+  EventsList({
     super.key,
     required this.eventsAsync,
     required this.weekNavigatorController,
@@ -36,6 +39,7 @@ class EventsList extends StatelessWidget {
     required this.onRangeUpdate,
     required this.fetchEvents,
   });
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -55,37 +59,29 @@ class EventsList extends StatelessWidget {
               child: Text(l10n.noEventsFound),
             );
           }
-          return NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification is ScrollUpdateNotification) {
-                weekNavigatorController.updateVisibleDate(handleDateUpdate);
-              }
-              if (notification is ScrollEndNotification) {
-                final scrollController =
-                    weekNavigatorController.scrollController;
-                if (scrollController.position.pixels == 0) {
-                  // print('Top reached');
-                  // if (kIsWeb) {
-                  //   onRangeUpdate(true);
-                  // }
-                } else if (scrollController.position.pixels ==
-                    scrollController.position.maxScrollExtent) {
-                  print('Bottom reached');
-                  onRangeUpdate(false);
-                }
-              }
-              return true;
+
+          // Listen to item positions to update visible date
+          itemPositionsListener.itemPositions.addListener(() {
+            final positions = itemPositionsListener.itemPositions.value;
+            if (positions.isEmpty) return;
+
+            // Find the first visible item
+            final firstVisible = positions.first;
+            final index = firstVisible.index;
+            if (index < dateKeys.length) {
+              handleDateUpdate(dateKeys[index]);
+            }
+          });
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              await onRangeUpdate(true);
             },
-            child: 
-            RefreshIndicator(
-              onRefresh: () async {
-                await onRangeUpdate(true);
-              },
-              child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              controller: weekNavigatorController.scrollController,
-              padding: const EdgeInsets.all(16),
+            child: ScrollablePositionedList.builder(
               itemCount: dateKeys.length,
+              itemScrollController: weekNavigatorController.itemScrollController,
+              itemPositionsListener: itemPositionsListener,
+              padding: const EdgeInsets.all(16),
               itemBuilder: (context, dateIndex) {
                 final date = dateKeys[dateIndex];
                 final eventInstancesForDate = groupedInstances[date]!;
@@ -101,7 +97,6 @@ class EventsList extends StatelessWidget {
                 );
               },
             ),
-          ),
           );
         },
       ),

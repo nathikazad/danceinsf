@@ -3,13 +3,14 @@ import 'package:dance_sf/models/event_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class WeekNavigatorController {
-  final ScrollController scrollController = ScrollController();
   final Map<DateTime, GlobalKey> dateKeys = {};
+  final ItemScrollController itemScrollController = ItemScrollController();
 
   void dispose() {
-    scrollController.dispose();
+    // No need to dispose ScrollController anymore
   }
 
   Set<int> computeDaysWithEvents(
@@ -30,44 +31,12 @@ class WeekNavigatorController {
     return days;
   }
 
-  void updateVisibleDate(Function(DateTime) onDateUpdate) {
-    if (!scrollController.hasClients) return;
-
-    DateTime? closestDate;
-
-    for (final entry in dateKeys.entries) {
-      final key = entry.value;
-      final context = key.currentContext;
-      if (context == null) continue;
-
-      final RenderBox box = context.findRenderObject() as RenderBox;
-      final position = box.localToGlobal(Offset.zero);
-      final startY = position.dy;
-
-      // Check if our reference point (topThreshold) falls within this card's bounds
-      if (startY > 60) {
-        closestDate = entry.key;
-        break;
-      }
-    }
-
-    if (closestDate != null) {
-      onDateUpdate(closestDate);
-    }
-  }
-
   void scrollToClosestDate(DateTime targetDate) {
-    if (!scrollController.hasClients) return;
-
     // Find the closest date key
     DateTime? closestDate;
     int? minDistance;
 
     for (final entry in dateKeys.entries) {
-      final key = entry.value;
-      final context = key.currentContext;
-      if (context == null) continue;
-
       // Calculate distance from target date
       final daysDifference = entry.key.difference(targetDate).inDays.abs();
 
@@ -78,14 +47,19 @@ class WeekNavigatorController {
     }
 
     if (closestDate != null) {
-      final key = dateKeys[closestDate]!;
-      final context = key.currentContext;
-      if (context != null) {
-        Scrollable.ensureVisible(
-          context,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+      // Find the index of the closest date in the sorted list of dates
+      final sortedDates = dateKeys.keys.toList()..sort();
+      final index = sortedDates.indexOf(closestDate);
+      if (index != -1) {
+        // Add a small delay to ensure the list is ready
+        Future.delayed(const Duration(milliseconds: 50), () {
+          itemScrollController.scrollTo(
+            index: index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            alignment: 0.0, // Align to the top
+          );
+        });
       }
     }
   }
