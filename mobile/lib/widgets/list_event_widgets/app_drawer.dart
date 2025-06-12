@@ -1,10 +1,10 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:dance_sf/providers/locale_provider.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -25,11 +25,14 @@ class AppDrawer extends ConsumerWidget {
                 height: 240,
                 alignment: Alignment.center,
                 //padding: EdgeInsets.symmetric(vertical: 40.0),
-                child: Text('Menu',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.secondary)),
+                child: Text(
+                  l10n.drawerMenu,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.secondary
+                  )
+                ),
               ),
               // Language Selector
               ListTile(
@@ -77,7 +80,7 @@ class AppDrawer extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
-                  'Help & FAQ',
+                  l10n.drawerHelp,
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
                 onTap: () {
@@ -94,7 +97,7 @@ class AppDrawer extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
-                  'Contact',
+                  l10n.drawerContact,
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
                 onTap: () {
@@ -116,7 +119,7 @@ class AppDrawer extends ConsumerWidget {
                     size: 25,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  title: const Text('Admin'),
+                  title: Text(l10n.drawerAdmin),
                   onTap: () {
                     Navigator.of(context).pop();
                     GoRouter.of(context).push('/activity');
@@ -133,7 +136,7 @@ class AppDrawer extends ConsumerWidget {
                     size: 25,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  title: const Text('Revoke OTP'),
+                  title: Text(l10n.drawerRevokeOTP),
                   onTap: () {
                     ref.read(authProvider.notifier).signOut();
                   },
@@ -145,7 +148,7 @@ class AppDrawer extends ConsumerWidget {
                     size: 25,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  title: const Text('Login'),
+                  title: Text(l10n.drawerLogin),
                   onTap: () {
                     GoRouter.of(context).push('/verify');
                   },

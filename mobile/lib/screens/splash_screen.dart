@@ -39,7 +39,7 @@ class SplashScreen extends StatelessWidget {
                   children: [
                     TextSpan(text: l10n.appTitle),
                     TextSpan(
-                      text: 'SF',
+                      text: AppStorage.zone == 'San Francisco' ? 'SF' : 'MX',
                       style: textTheme.headlineMedium?.copyWith(
                         color: colorScheme.primary,
                       ),
@@ -78,7 +78,7 @@ class SplashScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          l10n.buttonFindEvents,
+                          l10n.buttonFindEvents(AppStorage.zone),
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),

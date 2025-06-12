@@ -1,10 +1,24 @@
 {
     "appTitle": "Baila en ",
     "appSubtitle": "No Pienses, Solo Baila",
-    "buttonFindEvents": "Encuentra Eventos en San Francisco",
+    "buttonFindEvents": "Encuentra Eventos en {zone}",
+    "@buttonFindEvents": {
+        "placeholders": {
+            "zone": {
+                "type": "String",
+                "example": "San Francisco"
+            }
+        }
+    },
     "settingsLanguage": "Idioma",
     "settingsLanguageEnglish": "Inglés",
     "settingsLanguageSpanish": "Español",
+    "drawerMenu": "Menú",
+    "drawerHelp": "Ayuda y Preguntas Frecuentes",
+    "drawerContact": "Contacto",
+    "drawerAdmin": "Admin",
+    "drawerRevokeOTP": "Revocar OTP",
+    "drawerLogin": "Iniciar Sesión",
     "searchHint": "Buscar",
     "danceEvents": "Eventos de Baile",
     "noEventsFound": "No se encontraron eventos",

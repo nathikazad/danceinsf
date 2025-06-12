@@ -9,7 +9,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
 import 'router.dart';
-import 'providers/locale_provider.dart';
 import 'package:dance_sf/utils/app_storage.dart';
 
 void main() async {

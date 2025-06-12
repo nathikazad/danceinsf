@@ -1,4 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppStorage {
   static const String _homeRouteCountKey = 'home_route_count';
@@ -7,6 +9,7 @@ class AppStorage {
   static const String _selectedCitiesKey = 'selected_cities';
   static const String _searchTextKey = 'search_text';
   static const String _zoneKey = 'selected_zone';
+  static const String _localeKey = 'selected_locale';
 
   static Future<void> incrementHomeRouteCount() async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,10 +52,14 @@ class AppStorage {
       'searchText': prefs.getString(_searchTextKey) ?? '',
     };
   }
+  static const defaultZone = 'Mexico';
+  static const defaultLocale = 'es';
   
-  static String _zone = 'San Francisco';
+  static String _zone = defaultZone;
+  static String _locale = defaultLocale;
 
   static String get zone => _zone;
+  static String get locale => _locale;
 
   static Future<void> setZone(String zone) async {
     _zone = zone;
@@ -60,8 +67,41 @@ class AppStorage {
     await prefs.setString(_zoneKey, zone);
   }
 
+  static Future<void> setLocale(String locale) async {
+    _locale = locale;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_localeKey, locale);
+  }
+
+  static Future<String> loadLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    _locale = prefs.getString(_localeKey) ?? defaultLocale;
+    return _locale;
+  }
+
   static Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
-    _zone = prefs.getString(_zoneKey) ?? 'San Francisco';
+    _zone = prefs.getString(_zoneKey) ?? defaultZone;
+    _locale = prefs.getString(_localeKey) ?? defaultLocale;
+  }
+}
+
+final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
+  return LocaleNotifier();
+});
+
+class LocaleNotifier extends StateNotifier<Locale> {
+  LocaleNotifier() : super(Locale(AppStorage.locale)) {
+    _loadSavedLocale();
+  }
+
+  Future<void> _loadSavedLocale() async {
+    final savedLocale = await AppStorage.loadLocale();
+    state = Locale(savedLocale);
+  }
+
+  Future<void> setLocale(Locale locale) async {
+    await AppStorage.setLocale(locale.languageCode);
+    state = locale;
   }
 } 

@@ -1,7 +1,15 @@
 {
     "appTitle": "Dance in ",
     "appSubtitle": "Don't Think, Just Dance",
-    "buttonFindEvents": "Find Events In San Francisco",
+    "buttonFindEvents": "Find Events In {zone}",
+    "@buttonFindEvents": {
+        "placeholders": {
+            "zone": {
+                "type": "String",
+                "example": "San Francisco"
+            }
+        }
+    },
     "settingsLanguage": "Language",
     "settingsLanguageEnglish": "English",
     "settingsLanguageSpanish": "Spanish",
@@ -107,5 +115,11 @@
     "first": "1st",
     "second": "2nd",
     "third": "3rd",
-    "fourth": "4th"
+    "fourth": "4th",
+    "drawerMenu": "Menu",
+    "drawerHelp": "Help & FAQ",
+    "drawerContact": "Contact",
+    "drawerAdmin": "Admin",
+    "drawerRevokeOTP": "Revoke OTP",
+    "drawerLogin": "Login"
 } 

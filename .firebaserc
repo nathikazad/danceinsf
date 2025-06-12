@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "improv5"
-  }
+  },
+  "targets": {
+    "improv5": {
+      "hosting": {
+        "mexico": [
+          "donde-se-bailan"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
