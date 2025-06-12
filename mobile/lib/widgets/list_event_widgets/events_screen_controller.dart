@@ -74,6 +74,8 @@ class EventsScreenState {
   final bool showTopBar;
   final DateTime startDate;
   final int daysWindow;
+  // field for only date, not time
+  final DateTime currentlyDisplayedDate;
 
   EventsScreenState({
     this.weekStart,
@@ -82,6 +84,7 @@ class EventsScreenState {
     required this.showTopBar,
     required this.startDate,
     required this.daysWindow,
+    required this.currentlyDisplayedDate,
   });
 
   EventsScreenState copyWith({
@@ -91,6 +94,7 @@ class EventsScreenState {
     bool? showTopBar,
     DateTime? startDate,
     int? daysWindow,
+    DateTime? currentlyDisplayedDate,
   }) {
     return EventsScreenState(
       weekStart: weekStart ?? this.weekStart,
@@ -99,6 +103,7 @@ class EventsScreenState {
       showTopBar: showTopBar ?? this.showTopBar,
       startDate: startDate ?? this.startDate,
       daysWindow: daysWindow ?? this.daysWindow,
+      currentlyDisplayedDate: currentlyDisplayedDate ?? this.currentlyDisplayedDate,
     );
   }
 }
@@ -111,6 +116,7 @@ class EventsScreenController extends StateNotifier<EventsScreenState> {
           showTopBar: true,
           startDate: DateTime.now().subtract(Duration(days: 4)),
           daysWindow: 90,
+          currentlyDisplayedDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
         ));
 
   @override
@@ -138,6 +144,7 @@ class EventsScreenController extends StateNotifier<EventsScreenState> {
     state = state.copyWith(
       selectedWeekday: date.weekday,
       weekStart: newWeekStart,
+      currentlyDisplayedDate: date,
     );
   }
 

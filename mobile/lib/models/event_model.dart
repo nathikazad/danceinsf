@@ -9,6 +9,14 @@ import 'package:dance_sf/utils/string.dart';
 export 'package:dance_sf/models/event_instance_model.dart';
 export 'package:dance_sf/models/schedule_model.dart';
 export 'package:dance_sf/models/event_sub_models.dart';
+
+class GeoPoint {
+  final double latitude;
+  final double longitude;
+
+  GeoPoint({required this.latitude, required this.longitude});
+}
+
 class Event {
   final String eventId;
   final String name;
@@ -28,6 +36,8 @@ class Event {
   final String? flyerUrl;
   final String? organizerId;
   final String creatorId;
+  final GeoPoint? geoPoint;
+
 
   Event({
     required this.eventId,
@@ -40,6 +50,7 @@ class Event {
     required this.startTime,
     required this.endTime,
     required this.creatorId,
+    this.geoPoint,
     this.linkToEvent,
     this.cost = 0.0,
     this.description,
@@ -85,6 +96,7 @@ class Event {
       proposals: proposals,
       organizerId: eventData['organizer_id'],
       creatorId: eventData['creator_id'],
+      geoPoint: GeoPoint(latitude: 0.0, longitude: 0.0)
     );
   }
 

@@ -1,4 +1,4 @@
-import 'package:dance_sf/screens/events_screen_controller.dart';
+import 'package:dance_sf/widgets/list_event_widgets/events_screen_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dance_sf/models/event_model.dart';

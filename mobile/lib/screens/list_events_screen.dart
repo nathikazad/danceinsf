@@ -8,7 +8,7 @@ import 'package:dance_sf/widgets/list_event_widgets/app_drawer.dart';
 import 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_widget.dart';
 import 'package:dance_sf/widgets/list_event_widgets/event_list.dart';
 import 'package:dance_sf/widgets/list_event_widgets/week_navigator.dart';
-import 'package:dance_sf/screens/events_screen_controller.dart';
+import 'package:dance_sf/widgets/list_event_widgets/events_screen_controller.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
@@ -61,7 +61,15 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               onAddPressed: () => screenController.onAddPressed(context, ref),
               filterController: filterController,
             ),
-            mapView: const MapViewWidget(),
+            mapView: MapViewWidget(
+              events: filteredEventsState.when(
+                data: (events) => events.where((event) => 
+                  event.dateOnly == screenState.currentlyDisplayedDate
+                ).toList(),
+                loading: () => [],
+                error: (_, __) => [],
+              ),
+            ),
           ),
           WeekNavigator(
             weekStart: screenController.weekStart,
