@@ -1,77 +1,14 @@
+import 'package:dance_sf/widgets/list_event_widgets/map_view.dart';
+import 'package:dance_sf/widgets/list_event_widgets/top_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:dance_sf/auth.dart';
-import 'package:dance_sf/models/event_model.dart';
-import 'package:dance_sf/screens/verify_screen.dart';
 import 'package:dance_sf/utils/theme/app_color.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:dance_sf/controllers/event_controller.dart';
-
 import 'package:dance_sf/widgets/list_event_widgets/app_drawer.dart';
 import 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_widget.dart';
 import 'package:dance_sf/widgets/list_event_widgets/event_list.dart';
 import 'package:dance_sf/widgets/list_event_widgets/week_navigator.dart';
-
-final eventsStateProvider =
-    StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventInstance>>>(
-        (ref) => EventsStateNotifier());
-
-class EventsStateNotifier
-    extends StateNotifier<AsyncValue<List<EventInstance>>> {
-  EventsStateNotifier() : super(const AsyncValue.loading());
-
-  Future<void> fetchEvents({DateTime? startDate, int windowDays = 90}) async {
-    state = const AsyncValue.loading();
-    try {
-      final events = await EventController.fetchEvents(
-        startDate: startDate,
-        windowDays: windowDays,
-      );
-      state = AsyncValue.data(events);
-    } catch (error, stackTrace) {
-      state = AsyncValue.error(error, stackTrace);
-    }
-  }
-
-  Future<void> appendEvents(BuildContext context, {DateTime? startDate, int windowDays = 90}) async {
-    if (state is! AsyncData) return;
-    
-    try {
-      final currentEvents = (state as AsyncData<List<EventInstance>>).value;
-      final newEvents = await EventController.fetchEvents(
-        startDate: startDate,
-        windowDays: windowDays,
-      );
-      
-      // Create a map of current events by ID
-      final currentEventsMap = {
-        for (var e in currentEvents) e.eventInstanceId: e
-      };
-
-      // Update or add new events
-      for (var newEvent in newEvents) {
-        currentEventsMap[newEvent.eventInstanceId] = newEvent;
-      }
-
-      final allEvents = currentEventsMap.values.toList();
-
-      if (allEvents.length == currentEvents.length) {
-        // No new events were added
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No more new events'), duration: Duration(seconds: 2)),
-          );
-        }
-      }
-
-      state = AsyncValue.data(allEvents);
-    } catch (error) {
-      print('Error appending events: $error');
-    }
-  }
-}
+import 'package:dance_sf/screens/events_screen_controller.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
@@ -81,181 +18,72 @@ class EventsScreen extends ConsumerStatefulWidget {
 }
 
 class _EventsScreenState extends ConsumerState<EventsScreen> {
-  DateTime? _weekStart;
-  int _selectedWeekday = DateTime.now().weekday;
-  final _weekNavigatorController = WeekNavigatorController();
-
-  // Add state for date range
-  DateTime _startDate = DateTime.now().subtract(Duration(days: 7));
-  int _daysWindow = 90;
-
   @override
   void initState() {
     super.initState();
-    // Initial fetch
-    ref.read(eventsStateProvider.notifier).fetchEvents(startDate: _startDate, windowDays: _daysWindow).then((_) {
-      // After fetching events, scroll to today's date
-      if (mounted) {
-        final today = DateTime.now();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _weekNavigatorController.scrollToClosestDate(today);
-        });
-      }
-    });
+    ref.read(eventsScreenControllerProvider.notifier).initialize(ref);
   }
 
   @override
   void dispose() {
-    _weekNavigatorController.dispose();
+    ref.read(eventsScreenControllerProvider.notifier).dispose();
     super.dispose();
-  }
-
-  void _handleDateUpdate(DateTime date) {
-    setState(() {
-      _selectedWeekday = date.weekday;
-      _weekStart = date.subtract(Duration(days: (date.weekday - 1) % 7));
-      _computeDaysWithEventsForCurrentWeek();
-    });
-  }
-
-  Set<int> _computeDaysWithEventsForCurrentWeek() {
-    final eventsAsync = ref.read(filteredEventsProvider);
-    final weekStart = _weekStart ??
-        DateTime.now()
-            .subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
-    return _weekNavigatorController.computeDaysWithEvents(
-        eventsAsync, weekStart);
-  }
-
-  Future<void> _handleRangeUpdate(bool isTop) async {
-    print('handleRangeUpdate called with isTop: $isTop');
-    if (isTop) {
-      // When reaching top, extend range backwards
-      _startDate = _startDate.subtract(Duration(days: 7));
-      await ref.read(eventsStateProvider.notifier).appendEvents(
-        context,
-        startDate: _startDate,
-        windowDays: 7,
-      );
-    } else {
-      // When reaching bottom, extend range forwards
-      await ref.read(eventsStateProvider.notifier).appendEvents(
-        context,
-        startDate: _startDate.add(Duration(days: _daysWindow)),
-        windowDays: 14,
-      );
-      _daysWindow += 14;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final eventsAsync = ref.watch(filteredEventsProvider);
+    final filteredEventsState = ref.watch(filteredEventsProvider);
     final filterController = ref.watch(filterControllerProvider);
-    final weekStart = _weekStart ??
-        DateTime.now()
-            .subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
+    final screenState = ref.watch(eventsScreenControllerProvider);
+    final screenController = ref.read(eventsScreenControllerProvider.notifier);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(l10n.danceEvents),
         actions: [
-          Builder(
-            builder: (context) => Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(100)),
-                child: IconButton(
-                  color: AppColors.darkPrimary,
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => Scaffold.of(context).openEndDrawer(),
-                ),
-              ),
-            ),
+          _ToggleEventsButton(
+            showTopBar: screenState.showTopBar,
+            onPressed: () => screenController.toggleTopBarOrMap(),
           ),
+          const _MenuButton(),
         ],
       ),
       endDrawer: const AppDrawer(),
       body: Column(
         children: [
-          TopBar(
-            onFilterPressed: () {
-              final eventsAsync = ref.read(eventsStateProvider);
-              final cities = eventsAsync.when(
-                data: (events) => events
-                    .map((e) => e.event.location.city)
-                    .where((city) => city.isNotEmpty)
-                    .toSet()
-                    .toList()
-                  ..sort(),
-                loading: () => <String>[],
-                error: (_, __) => <String>[],
-              );
-              FilterModalWidget.show(
-                context,
-                controller: filterController,
-                cities: cities,
-              );
-            },
-            onAddPressed: () async {
-              if (ref.read(authProvider).state.user != null) {
-                await GoRouter.of(context).push('/add-event');
-              } else {
-                await GoRouter.of(context).push('/verify',
-                 extra: {
-                  'nextRoute': '/add-event', 
-                  'verifyScreenType': VerifyScreenType.addEvent});
-              }
-              ref.read(eventsStateProvider.notifier).fetchEvents();
-            },
-            filterController: filterController,
+          _AnimatedViewSwitcher(
+            showTopBar: screenState.showTopBar,
+            topBar: TopBar(
+              key: const ValueKey('top_bar'),
+              onFilterPressed: () => screenController.onFilterPressed(context, ref, filterController),
+              onAddPressed: () => screenController.onAddPressed(context, ref),
+              filterController: filterController,
+            ),
+            mapView: const MapViewWidget(),
           ),
           WeekNavigator(
-            weekStart: weekStart,
-            selectedWeekday: _selectedWeekday,
+            weekStart: screenController.weekStart,
+            selectedWeekday: screenState.selectedWeekday,
             daysWithEventsForCurrentWeek:
-                _computeDaysWithEventsForCurrentWeek(),
+                screenController.computeDaysWithEventsForCurrentWeek(ref),
             onWeekChanged: (newWeekStart) {
-              setState(() {
-                _weekStart = newWeekStart;
-                _selectedWeekday = 1; // Set to Monday
-                _computeDaysWithEventsForCurrentWeek();
-              });
-
-              // Check if new week is beyond current date range
-              final endDate = _startDate.add(Duration(days: _daysWindow));
-              print('New Week: ${newWeekStart.toIso8601String().split('T')[0]}, Start: ${_startDate.toIso8601String().split('T')[0]}, End: ${endDate.toIso8601String().split('T')[0]}');
-              if (newWeekStart.isBefore(_startDate)) {
-                print('Extending backwards');
-                _handleRangeUpdate(true); // Extend backwards
-              } else if (newWeekStart.add(const Duration(days: 7)).isAfter(endDate)) {
-                print('Extending forwards');
-                _handleRangeUpdate(false); // Extend forwards
-              }
-
-              _weekNavigatorController.scrollToClosestDate(newWeekStart);
+              screenController.handleWeekChanged(newWeekStart, ref);
             },
             onDaySelected: (weekday) {
-              setState(() {
-                _selectedWeekday = weekday;
-              });
-              final weekStart = _weekStart ??
-                  DateTime.now().subtract(
-                      Duration(days: (DateTime.now().weekday - 1) % 7));
-              final targetDate = weekStart.add(Duration(days: weekday - 1));
-              _weekNavigatorController.scrollToClosestDate(targetDate);
+              screenController.handleDaySelected(weekday);
             },
           ),
-          const Divider(height: 1, thickness: 1),
-          EventsList(
-            eventsAsync: eventsAsync,
-            weekNavigatorController: _weekNavigatorController,
-            handleDateUpdate: _handleDateUpdate,
-            onRangeUpdate: _handleRangeUpdate,
-            fetchEvents: ref.read(eventsStateProvider.notifier).fetchEvents,
+          Divider(height: 1, thickness: 1),
+          Expanded(
+            child: EventsList(
+              eventsAsync: filteredEventsState,
+              weekNavigatorController: screenState.weekNavigatorController,
+              handleDateUpdate: screenController.handleDateUpdate,
+              onRangeUpdate: (isTop) => screenController.handleRangeUpdate(isTop, ref, context),
+              fetchEvents: ref.read(eventsStateProvider.notifier).fetchEvents,
+            ),
           ),
         ],
       ),
@@ -263,81 +91,81 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   }
 }
 
-// TopBar widget
-class TopBar extends StatelessWidget {
-  final VoidCallback onFilterPressed;
-  final VoidCallback onAddPressed;
-  final FilterController filterController;
+class _ToggleEventsButton extends StatelessWidget {
+  final bool showTopBar;
+  final VoidCallback onPressed;
 
-  const TopBar({
-    super.key,
-    required this.onFilterPressed,
-    required this.onAddPressed,
-    required this.filterController,
+  const _ToggleEventsButton({
+    required this.showTopBar,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(100)),
-                child: IconButton(
-                  icon: const Icon(Icons.tune),
-                  onPressed: onFilterPressed,
-                ),
-              ),
-              Consumer(
-                builder: (context, ref, child) {
-                  final filterCount =
-                      ref.watch(filterControllerProvider).countActiveFilters();
-                  if (filterCount == 0) return const SizedBox.shrink();
-                  return Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        filterCount.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          Expanded(
-            child: EventSearchBar(
-              initialValue: filterController.searchText,
-              onChanged: filterController.updateSearchText,
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: Theme.of(context).colorScheme.secondaryContainer),
-            child: IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: onAddPressed,
-            ),
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(100),
       ),
+      child: IconButton(
+        color: AppColors.darkPrimary,
+        icon: Icon(showTopBar ? Icons.map : Icons.search),
+        onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class _MenuButton extends StatelessWidget {
+  const _MenuButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (context) => Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: IconButton(
+            color: AppColors.darkPrimary,
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openEndDrawer(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedViewSwitcher extends StatelessWidget {
+  final bool showTopBar;
+  final TopBar topBar;
+  final MapViewWidget mapView;
+
+  const _AnimatedViewSwitcher({
+    required this.showTopBar,
+    required this.topBar,
+    required this.mapView,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            axis: Axis.vertical,
+            child: child,
+          ),
+        );
+      },
+      child: showTopBar ? topBar : mapView,
     );
   }
 }

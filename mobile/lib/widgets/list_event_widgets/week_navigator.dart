@@ -36,6 +36,9 @@ class WeekNavigatorController {
     DateTime? closestDate;
     int? minDistance;
 
+    // print all the dates
+    print("dateKeys: ${dateKeys.keys}");
+
     for (final entry in dateKeys.entries) {
       // Calculate distance from target date
       final daysDifference = entry.key.difference(targetDate).inDays.abs();
@@ -47,6 +50,7 @@ class WeekNavigatorController {
     }
 
     if (closestDate != null) {
+      print("closestDate: $closestDate");
       // Find the index of the closest date in the sorted list of dates
       final sortedDates = dateKeys.keys.toList()..sort();
       final index = sortedDates.indexOf(closestDate);

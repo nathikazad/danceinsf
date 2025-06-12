@@ -52,8 +52,8 @@ class AppStorage {
       'searchText': prefs.getString(_searchTextKey) ?? '',
     };
   }
-  static const defaultZone = 'Mexico';
-  static const defaultLocale = 'es';
+  static const defaultZone = 'San Francisco';
+  static const defaultLocale = 'en';
   
   static String _zone = defaultZone;
   static String _locale = defaultLocale;

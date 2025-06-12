@@ -1,7 +1,7 @@
+import 'package:dance_sf/screens/events_screen_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dance_sf/models/event_model.dart';
-import 'package:dance_sf/screens/list_events_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dance_sf/utils/app_storage.dart';
 
@@ -13,6 +13,7 @@ final filteredEventsProvider = Provider<AsyncValue<List<EventInstance>>>((ref) {
   final filterController = ref.watch(filterControllerProvider);
   
   return eventsAsync.whenData((events) {
+    print("events finished, filtering");
     return filterController.filterEvents(events);
   });
 });

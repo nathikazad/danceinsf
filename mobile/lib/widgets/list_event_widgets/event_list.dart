@@ -45,61 +45,59 @@ class EventsList extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     final dateFormat = DateFormat(l10n.dateFormat, locale.languageCode);
-    return Expanded(
-      child: eventsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Text(l10n.errorLoadingEvents(error.toString())),
-        ),
-        data: (eventInstances) {
-          final groupedInstances = Event.groupEventInstancesByDate(eventInstances);
-          final dateKeys = groupedInstances.keys.toList()..sort();
-          if (dateKeys.isEmpty) {
-            return Center(
-              child: Text(l10n.noEventsFound),
-            );
-          }
-
-          // Listen to item positions to update visible date
-          itemPositionsListener.itemPositions.addListener(() {
-            final positions = itemPositionsListener.itemPositions.value;
-            if (positions.isEmpty) return;
-
-            // Find the first visible item
-            final firstVisible = positions.first;
-            final index = firstVisible.index;
-            if (index < dateKeys.length) {
-              handleDateUpdate(dateKeys[index]);
-            }
-          });
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              await onRangeUpdate(true);
-            },
-            child: ScrollablePositionedList.builder(
-              itemCount: dateKeys.length,
-              itemScrollController: weekNavigatorController.itemScrollController,
-              itemPositionsListener: itemPositionsListener,
-              padding: const EdgeInsets.all(16),
-              itemBuilder: (context, dateIndex) {
-                final date = dateKeys[dateIndex];
-                final eventInstancesForDate = groupedInstances[date]!;
-                weekNavigatorController.dateKeys[date] =
-                    weekNavigatorController.dateKeys[date] ?? GlobalKey();
-                return GroupedEventsForDate(
-                  date: date,
-                  eventInstancesForDate: eventInstancesForDate,
-                  dateFormat: dateFormat,
-                  isLast: dateIndex == dateKeys.length - 1,
-                  keyForDate: weekNavigatorController.dateKeys[date]!,
-                  fetchEvents: fetchEvents,
-                );
-              },
-            ),
-          );
-        },
+    return eventsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(
+        child: Text(l10n.errorLoadingEvents(error.toString())),
       ),
+      data: (eventInstances) {
+        final groupedInstances = Event.groupEventInstancesByDate(eventInstances);
+        final dateKeys = groupedInstances.keys.toList()..sort();
+        if (dateKeys.isEmpty) {
+          return Center(
+            child: Text(l10n.noEventsFound),
+          );
+        }
+
+        // Listen to item positions to update visible date
+        itemPositionsListener.itemPositions.addListener(() {
+          final positions = itemPositionsListener.itemPositions.value;
+          if (positions.isEmpty) return;
+
+          // Find the first visible item
+          final firstVisible = positions.first;
+          final index = firstVisible.index;
+          if (index < dateKeys.length) {
+            handleDateUpdate(dateKeys[index]);
+          }
+        });
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            await onRangeUpdate(true);
+          },
+          child: ScrollablePositionedList.builder(
+            itemCount: dateKeys.length,
+            itemScrollController: weekNavigatorController.itemScrollController,
+            itemPositionsListener: itemPositionsListener,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, dateIndex) {
+              final date = dateKeys[dateIndex];
+              final eventInstancesForDate = groupedInstances[date]!;
+              weekNavigatorController.dateKeys[date] =
+                  weekNavigatorController.dateKeys[date] ?? GlobalKey();
+              return GroupedEventsForDate(
+                date: date,
+                eventInstancesForDate: eventInstancesForDate,
+                dateFormat: dateFormat,
+                isLast: dateIndex == dateKeys.length - 1,
+                keyForDate: weekNavigatorController.dateKeys[date]!,
+                fetchEvents: fetchEvents,
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
