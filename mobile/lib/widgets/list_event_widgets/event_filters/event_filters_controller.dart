@@ -13,7 +13,6 @@ final filteredEventsProvider = Provider<AsyncValue<List<EventInstance>>>((ref) {
   final filterController = ref.watch(filterControllerProvider);
   
   return eventsAsync.whenData((events) {
-    print("events finished, filtering");
     return filterController.filterEvents(events);
   });
 });

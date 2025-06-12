@@ -23,7 +23,7 @@ class LogController {
     final timeOnly = now.toIso8601String().split('T')[1].split('.')[0];
     _pendingLogs[timeOnly] = text;
 
-    print('Logging $timeOnly: $text');
+    // print('Logging $timeOnly: $text');
     if (_syncTimer == null) {
       _startSyncTimer();
     }
