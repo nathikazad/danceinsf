@@ -40,7 +40,29 @@ class ActivityChart extends StatelessWidget {
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
             maxY: spots.map((e) => e.y).reduce((a, b) => a > b ? a : b) + 1,
-            barTouchData: BarTouchData(enabled: false),
+            barTouchData: BarTouchData(
+              enabled: false,
+              touchTooltipData: BarTouchTooltipData(
+                tooltipBgColor: Colors.transparent,
+                tooltipPadding: EdgeInsets.zero,
+                tooltipMargin: 0,
+                getTooltipItem: (
+                  BarChartGroupData group,
+                  int groupIndex,
+                  BarChartRodData rod,
+                  int rodIndex,
+                ) {
+                  return BarTooltipItem(
+                    rod.toY.round().toString(),
+                    const TextStyle(
+                      color: Color.fromRGBO(240, 99, 20, 1),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  );
+                },
+              ),
+            ),
             titlesData: FlTitlesData(
               show: true,
               bottomTitles: AxisTitles(
@@ -89,6 +111,7 @@ class ActivityChart extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                   ),
                 ],
+                showingTooltipIndicators: [0],
               );
             }).toList(),
           ),

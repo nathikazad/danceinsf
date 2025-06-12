@@ -5,6 +5,7 @@ class Log {
   final DateTime createdAt;
   final String? device;
   final Map<String, String> actions;
+  final String zone;
 
   Log({
     required this.id,
@@ -13,6 +14,7 @@ class Log {
     required this.createdAt,
     this.device,
     required this.actions,
+    required this.zone,
   });
 
   factory Log.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,7 @@ class Log {
       createdAt: finalDate,
       device: json['device'] as String?,
       actions: actions,
+      zone: json['zone'] as String? ?? 'San Francisco',
     );
   }
 
@@ -56,11 +59,12 @@ class Log {
       'created_at': createdAt.toIso8601String(),
       'device': device,
       'actions': actions,
+      'zone': zone,
     };
   }
 
   @override
   String toString() {
-    return 'Log(id: $id, sessionId: $sessionId, userId: $userId, createdAt: $createdAt, device: $device, actions: $actions)';
+    return 'Log(id: $id, sessionId: $sessionId, userId: $userId, createdAt: $createdAt, device: $device, actions: $actions, zone: $zone)';
   }
 } 

@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 import '../utils/session/session.dart';
 import '../models/log.dart';
+import '../utils/app_storage.dart';
 
 class LogController {
   static DateTime? currentDate;
@@ -64,6 +65,7 @@ class LogController {
             'created_at': dateOnly,
             'user_id': currentUser?.id,
             'device': kIsWeb ? 'web' : 'mobile',
+            'zone': AppStorage.zone,
           }).select().single();
           currentDateId = newLog['id'];
           currentActions = {};
@@ -120,6 +122,7 @@ class LogController {
       final response = await Supabase.instance.client
           .from('logs')
           .select()
+          .eq('zone', AppStorage.zone)
           .order('created_at', ascending: false);
       return (response as List).map((json) => Log.fromJson(json)).toList();
     } catch (e) {
@@ -138,6 +141,7 @@ class LogController {
           .from('logs')
           .select()
           .eq('created_at', date)
+          .eq('zone', AppStorage.zone)
           .order('created_at', ascending: false);
       
       final logs = (response as List).map((json) => Log.fromJson(json)).toList();
