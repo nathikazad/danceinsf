@@ -197,11 +197,22 @@ class DeferredMapView extends StatefulWidget {
 
 class _DeferredMapViewState extends State<DeferredMapView> {
   late Future<void> _loadFuture;
+  Set<String>? _lastEventIds;
+  Widget? _mapWidget;
 
   @override
   void initState() {
     super.initState();
+    print('DeferredMapView: initState called');
     _loadFuture = map_view.loadLibrary();
+  }
+
+  @override
+  void dispose() {
+    print('DeferredMapView: dispose called');
+    _lastEventIds = null;
+    _mapWidget = null;
+    super.dispose();
   }
 
   @override
@@ -210,7 +221,19 @@ class _DeferredMapViewState extends State<DeferredMapView> {
       future: _loadFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return map_view.MapViewWidget(events: widget.events);
+          final currentIds = widget.events.map((e) => e.eventInstanceId).toSet();
+          
+          // Only create new MapViewWidget if events have changed
+          if (_lastEventIds == null || 
+              _lastEventIds!.length != currentIds.length || 
+              !_lastEventIds!.every((id) => currentIds.contains(id))) {
+            print('DeferredMapView: Events changed, creating new MapViewWidget');
+            print('DeferredMapView: ${widget.events.length} events');
+            _lastEventIds = currentIds;
+            _mapWidget = map_view.MapViewWidget(events: widget.events);
+          }
+          
+          return _mapWidget ?? const Center(child: CircularProgressIndicator());
         }
         return const Center(
           child: CircularProgressIndicator(),

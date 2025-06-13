@@ -92,8 +92,8 @@ class _MapViewWidgetState extends State<MapViewWidget> {
           _isMapReady = true;
           _updateMarkers();
         },
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
         zoomControlsEnabled: true,
         mapToolbarEnabled: false,
         mapType: MapType.normal,
