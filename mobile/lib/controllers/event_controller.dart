@@ -116,6 +116,10 @@ class EventController {
         'is_archived': false,
         'creator_id': Supabase.instance.client.auth.currentUser!.id,
         'zone': AppStorage.zone,
+        'gps': event.location.gpsPoint != null ? {
+          'latitude': event.location.gpsPoint!.latitude,
+          'longitude': event.location.gpsPoint!.longitude,
+        } : null,
       };
 
       // Create the event in the database
@@ -188,6 +192,10 @@ class EventController {
         'default_description': event.description,
         'weekly_days': weeklyDays,
         'monthly_pattern': monthlyPattern,
+        'gps': event.location.gpsPoint != null ? {
+          'latitude': event.location.gpsPoint!.latitude,
+          'longitude': event.location.gpsPoint!.longitude,
+        } : null,
       };
 
       await supabase

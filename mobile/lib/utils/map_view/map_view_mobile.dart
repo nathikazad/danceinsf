@@ -20,10 +20,19 @@ class _MapViewWidgetState extends State<MapViewWidget> {
   final Set<Marker> _markers = {};
   bool _isMapReady = false;
 
+  // Center of Bay Area
+  final LatLng _bayAreaCenter = const LatLng(37.575431, -122.161285);
+
   @override
   void didUpdateWidget(MapViewWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.events != widget.events) {
+    
+    // Compare event instance IDs
+    final oldIds = oldWidget.events.map((e) => e.eventInstanceId).toSet();
+    final newIds = widget.events.map((e) => e.eventInstanceId).toSet();
+    
+    // Only update if there are actual changes in the events
+    if (oldIds.length != newIds.length || !oldIds.every((id) => newIds.contains(id))) {
       _updateMarkers();
     }
   }
@@ -32,11 +41,12 @@ class _MapViewWidgetState extends State<MapViewWidget> {
     if (!_isMapReady) return;
 
     final newMarkers = widget.events
-        .where((event) => event.event.geoPoint != null)
+        .where((event) => event.event.location.gpsPoint != null)
         .map((event) {
-          final position = LatLng(
-            event.event.geoPoint!.latitude,
-            event.event.geoPoint!.longitude,
+          print("${event.event.name} ${event.event.location.gpsPoint?.latitude} ${event.event.location.gpsPoint?.longitude}");
+          var position = LatLng(
+            event.event.location.gpsPoint!.latitude,
+            event.event.location.gpsPoint!.longitude,
           );
           final name = event.event.name;
           return Marker(
@@ -59,12 +69,11 @@ class _MapViewWidgetState extends State<MapViewWidget> {
       _markers.addAll(newMarkers);
     });
 
-    if (_markers.isNotEmpty) {
-      final firstMarker = _markers.first;
-      _controller.animateCamera(
-        CameraUpdate.newLatLngZoom(firstMarker.position, 12),
-      );
-    }
+
+    _controller.animateCamera(
+      CameraUpdate.newLatLngZoom(_bayAreaCenter, 8.0),
+    );
+
   }
 
   @override
@@ -74,8 +83,8 @@ class _MapViewWidgetState extends State<MapViewWidget> {
       child: GoogleMap(
         key: const ValueKey('google_map'),
         initialCameraPosition: const CameraPosition(
-          target: LatLng(37.7749, -122.4194), // San Francisco
-          zoom: 12,
+          target: LatLng(37.575431, -122.161285), // Center of Bay Area
+          zoom: 8,
         ),
         markers: _markers,
         onMapCreated: (GoogleMapController controller) {

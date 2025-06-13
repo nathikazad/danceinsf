@@ -116,14 +116,13 @@ class SchedulePattern {
 
   String get shortMonthlyPattern {
     if (frequency != Frequency.monthly || dayOfWeek == null || weeksOfMonth == null) return '';
-    final weekStrings = weeksOfMonth!.map((week) => switch (week) {
-      1 => '1st',
-      2 => '2nd',
-      3 => '3rd',
-      4 => '4th',
+    return weeksOfMonth!.map((week) => switch (week) {
+      1 => '1st-$shortDayOfWeekString',
+      2 => '2nd-$shortDayOfWeekString',
+      3 => '3rd-$shortDayOfWeekString',
+      4 => '4th-$shortDayOfWeekString',
       _ => ''
     }).join(',');
-    return '$weekStrings-$shortDayOfWeekString';
   }
 
   String get shortWeeklyPattern {

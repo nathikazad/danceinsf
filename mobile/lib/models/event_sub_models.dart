@@ -65,15 +65,24 @@ enum DayOfWeek {
   sunday
 }
 
+class GPSPoint {
+  final double latitude;
+  final double longitude;
+
+  GPSPoint({required this.latitude, required this.longitude});
+}
+
 class Location {
   final String venueName;
   final String city;
   final String? url;
+  final GPSPoint? gpsPoint;
 
   Location({
     required this.venueName,
     required this.city,
     this.url,
+    this.gpsPoint,
   });
 }
 

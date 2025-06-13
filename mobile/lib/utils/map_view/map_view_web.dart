@@ -21,14 +21,17 @@ class _MapViewWidgetState extends State<MapViewWidget> {
   final List<GeoPoint> _markers = [];
   bool _isMapReady = false;
 
+  // Center of Bay Area
+  final GeoPoint _bayAreaCenter = GeoPoint(
+    latitude: 37.575431,
+    longitude: -122.161285,
+  );
+
   @override
   void initState() {
     super.initState();
     controller = MapController.withPosition(
-      initPosition: GeoPoint(
-        latitude: 37.7749,
-        longitude: -122.4194,
-      ),
+      initPosition: _bayAreaCenter,
     );
   }
 
@@ -66,10 +69,10 @@ class _MapViewWidgetState extends State<MapViewWidget> {
     if (!_isMapReady) return;
     
     final newMarkers = widget.events
-        .where((event) => event.event.geoPoint != null)
+        .where((event) => event.event.location.gpsPoint != null)
         .map((event) => GeoPoint(
-              latitude: event.event.geoPoint!.latitude,
-              longitude: event.event.geoPoint!.longitude,
+              latitude: event.event.location.gpsPoint!.latitude,
+              longitude: event.event.location.gpsPoint!.longitude,
             ))
         .toList();
 
@@ -87,10 +90,10 @@ class _MapViewWidgetState extends State<MapViewWidget> {
     if (!_isMapReady) return;
     
     for (final event in widget.events) {
-      if (event.event.geoPoint != null) {
+      if (event.event.location.gpsPoint != null) {
         final geoPoint = GeoPoint(
-          latitude: event.event.geoPoint!.latitude,
-          longitude: event.event.geoPoint!.longitude,
+          latitude: event.event.location.gpsPoint!.latitude,
+          longitude: event.event.location.gpsPoint!.longitude,
         );
         await controller.addMarker(
           geoPoint,
@@ -105,9 +108,11 @@ class _MapViewWidgetState extends State<MapViewWidget> {
       }
     }
 
-    if (_markers.isNotEmpty) {
-      await controller.moveTo(_markers.first);
-    }
+
+      // If no markers, show the Bay Area center
+    await controller.moveTo(_bayAreaCenter);
+    await controller.setZoom(zoomLevel: 8.0);
+
   }
 
   @override
@@ -119,7 +124,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
         controller: controller,
         osmOption: OSMOption(
           zoomOption: const ZoomOption(
-            initZoom: 12,
+            initZoom: 8,
             minZoomLevel: 3,
             maxZoomLevel: 19,
             stepZoom: 1.0,

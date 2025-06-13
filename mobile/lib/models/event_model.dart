@@ -10,13 +10,6 @@ export 'package:dance_sf/models/event_instance_model.dart';
 export 'package:dance_sf/models/schedule_model.dart';
 export 'package:dance_sf/models/event_sub_models.dart';
 
-class GPSPoint {
-  final double latitude;
-  final double longitude;
-
-  GPSPoint({required this.latitude, required this.longitude});
-}
-
 class Event {
   final String eventId;
   final String name;
@@ -36,7 +29,6 @@ class Event {
   final String? flyerUrl;
   final String? organizerId;
   final String creatorId;
-  final GPSPoint? geoPoint;
 
 
   Event({
@@ -50,7 +42,6 @@ class Event {
     required this.startTime,
     required this.endTime,
     required this.creatorId,
-    this.geoPoint,
     this.linkToEvent,
     this.cost = 0.0,
     this.description,
@@ -68,7 +59,6 @@ class Event {
     final weeklyDays = toStringList(eventData['weekly_days']);
     final monthlyPattern = toStringList(eventData['monthly_pattern']);
     final eventCategories = toStringList(eventData['event_category']).map((category) => DanceStyleExtension.fromString(category)).toList();
-
     return Event(
       eventId: eventData['event_id'],
       name: eventData['name'],
@@ -79,6 +69,10 @@ class Event {
         venueName: eventData['default_venue_name'],
         city: eventData['default_city'],
         url: eventData['default_google_maps_link'],
+        gpsPoint: eventData['gps'] != null ? GPSPoint(
+          latitude: eventData['gps']['latitude'],
+          longitude: eventData['gps']['longitude'],
+        ) : null,
       ),
       flyerUrl: eventData['default_flyer_url'],
       linkToEvent: eventData['default_ticket_link'],
@@ -96,10 +90,6 @@ class Event {
       proposals: proposals,
       organizerId: eventData['organizer_id'],
       creatorId: eventData['creator_id'],
-      geoPoint: GPSPoint(
-        latitude: 37.7749,
-        longitude: -122.4194,
-      )
     );
   }
 
