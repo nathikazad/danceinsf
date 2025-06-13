@@ -1,4 +1,4 @@
-import 'package:dance_sf/widgets/list_event_widgets/map_view.dart';
+import 'package:dance_sf/widgets/list_event_widgets/map_view.dart' deferred as map_view;
 import 'package:dance_sf/widgets/list_event_widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/utils/theme/app_color.dart';
@@ -9,6 +9,7 @@ import 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_
 import 'package:dance_sf/widgets/list_event_widgets/event_list.dart';
 import 'package:dance_sf/widgets/list_event_widgets/week_navigator.dart';
 import 'package:dance_sf/widgets/list_event_widgets/events_screen_controller.dart';
+import 'package:dance_sf/models/event_model.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
@@ -47,6 +48,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
             showTopBar: screenState.showTopBar,
             onPressed: () => screenController.toggleTopBarOrMap(),
           ),
+          const SizedBox(width: 8),
           const _MenuButton(),
         ],
       ),
@@ -61,14 +63,12 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               onAddPressed: () => screenController.onAddPressed(context, ref),
               filterController: filterController,
             ),
-            mapView: MapViewWidget(
-              events: filteredEventsState.when(
-                data: (events) => events.where((event) => 
-                  event.dateOnly == screenState.currentlyDisplayedDate
-                ).toList(),
-                loading: () => [],
-                error: (_, __) => [],
-              ),
+            eventsToShowOnMap: filteredEventsState.when(
+              data: (events) => events.where((event) => 
+                event.dateOnly == screenState.currentlyDisplayedDate
+              ).toList(),
+              loading: () => [],
+              error: (_, __) => [],
             ),
           ),
           WeekNavigator(
@@ -151,12 +151,12 @@ class _MenuButton extends StatelessWidget {
 class _AnimatedViewSwitcher extends StatelessWidget {
   final bool showTopBar;
   final TopBar topBar;
-  final MapViewWidget mapView;
+  final List<EventInstance> eventsToShowOnMap;
 
   const _AnimatedViewSwitcher({
     required this.showTopBar,
     required this.topBar,
-    required this.mapView,
+    required this.eventsToShowOnMap,
   });
 
   @override
@@ -173,7 +173,44 @@ class _AnimatedViewSwitcher extends StatelessWidget {
           ),
         );
       },
-      child: showTopBar ? topBar : mapView,
+      child: showTopBar ? topBar : DeferredMapView(events: eventsToShowOnMap),
+    );
+  }
+}
+
+class DeferredMapView extends StatefulWidget {
+  final List<EventInstance> events;
+
+  const DeferredMapView({
+    required this.events,
+    super.key,
+  });
+
+  @override
+  State<DeferredMapView> createState() => _DeferredMapViewState();
+}
+
+class _DeferredMapViewState extends State<DeferredMapView> {
+  late Future<void> _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFuture = map_view.loadLibrary();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return map_view.MapViewWidget(events: widget.events);
+        }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 }
