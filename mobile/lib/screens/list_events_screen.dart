@@ -1,4 +1,4 @@
-import 'package:dance_sf/widgets/list_event_widgets/map_view.dart' deferred as map_view;
+import 'package:dance_sf/utils/map_view/map_view.dart' deferred as map_view;
 import 'package:dance_sf/widgets/list_event_widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/utils/theme/app_color.dart';
@@ -173,7 +173,12 @@ class _AnimatedViewSwitcher extends StatelessWidget {
           ),
         );
       },
-      child: showTopBar ? topBar : DeferredMapView(events: eventsToShowOnMap),
+      child: showTopBar 
+        ? topBar 
+        : DeferredMapView(
+            key: const ValueKey('map_view'),
+            events: eventsToShowOnMap,
+          ),
     );
   }
 }
