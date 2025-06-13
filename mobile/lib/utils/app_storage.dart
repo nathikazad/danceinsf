@@ -1,3 +1,4 @@
+import 'package:dance_sf/models/event_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,6 +55,10 @@ class AppStorage {
   }
   static const defaultZone = 'San Francisco';
   static const defaultLocale = 'en';
+  static final GPSPoint defaultMapCenter = GPSPoint(
+    latitude: 37.575431,
+    longitude: -122.161285,
+  );
   
   static String _zone = defaultZone;
   static String _locale = defaultLocale;

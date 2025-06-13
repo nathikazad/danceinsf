@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,7 +22,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
   bool _isMapReady = false;
 
   // Center of Bay Area
-  final LatLng _bayAreaCenter = const LatLng(37.575431, -122.161285);
+  final LatLng _bayAreaCenter = LatLng(AppStorage.defaultMapCenter.latitude, AppStorage.defaultMapCenter.longitude);
 
   @override
   void didUpdateWidget(MapViewWidget oldWidget) {
@@ -82,8 +83,8 @@ class _MapViewWidgetState extends State<MapViewWidget> {
       height: MediaQuery.of(context).size.height * 0.3,
       child: GoogleMap(
         key: const ValueKey('google_map'),
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(37.575431, -122.161285), // Center of Bay Area
+        initialCameraPosition: CameraPosition(
+          target: LatLng(AppStorage.defaultMapCenter.latitude, AppStorage.defaultMapCenter.longitude), // Center of Bay Area
           zoom: 8,
         ),
         markers: _markers,

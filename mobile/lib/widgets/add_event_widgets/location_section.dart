@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -54,7 +55,7 @@ class _LocationSectionState extends State<LocationSection> {
           'https://maps.googleapis.com/maps/api/place/autocomplete/json'
           '?input=$query'
           '&types=establishment'
-          '&location=37.7749,-122.4194' // San Francisco coordinates
+          '&location=${AppStorage.defaultMapCenter.latitude},${AppStorage.defaultMapCenter.longitude}'
           '&radius=50000' // 50km radius
           '&key=AIzaSyAYc3SKKnIrnvetF3e_sVIgvPw680wi2_4', // Replace with your API key
         ),

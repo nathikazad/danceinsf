@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
@@ -23,8 +24,8 @@ class _MapViewWidgetState extends State<MapViewWidget> {
 
   // Center of Bay Area
   final GeoPoint _bayAreaCenter = GeoPoint(
-    latitude: 37.575431,
-    longitude: -122.161285,
+    latitude: AppStorage.defaultMapCenter.latitude,
+    longitude: AppStorage.defaultMapCenter.longitude,
   );
 
   @override
