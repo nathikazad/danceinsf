@@ -29,15 +29,11 @@ class EventsStateNotifier
     }
   }
 
-  Future<void> appendEvents(BuildContext context, {DateTime? startDate, int windowDays = 90}) async {
+  Future<void> _appendEventsHelper(List<EventInstance> newEvents, BuildContext context) async {
     if (state is! AsyncData) return;
     
     try {
       final currentEvents = (state as AsyncData<List<EventInstance>>).value;
-      final newEvents = await EventController.fetchEvents(
-        startDate: startDate,
-        windowDays: windowDays,
-      );
       
       // Create a map of current events by ID
       final currentEventsMap = {
@@ -63,6 +59,27 @@ class EventsStateNotifier
       state = AsyncValue.data(allEvents);
     } catch (error) {
       print('Error appending events: $error');
+    }
+  }
+
+  Future<void> appendEvents(BuildContext context, {DateTime? startDate, int windowDays = 90}) async {
+    try {
+      final newEvents = await EventController.fetchEvents(
+        startDate: startDate,
+        windowDays: windowDays,
+      );
+      await _appendEventsHelper(newEvents, context);
+    } catch (error) {
+      print('Error appending events: $error');
+    }
+  }
+
+  Future<void> appendEventsBySearch(BuildContext context, String searchQuery) async {
+    try {
+      final newEvents = await EventController.fetchEventsBySearch(searchQuery);
+      await _appendEventsHelper(newEvents, context);
+    } catch (error) {
+      print('Error appending events by search: $error');
     }
   }
 }
@@ -243,6 +260,12 @@ class EventsScreenController extends StateNotifier<EventsScreenState> {
 
   DateTime get weekStart => state.weekStart ??
       DateTime.now().subtract(Duration(days: (DateTime.now().weekday - 1) % 7));
+
+  void handleSearchUpdate(String searchText, WidgetRef ref, BuildContext context) async {
+    if (searchText.length > 2) {
+      await ref.read(eventsStateProvider.notifier).appendEventsBySearch(context, searchText);
+    }
+  }
 }
 
 final eventsScreenControllerProvider = StateNotifierProvider<EventsScreenController, EventsScreenState>((ref) {

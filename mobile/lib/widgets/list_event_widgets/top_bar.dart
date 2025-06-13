@@ -5,13 +5,16 @@ import 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_
 class TopBar extends StatelessWidget {
   final VoidCallback onFilterPressed;
   final VoidCallback onAddPressed;
-  final FilterController filterController;
+  final String searchText;
+  final Function(String) onSearchUpdate;
 
   const TopBar({
     super.key,
     required this.onFilterPressed,
     required this.onAddPressed,
-    required this.filterController,
+    required this.searchText,
+
+    required this.onSearchUpdate,
   });
 
   @override
@@ -61,8 +64,12 @@ class TopBar extends StatelessWidget {
           ),
           Expanded(
             child: EventSearchBar(
-              initialValue: filterController.searchText,
-              onChanged: filterController.updateSearchText,
+              initialValue: searchText,
+              onChanged: onSearchUpdate,
+               // onChanged: (text) => () {
+              //   filterController.updateSearchText(text);
+              //   onSearchUpdate(text);
+              // }
             ),
           ),
           Container(

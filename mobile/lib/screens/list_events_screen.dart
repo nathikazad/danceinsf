@@ -61,7 +61,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               key: const ValueKey('top_bar'),
               onFilterPressed: () => screenController.onFilterPressed(context, ref, filterController),
               onAddPressed: () => screenController.onAddPressed(context, ref),
-              filterController: filterController,
+              searchText: filterController.searchText,
+              onSearchUpdate: (text) => {
+                filterController.updateSearchText(text),
+                screenController.handleSearchUpdate(text, ref, context),
+              }
             ),
             eventsToShowOnMap: filteredEventsState.when(
               data: (events) => events.where((event) => 

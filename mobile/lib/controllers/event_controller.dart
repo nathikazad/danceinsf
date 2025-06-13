@@ -6,11 +6,75 @@ import '../utils/app_storage.dart';
 class EventController {
   static final supabase = Supabase.instance.client;
 
+  static Future<List<EventInstance>> _processEventInstances(List<dynamic> instancesResponse) async {
+    // Extract unique event IDs from the instances
+    final eventIds = instancesResponse
+        .map((instance) => instance['events']['event_id'] as String)
+        .toSet()
+        .toList();
+
+    // Get ratings for these events using the function
+    final ratingsResponse = await supabase
+        .rpc('get_event_ratings', params: {'event_ids': eventIds});
+
+    // Create a map of event_id to ratings for easy lookup
+    final ratingsMap = {
+      for (var rating in ratingsResponse)
+        rating['event_id']: {
+          'average_rating': rating['average_rating'],
+          'rating_count': rating['rating_count'],
+        }
+    };
+
+    final List<EventInstance> eventInstances = [];
+    
+    for (final instanceData in instancesResponse) {
+      try {
+        final eventData = instanceData['events'];
+        // Get rating data from the map
+        final ratingData = ratingsMap[eventData['event_id']];
+        final rating = ratingData?['average_rating'] as num?;
+        final ratingCount = ratingData?['rating_count'] as int? ?? 0;
+
+        final event = Event.fromMap(eventData, rating: rating?.toDouble() ?? 0.0, ratingCount: ratingCount);
+        final instance = EventInstance.fromMap(instanceData, event);
+        eventInstances.add(instance);
+      } catch (e, stackTrace) {
+        print('Error processing event instance: ${instanceData['instance_id']}');
+        print('Error: $e');
+        print('Stack trace: $stackTrace');
+        continue;
+      }
+    }
+
+    return eventInstances;
+  }
+
+  static Future<List<EventInstance>> fetchEventsBySearch(String searchQuery) async {
+    try {
+      // First fetch event instances with events that match the search query
+      final instancesResponse = await supabase
+          .from('event_instances')
+          .select('*, events!inner(*)')
+          .ilike('events.name', '%$searchQuery%')
+          .eq('events.is_archived', false)
+          .eq('events.zone', AppStorage.zone);
+
+      print("instancesResponse: ${instancesResponse.length}");
+      
+      return _processEventInstances(instancesResponse);
+    } catch (error, stackTrace) {
+      print('Error fetching events by search');
+      print('Error: $error');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
   static Future<List<EventInstance>> fetchEvents({DateTime? startDate, required int windowDays}) async {
     startDate ??= DateTime.now();
     final endDate = startDate.add(Duration(days: windowDays));
     try {
-      
       // First fetch event instances within the date range along with their events
       final instancesResponse = await supabase
           .from('event_instances')
@@ -22,48 +86,7 @@ class EventController {
 
       print("instancesResponse: ${instancesResponse.length}");
       
-      // Extract unique event IDs from the instances
-      final eventIds = instancesResponse
-          .map((instance) => instance['events']['event_id'] as String)
-          .toSet()
-          .toList();
-
-      // Get ratings for these events using the function
-      final ratingsResponse = await supabase
-          .rpc('get_event_ratings', params: {'event_ids': eventIds});
-
-      // Create a map of event_id to ratings for easy lookup
-      final ratingsMap = {
-        for (var rating in ratingsResponse)
-          rating['event_id']: {
-            'average_rating': rating['average_rating'],
-            'rating_count': rating['rating_count'],
-          }
-      };
-
-      final List<EventInstance> eventInstances = [];
-      
-      for (final instanceData in instancesResponse) {
-        try {
-          final eventData = instanceData['events'];
-          // Get rating data from the map
-          final ratingData = ratingsMap[eventData['event_id']];
-          final rating = ratingData?['average_rating'] as num?;
-          final ratingCount = ratingData?['rating_count'] as int? ?? 0;
-
-          final event = Event.fromMap(eventData, rating: rating?.toDouble() ?? 0.0, ratingCount: ratingCount);
-          final instance = EventInstance.fromMap(instanceData, event);
-          // print('Processing instance: ${instance.date.toIso8601String().split('T')[0]}');
-          eventInstances.add(instance);
-        } catch (e, stackTrace) {
-          print('Error processing event instance: ${instanceData['instance_id']}');
-          print('Error: $e');
-          print('Stack trace: $stackTrace');
-          continue;
-        }
-      }
-
-      return eventInstances;
+      return _processEventInstances(instancesResponse);
     } catch (error, stackTrace) {
       print('Error fetching events');
       print('Error: $error');
