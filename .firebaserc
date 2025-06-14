@@ -7,6 +7,9 @@
       "hosting": {
         "mexico": [
           "donde-se-bailan"
+        ],
+        "default": [
+          "improv5"
         ]
       }
     }

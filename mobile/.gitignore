@@ -46,3 +46,6 @@ app.*.map.json
 
 # Signing configs
 **/android/key.properties
+
+# Fastlane
+fastlane/play-store-credentials.json
