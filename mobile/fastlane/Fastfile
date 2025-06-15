@@ -27,26 +27,12 @@ platform :ios do
       in_house: false
     )
 
-    build_ios_app(
-      workspace: "ios/Runner.xcworkspace",
-      scheme: "Runner",
-      export_method: "app-store",
-      configuration: "Release",
-      clean: false,
-      output_directory: "build/ios",
-      output_name: "DanceSF.ipa",
-      export_options: {
-        method: "app-store",
-        signingStyle: "automatic"
-      },
-    )
-
-
     upload_to_app_store(
       force: true,
       skip_metadata: true,
       skip_screenshots: true,
-      precheck_include_in_app_purchases: false
+      precheck_include_in_app_purchases: false,
+      ipa: "build/ios/ipa/flutter_application.ipa"
     )
   end
 end 
