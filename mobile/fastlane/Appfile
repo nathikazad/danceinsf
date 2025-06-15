@@ -2,4 +2,4 @@ json_key_file("") # Path to the json secret file - Follow https://docs.fastlane.
 package_name("com.dancesf.app") # e.g. com.yourcompany.yourapp
 
 app_identifier("com.dancesf.app") # The bundle identifier of your app
-apple_id("") # Your Apple email address 
+apple_id("spamnathik@gmail.com") # Your Apple email address 

@@ -3,18 +3,8 @@ default_platform(:android)
 platform :android do
   desc "Build and upload Android App Bundle to Play Store"
   lane :deploy do
-    ENV["JAVA_HOME"] = "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-    
-    gradle(
-      task: "clean bundleRelease",
-      project_dir: "android/",
-      properties: {
-        "android.injected.signing.store.file" => "/Users/nathikazad/Projects/danceinsf/mobile/android/app/keystore/upload-keystore.jks",
-        "android.injected.signing.store.password" => "helena",
-        "android.injected.signing.key.alias" => "upload",
-        "android.injected.signing.key.password" => "helena",
-      }
-    )
+    # Build the app bundle using Flutter
+    sh("flutter build appbundle --release")
     
     upload_to_play_store(
       track: 'internal',
@@ -27,21 +17,31 @@ end
 platform :ios do
   desc "Build and upload iOS app to App Store"
   lane :deploy do
+    sh("flutter build ipa --release")
+    # Set up App Store Connect API key
+    app_store_connect_api_key(
+      key_id: "6LR5ADYYK5",
+      issuer_id: "dd52e055-2f0e-4ffc-871d-06bdcce4c69b",
+      key_filepath: "fastlane/app-store-credentials.p8",
+      duration: 1200,
+      in_house: false
+    )
+
     build_ios_app(
       workspace: "ios/Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
       configuration: "Release",
-      clean: true,
+      clean: false,
       output_directory: "build/ios",
       output_name: "DanceSF.ipa",
       export_options: {
-        provisioningProfiles: {
-          "com.dancesf.app" => "match AppStore com.dancesf.app"
-        }
-      }
+        method: "app-store",
+        signingStyle: "automatic"
+      },
     )
-    
+
+
     upload_to_app_store(
       force: true,
       skip_metadata: true,

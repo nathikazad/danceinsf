@@ -23,15 +23,14 @@ String formatDateWithCapitalization(DateTime date, DateFormat dateFormat) {
 }
 
 // EventsList widget
-class EventsList extends StatelessWidget {
+class EventsList extends StatefulWidget {
   final AsyncValue<List<EventInstance>> eventsAsync;
   final WeekNavigatorController weekNavigatorController;
   final void Function(DateTime) handleDateUpdate;
   final Future<void> Function(bool) onRangeUpdate;  
   final Future<void> Function() fetchEvents;
-  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
-  EventsList({
+  const EventsList({
     super.key,
     required this.eventsAsync,
     required this.weekNavigatorController,
@@ -41,11 +40,29 @@ class EventsList extends StatelessWidget {
   });
 
   @override
+  State<EventsList> createState() => _EventsListState();
+}
+
+class _EventsListState extends State<EventsList> {
+  late final ItemPositionsListener itemPositionsListener;
+
+  @override
+  void initState() {
+    super.initState();
+    itemPositionsListener = ItemPositionsListener.create();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     final dateFormat = DateFormat(l10n.dateFormat, locale.languageCode);
-    return eventsAsync.when(
+    return widget.eventsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(
         child: Text(l10n.errorLoadingEvents(error.toString())),
@@ -61,6 +78,7 @@ class EventsList extends StatelessWidget {
 
         // Listen to item positions to update visible date
         itemPositionsListener.itemPositions.addListener(() {
+          if (!mounted) return;
           final positions = itemPositionsListener.itemPositions.value;
           if (positions.isEmpty) return;
 
@@ -68,31 +86,31 @@ class EventsList extends StatelessWidget {
           final firstVisible = positions.first;
           final index = firstVisible.index;
           if (index < dateKeys.length) {
-            handleDateUpdate(dateKeys[index]);
+            widget.handleDateUpdate(dateKeys[index]);
           }
         });
 
         return RefreshIndicator(
           onRefresh: () async {
-            await onRangeUpdate(true);
+            await widget.onRangeUpdate(true);
           },
           child: ScrollablePositionedList.builder(
             itemCount: dateKeys.length,
-            itemScrollController: weekNavigatorController.itemScrollController,
+            itemScrollController: widget.weekNavigatorController.itemScrollController,
             itemPositionsListener: itemPositionsListener,
             padding: const EdgeInsets.all(16),
             itemBuilder: (context, dateIndex) {
               final date = dateKeys[dateIndex];
               final eventInstancesForDate = groupedInstances[date]!;
-              weekNavigatorController.dateKeys[date] =
-                  weekNavigatorController.dateKeys[date] ?? GlobalKey();
+              widget.weekNavigatorController.dateKeys[date] =
+                  widget.weekNavigatorController.dateKeys[date] ?? GlobalKey();
               return GroupedEventsForDate(
                 date: date,
                 eventInstancesForDate: eventInstancesForDate,
                 dateFormat: dateFormat,
                 isLast: dateIndex == dateKeys.length - 1,
-                keyForDate: weekNavigatorController.dateKeys[date]!,
-                fetchEvents: fetchEvents,
+                keyForDate: widget.weekNavigatorController.dateKeys[date]!,
+                fetchEvents: widget.fetchEvents,
               );
             },
           ),

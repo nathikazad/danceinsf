@@ -1,5 +1,0 @@
-git_url("https://github.com/dancesf/certificates")
-storage_mode("git")
-type("appstore")
-app_identifier(["com.dancesf.app"])
-username("spamnathik@gmail.com") # Replace with your Apple ID 

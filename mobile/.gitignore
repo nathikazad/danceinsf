@@ -49,3 +49,4 @@ app.*.map.json
 
 # Fastlane
 fastlane/play-store-credentials.json
+fastlane/app-store-credentials.p8
