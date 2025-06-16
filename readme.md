@@ -1,5 +1,6 @@
 To deploy the website
-firebase deploy
+firebase deploy --only hosting:default
+firebase deploy --only hosting:mexico 
 
 To create a new migration
 supabase migration new modify_event_systems2
