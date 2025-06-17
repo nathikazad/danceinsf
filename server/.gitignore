@@ -1,0 +1,5 @@
+.env
+dist/
+prompts/garbage
+*.pem
+.DS_Store
