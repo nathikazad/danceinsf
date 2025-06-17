@@ -7,7 +7,7 @@ git subtree push --prefix server heroku-server master
 If there is overwrite issue
 ```
 git subtree split --prefix=server -b temp-branch
-git push heroku-server temp-branch:main --force
+git push heroku temp-branch:main --force
 ```
 
 To generate hasura mappings from server
