@@ -69,6 +69,7 @@ app.get('/ping', (req, res) => {
     res.send('pong');
 });
 
-server.listen(3000, () => {
-    return console.log(`[server]: Server is running on 3000`);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    return console.log(`[server]: Server is running on ${PORT}`);
 });
