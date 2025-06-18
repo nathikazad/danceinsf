@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 export 'package:dance_sf/widgets/list_event_widgets/event_filters/event_search_bar.dart';
 export 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_controller.dart';
@@ -14,7 +15,6 @@ class FilterModalWidget extends ConsumerStatefulWidget {
     required this.controller,
     required this.cities,
   });
- 
 
   @override
   ConsumerState<FilterModalWidget> createState() => _FilterModalWidgetState();
@@ -55,6 +55,7 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Watch the controller to rebuild when it changes
     ref.watch(filterControllerProvider);
 
@@ -78,7 +79,7 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Filters',
+                  l10n.filters,
                   style: Theme.of(
                     context,
                   ).textTheme.headlineSmall?.copyWith(fontSize: 14),
@@ -86,7 +87,7 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
                 const Spacer(),
                 TextButton(
                   onPressed: _resetFilters,
-                  child: const Text('Reset'),
+                  child: Text(l10n.reset),
                 ),
                 const SizedBox(width: 8),
                 TextButton(
@@ -99,16 +100,16 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text(
-                    'Apply',
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    l10n.apply,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             StyleFilterSection(
-              name: 'Dance Style',
+              name: l10n.danceStyle,
               styles: _styles,
               selectedStyles: widget.controller.selectedStyles,
               onStyleSelected: (style, selected) {
@@ -117,7 +118,7 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
             ),
             const SizedBox(height: 16),
             StyleFilterSection(
-              name: 'Event Type',
+              name: l10n.eventType,
               styles: _eventTypes,
               selectedStyles: widget.controller.selectedEventTypes,
               onStyleSelected: (eventType, selected) {
@@ -228,13 +229,28 @@ class FrequencyFilterSection extends StatelessWidget {
     required this.onFrequencySelected,
   });
 
+  String translateFrequency(String frequency, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (frequency) {
+      case 'Once':
+        return l10n.once;
+      case 'Weekly':
+        return l10n.weekly;
+      case 'Monthly':
+        return l10n.monthly;
+      default:
+        return frequency;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Frequency',
+          l10n.frequency,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontSize: 12),
@@ -258,7 +274,7 @@ class FrequencyFilterSection extends StatelessWidget {
                         ),
                       ),
                       label: Text(
-                        freq,
+                        translateFrequency(freq, context),
                         style: Theme.of(
                           context,
                         ).textTheme.headlineSmall?.copyWith(
@@ -295,11 +311,12 @@ class CityFilterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'City',
+          l10n.city,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontSize: 12),

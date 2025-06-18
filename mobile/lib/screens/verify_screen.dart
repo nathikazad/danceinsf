@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../auth.dart';
 
 enum VerifyScreenType {
@@ -97,22 +98,24 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
   }
 
   String _getMessage() {
+    final l10n = AppLocalizations.of(context)!;
     switch (_verifyScreenType) {
       case VerifyScreenType.giveRating:
-        return 'Verify your phone number to rate this event';
+        return l10n.verifyMessageRate;
       case VerifyScreenType.addEvent:
-        return 'Verify your phone number to add an event';
+        return l10n.verifyMessageAdd;
       case VerifyScreenType.editEvent:
-        return 'Verify your phone number to edit this event';
+        return l10n.verifyMessageEdit;
       case VerifyScreenType.none:
-        return 'Verify your phone number';
+        return l10n.verifyMessage;
       case VerifyScreenType.voteOnProposal:
-        return 'Verify your phone number to vote on proposals';
+        return l10n.verifyMessageVote;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -133,7 +136,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: Text('Verify',
+        title: Text(l10n.verifyTitle,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSecondary,
                 fontSize: 18)),
@@ -213,8 +216,8 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                         width: 24,
                         child: CircularProgressIndicator(
                             color: Theme.of(context).colorScheme.primary))
-                    : const Text('Send',
-                        style: TextStyle(
+                    : Text(l10n.send,
+                        style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 14,
                             fontFamily: "Inter")),
@@ -224,7 +227,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                 const Divider(),
                 const SizedBox(height: 24),
                 Text(
-                  'Enter OTP Code',
+                  l10n.enterOTPCode,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       color: Theme.of(context).colorScheme.secondary, fontSize: 14),
                 ),
@@ -233,7 +236,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                   controller: _otpController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: 'OTP Code',
+                    hintText: l10n.otpCode,
                     hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                         fontSize: 12),
@@ -259,9 +262,9 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                           height: 24,
                           width: 24,
                           child: const CircularProgressIndicator(color: Colors.white))
-                      : const Text('Verify',
+                      : Text(l10n.verify,
                           style:
-                              TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                              const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                 ),
               ],
               if (_error != null) ...[
