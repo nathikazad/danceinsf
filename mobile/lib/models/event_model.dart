@@ -66,8 +66,8 @@ class Event {
       styles: eventCategories,
       frequency: Frequency.fromString(eventData['recurrence_type']),
       location: Location(
-        venueName: eventData['default_venue_name']?.toString().capitalizeWords ?? "",
-        city: eventData['default_city']?.toString().capitalizeWords ?? "",
+        venueName: eventData['default_venue_name'].toString().capitalizeWords,
+        city: eventData['default_city'].toString().capitalizeWords,
         url: eventData['default_google_maps_link'],
         gpsPoint: eventData['gps'] != null ? GPSPoint(
           latitude: eventData['gps']['latitude'],
