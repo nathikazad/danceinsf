@@ -314,6 +314,6 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
   String _getLocalizedDayName(DayOfWeek? dayOfWeek, AppLocalizations l10n) {
     if (dayOfWeek == null) return '';
     final names = l10n.weekdayNames.split(',');
-    return names[dayOfWeek.index].trim().capitalize();
+    return names[dayOfWeek.index].trim().capitalize;
   }
 }

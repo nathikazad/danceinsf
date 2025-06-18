@@ -61,13 +61,13 @@ class Event {
     final eventCategories = toStringList(eventData['event_category']).map((category) => DanceStyleExtension.fromString(category)).toList();
     return Event(
       eventId: eventData['event_id'],
-      name: eventData['name'],
+      name: eventData['name'].toString().capitalizeWords,
       type: eventTypes.contains('Social') ? EventType.social : EventType.class_,
       styles: eventCategories,
       frequency: Frequency.fromString(eventData['recurrence_type']),
       location: Location(
-        venueName: eventData['default_venue_name'],
-        city: eventData['default_city'],
+        venueName: eventData['default_venue_name']?.toString().capitalizeWords ?? "",
+        city: eventData['default_city']?.toString().capitalizeWords ?? "",
         url: eventData['default_google_maps_link'],
         gpsPoint: eventData['gps'] != null ? GPSPoint(
           latitude: eventData['gps']['latitude'],

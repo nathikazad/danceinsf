@@ -18,7 +18,7 @@ String formatDateWithCapitalization(DateTime date, DateFormat dateFormat) {
   return formatted.split(' ').map((word) {
     // Skip words like "de" in Spanish
     if (word.toLowerCase() == 'de') return word;
-    return word.capitalize();
+    return word.capitalize;
   }).join(' ');
 }
 
@@ -261,7 +261,7 @@ class EventInstanceCard extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     Text(
-                                      eventInstance.event.name,
+                                      eventInstance.event.name.capitalizeWords,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontFamily: "Inter",
@@ -332,7 +332,7 @@ class EventInstanceCard extends StatelessWidget {
                               const SizedBox(width: 8),
                               Flexible(
                                 child: Text(
-                                  '${eventInstance.venueName}, ${eventInstance.city}',
+                                  '${eventInstance.venueName.capitalizeWords}, ${eventInstance.city.capitalizeWords}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelMedium

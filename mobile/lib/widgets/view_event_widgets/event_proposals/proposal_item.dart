@@ -85,7 +85,7 @@ class _ProposalItemState extends State<ProposalItem> {
               children: [
                 TextSpan(
                   text: l10n.changeFromTo(
-                    formattedKey.capitalize(),
+                    formattedKey.capitalize,  
                     oldValue.isEmpty ? l10n.none : oldValue,
                     newValue.isEmpty ? l10n.none : newValue,
                   ),

@@ -102,7 +102,7 @@ class EventController {
       final eventCategories = event.styles.map((style) => style.name).toList();
       
       // Convert frequency to string
-      final recurrenceType = event.frequency.toString().split('.').last.capitalize();
+      final recurrenceType = event.frequency.toString().split('.').last.capitalize;
       
       // Convert TimeOfDay to string format
       final startTimeStr = '${event.startTime.hour.toString().padLeft(2, '0')}:${event.startTime.minute.toString().padLeft(2, '0')}';
@@ -121,12 +121,12 @@ class EventController {
       }
 
       final eventData = {
-        'name': event.name,
+        'name': event.name.capitalizeWords,
         'event_type': eventTypes,
         'event_category': eventCategories,
         'recurrence_type': recurrenceType,
-        'default_venue_name': event.location.venueName,
-        'default_city': event.location.city,
+        'default_venue_name': event.location.venueName.capitalizeWords,
+        'default_city': event.location.city.capitalizeWords,
         'default_google_maps_link': event.location.url,
         'default_ticket_link': event.linkToEvent,
         'default_start_time': startTimeStr,
@@ -181,7 +181,7 @@ class EventController {
       final eventCategories = event.styles.map((style) => style.name).toList();
       
       // Convert frequency to string
-      final recurrenceType = event.frequency.toString().split('.').last.capitalize();
+      final recurrenceType = event.frequency.toString().split('.').last.capitalize;
       
       // Convert TimeOfDay to string format
       final startTimeStr = '${event.startTime.hour.toString().padLeft(2, '0')}:${event.startTime.minute.toString().padLeft(2, '0')}';
@@ -200,12 +200,12 @@ class EventController {
       }
 
       final eventData = {
-        'name': event.name,
+        'name': event.name.capitalizeWords,
         'event_type': eventTypes,
         'event_category': eventCategories,
         'recurrence_type': recurrenceType,
-        'default_venue_name': event.location.venueName,
-        'default_city': event.location.city,
+        'default_venue_name': event.location.venueName.capitalizeWords,
+        'default_city': event.location.city.capitalizeWords,
         'default_google_maps_link': event.location.url,
         'default_ticket_link': event.linkToEvent,
         'default_start_time': startTimeStr,
