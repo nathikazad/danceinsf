@@ -112,7 +112,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
 
       // If no markers, show the Bay Area center
     await controller.moveTo(_bayAreaCenter);
-    await controller.setZoom(zoomLevel: 8.0);
+    await controller.setZoom(zoomLevel: AppStorage.zone == 'San Francisco' ? 8.0 : 10);
 
   }
 
@@ -124,8 +124,8 @@ class _MapViewWidgetState extends State<MapViewWidget> {
         key: const ValueKey('osm_map'),
         controller: controller,
         osmOption: OSMOption(
-          zoomOption: const ZoomOption(
-            initZoom: 8,
+          zoomOption: ZoomOption(
+            initZoom: AppStorage.zone == 'San Francisco' ? 8 : 10,
             minZoomLevel: 3,
             maxZoomLevel: 19,
             stepZoom: 1.0,

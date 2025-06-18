@@ -38,6 +38,7 @@ class _LocationSectionState extends State<LocationSection> {
   }
 
   Future<void> _searchPlaces(String query) async {
+    print('Searching for: $query');
     if (query.length < 3) {
       setState(() {
         _predictions = [];
@@ -49,17 +50,18 @@ class _LocationSectionState extends State<LocationSection> {
       _isLoading = true;
     });
 
+    final url = Uri.parse(
+      'https://maps.googleapis.com/maps/api/place/autocomplete/json'
+      '?input=${Uri.encodeComponent(query)}'
+      '&location=${AppStorage.defaultMapCenter.latitude},${AppStorage.defaultMapCenter.longitude}'
+      '&radius=50000' // 50km radius
+      '&key=AIzaSyAYc3SKKnIrnvetF3e_sVIgvPw680wi2_4',
+    );
+    
+    print('Request URL: $url');
+
     try {
-      final response = await http.get(
-        Uri.parse(
-          'https://maps.googleapis.com/maps/api/place/autocomplete/json'
-          '?input=$query'
-          '&types=establishment'
-          '&location=${AppStorage.defaultMapCenter.latitude},${AppStorage.defaultMapCenter.longitude}'
-          '&radius=50000' // 50km radius
-          '&key=AIzaSyAYc3SKKnIrnvetF3e_sVIgvPw680wi2_4', // Replace with your API key
-        ),
-      );
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -67,14 +69,29 @@ class _LocationSectionState extends State<LocationSection> {
           setState(() {
             _predictions = List<Map<String, dynamic>>.from(data['predictions']);
           });
+        } else {
+          print('API Error: ${data['status']} - ${data['error_message'] ?? 'No error message'}');
         }
+      } else {
+        print('HTTP Error: ${response.statusCode}');
       }
     } catch (e) {
-      // Handle error
+      print('Error fetching places: $e');
+      // Show error to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error searching for places: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -95,8 +112,9 @@ class _LocationSectionState extends State<LocationSection> {
           final result = data['result'];
           final addressComponents = result['formatted_address'].split(',');
           print(addressComponents);
+          final locationComponentIndex = AppStorage.zone == 'San Francisco' ? addressComponents.length - 3 : 2;
           final city = addressComponents.length >= 2 
-              ? addressComponents[addressComponents.length - 3].trim()
+              ? addressComponents[locationComponentIndex].trim()
               : 'San Francisco';
 
           final geometry = result['geometry'];
@@ -145,7 +163,7 @@ class _LocationSectionState extends State<LocationSection> {
         TextField(
           controller: _searchController,
           decoration: InputDecoration(
-            hintText: "Search for a venue in San Francisco",
+            hintText: "Search for a venue in ${AppStorage.zone}",
             hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
               fontSize: 12,
               color: Theme.of(context).colorScheme.tertiary,
@@ -162,8 +180,8 @@ class _LocationSectionState extends State<LocationSection> {
             ),
             suffixIcon: _isLoading
                 ? const SizedBox(
-                    width: 20,
-                    height: 20,
+                    width: 5,
+                    height: 5,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : null,

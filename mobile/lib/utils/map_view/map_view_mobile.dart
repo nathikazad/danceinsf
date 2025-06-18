@@ -72,7 +72,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
 
 
     _controller.animateCamera(
-      CameraUpdate.newLatLngZoom(_bayAreaCenter, 8.0),
+      CameraUpdate.newLatLngZoom(_bayAreaCenter, AppStorage.zone == 'San Francisco' ? 8.0 : 10),
     );
 
   }
@@ -85,7 +85,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
         key: const ValueKey('google_map'),
         initialCameraPosition: CameraPosition(
           target: LatLng(AppStorage.defaultMapCenter.latitude, AppStorage.defaultMapCenter.longitude), // Center of Bay Area
-          zoom: 8,
+          zoom: AppStorage.zone == 'San Francisco' ? 8 : 10,
         ),
         markers: _markers,
         onMapCreated: (GoogleMapController controller) {
