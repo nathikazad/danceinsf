@@ -252,6 +252,129 @@ def update_app_name(directory, location):
 
     return updated_files
 
+def update_web_and_main_files(directory, location):
+    """
+    Update web and main files with location-specific content.
+    """
+    updated_files = {}
+    
+    # Update web/index.html
+    web_file = os.path.join(directory, 'web', 'index.html')
+    if os.path.exists(web_file):
+        try:
+            with open(web_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Update description
+            if location.lower() == 'sf':
+                content = re.sub(
+                    r'<meta name="description" content="[^"]+">',
+                    '<meta name="description" content="Find dance events in SF.">',
+                    content
+                )
+            else:  # mx
+                content = re.sub(
+                    r'<meta name="description" content="[^"]+">',
+                    '<meta name="description" content="Find dance events in Mexico.">',
+                    content
+                )
+            
+            with open(web_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+            updated_files['web/index.html'] = True
+        except Exception as e:
+            print(f"Error updating web/index.html: {str(e)}")
+    
+    # Update main.dart
+    main_file = os.path.join(directory, 'lib', 'main.dart')
+    if os.path.exists(main_file):
+        try:
+            with open(main_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Update title
+            if location.lower() == 'sf':
+                content = re.sub(
+                    r"title: 'Dance in [^']+'",
+                    "title: 'Dance in SF'",
+                    content
+                )
+            else:  # mx
+                content = re.sub(
+                    r"title: 'Dance in [^']+'",
+                    "title: 'Dance in MX'",
+                    content
+                )
+            
+            with open(main_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+            updated_files['lib/main.dart'] = True
+        except Exception as e:
+            print(f"Error updating main.dart: {str(e)}")
+    
+    return updated_files
+
+def update_verify_screen(directory, location):
+    """
+    Update the verify screen with location-specific phone number formats.
+    """
+    verify_file = os.path.join(directory, 'lib', 'screens', 'verify_screen.dart')
+    if not os.path.exists(verify_file):
+        print(f"Warning: Verify screen file not found at {verify_file}")
+        return False
+
+    try:
+        with open(verify_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Update country code and phone number format
+        if location.lower() == 'sf':
+            # Update country code to +1
+            content = re.sub(
+                r"TextEditingController\(text: '\+\d+'\)",
+                "TextEditingController(text: '+1')",
+                content
+            )
+            # Update country code hint
+            content = re.sub(
+                r"hintText: '\+52'",
+                "hintText: '+1'",
+                content
+            )
+            # Update phone number hint to US format
+            content = re.sub(
+                r"hintText: '55 1234 5678'",
+                "hintText: '234 5323 212'",
+                content
+            )
+        else:  # mx
+            # Update country code to +52
+            content = re.sub(
+                r"TextEditingController\(text: '\+\d+'\)",
+                "TextEditingController(text: '+52')",
+                content
+            )
+            # Update country code hint
+            content = re.sub(
+                r"hintText: '\+1'",
+                "hintText: '+52'",
+                content
+            )
+            # Update phone number hint to Mexican format
+            content = re.sub(
+                r"hintText: '234 5323 212'",
+                "hintText: '55 1234 5678'",
+                content
+            )
+
+        with open(verify_file, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        return True
+    except Exception as e:
+        print(f"Error updating verify screen: {str(e)}")
+        return False
+
 def main():
     if len(sys.argv) != 2 or sys.argv[1].lower() not in ['sf', 'mx']:
         print("Usage: python3 find_bundle_name.py [sf|mx]")
@@ -283,6 +406,17 @@ def main():
         print("\nUpdated app name in the following files:")
         for file_path in sorted(app_name_files.keys()):
             print(f"- {file_path}")
+    
+    # Update web and main files
+    web_main_files = update_web_and_main_files(mobile_dir, location)
+    if web_main_files:
+        print("\nUpdated web and main files:")
+        for file_path in sorted(web_main_files.keys()):
+            print(f"- {file_path}")
+    
+    # Update verify screen
+    if update_verify_screen(mobile_dir, location):
+        print("\nUpdated verify screen with location-specific phone number format")
     
     if updated_files:
         print(f"\nUpdated {len(updated_files)} files:")
