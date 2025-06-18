@@ -217,7 +217,6 @@ def update_app_name(directory, location):
         'ios/Runner/Info.plist': [
             # Only update specific app name fields
             (r'<key>CFBundleDisplayName</key>\s*<string>[^<]+</string>', f'<key>CFBundleDisplayName</key>\n\t<string>{new_name}</string>'),
-            (r'<key>CFBundleName</key>\s*<string>[^<]+</string>', f'<key>CFBundleName</key>\n\t<string>{new_name}</string>')
         ],
         'ios/Runner.xcodeproj/project.pbxproj': [
             (r'INFOPLIST_KEY_CFBundleDisplayName = "[^"]+";', f'INFOPLIST_KEY_CFBundleDisplayName = "{new_name}";')
