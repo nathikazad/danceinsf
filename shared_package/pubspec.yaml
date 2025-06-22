@@ -1,0 +1,39 @@
+name: dance_shared
+description: "Shared code for Dance in SF applications"
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.0
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Core dependencies
+  supabase_flutter: ^2.8.3
+  flutter_riverpod: ^2.6.1
+  
+  # Authentication
+  google_sign_in: ^6.3.0
+  sign_in_with_apple: ^6.1.4
+  crypto: ^3.0.3
+  
+  # Storage and preferences
+  shared_preferences: ^2.5.3
+  
+  # Utilities
+  intl: ^0.19.0
+  http: ^1.2.0
+  
+  # Deep linking
+  app_links: ^6.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true 
