@@ -10,6 +10,9 @@
         ],
         "default": [
           "improv5"
+        ],
+        "learning-bachata": [
+          "learning-bachata"
         ]
       }
     }
