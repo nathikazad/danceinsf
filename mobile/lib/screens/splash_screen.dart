@@ -78,7 +78,7 @@ class SplashScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          l10n.buttonFindEvents(AppStorage.zone),
+                          l10n.buttonFindEvents(AppStorage.zone == 'San Francisco' ? 'SF' : 'CDMX'),
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),

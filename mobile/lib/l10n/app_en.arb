@@ -142,5 +142,8 @@
     "social": "Social",
     "classType": "Class",
     "salsa": "Salsa",
-    "bachata": "Bachata"
+    "bachata": "Bachata",
+    "downloadBanner": "For faster experience",
+    "downloadButton": "Download App",
+    "downloadingSnackbar": "Downloading app from"
 } 

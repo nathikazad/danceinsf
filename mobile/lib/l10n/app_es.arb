@@ -1,7 +1,7 @@
 {
     "appTitle": "Baila en ",
-    "appSubtitle": "No Pienses, Solo Bailes",
-    "buttonFindEvents": "Encuentra Eventos en {zone}",
+    "appSubtitle": "No Pienses, Solo Baila",
+    "buttonFindEvents": "Encuentra tus eventos en {zone}",
     "@buttonFindEvents": {
         "placeholders": {
             "zone": {
@@ -142,5 +142,8 @@
     "social": "Social",
     "classType": "Clase",
     "salsa": "Salsa",
-    "bachata": "Bachata"
+    "bachata": "Bachata",
+    "downloadBanner": "Para un mejor experiencia",
+    "downloadButton": "Descarga App",
+    "downloadingSnackbar": "Descargando app de"
 } 

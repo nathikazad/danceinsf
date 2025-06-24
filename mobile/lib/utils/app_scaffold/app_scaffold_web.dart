@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web/web.dart' as web;
+import 'package:dance_sf/utils/app_storage.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget child;
@@ -28,12 +30,14 @@ class DownloadBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final String userAgent = web.window.navigator.userAgent.toLowerCase();
     print(userAgent);
     final bool isMobile = userAgent.contains('android') || 
                          userAgent.contains('iphone') || 
                          userAgent.contains('ipad');
     if (!isMobile) return const SizedBox.shrink();
+    if (AppStorage.zone != 'San Francisco') return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
@@ -42,8 +46,8 @@ class DownloadBanner extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'For faster experience',
+          Text(
+            l10n.downloadBanner,
             style: TextStyle(color: Colors.white, fontSize: 13),
           ),
           const SizedBox(width: 8),
@@ -54,6 +58,7 @@ class DownloadBanner extends StatelessWidget {
   }
 
   Widget _buildDownloadButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return TextButton(
       onPressed: () {
         final String userAgent = web.window.navigator.userAgent.toLowerCase();
@@ -62,7 +67,7 @@ class DownloadBanner extends StatelessWidget {
             : 'https://play.google.com/store/apps/details?id=com.dancesf.app';
         // show snackbar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Downloading app from $url')),
+          SnackBar(content: Text('${l10n.downloadingSnackbar} $url')),
         );
         launchUrl(Uri.parse(url));
       },
@@ -76,8 +81,8 @@ class DownloadBanner extends StatelessWidget {
           borderRadius: BorderRadius.circular(2),
         ),
       ),
-      child: const Text(
-        'Download App',
+      child: Text(
+        l10n.downloadButton,
         style: TextStyle(fontSize: 13),
       ),
     );

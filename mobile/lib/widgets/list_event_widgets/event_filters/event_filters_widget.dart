@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/widgets/list_event_widgets/event_filters/event_filters_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -134,13 +135,16 @@ class _FilterModalWidgetState extends ConsumerState<FilterModalWidget> {
               },
             ),
             const SizedBox(height: 16),
-            CityFilterSection(
-              cities: _cities,
-              selectedCities: widget.controller.selectedCities,
-              onCitySelected: (city, selected) {
-                widget.controller.toggleCity(city);
-              },
-            ),
+            if (AppStorage.zone == 'San Francisco') 
+            ...[
+              CityFilterSection(
+                cities: _cities,
+                selectedCities: widget.controller.selectedCities,
+                onCitySelected: (city, selected) {
+                  widget.controller.toggleCity(city);
+                },
+              ),
+            ],
             const SizedBox(height: 16),
           ],
         ),
