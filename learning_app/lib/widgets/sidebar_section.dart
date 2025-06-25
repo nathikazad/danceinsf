@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/storage_service.dart';
 import 'sidebar_toggle_button.dart';
 
 class SidebarSection extends StatefulWidget {
@@ -19,6 +20,27 @@ class SidebarSection extends StatefulWidget {
 
 class _SidebarSectionState extends State<SidebarSection> {
   bool _isSidebarVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSidebarVisibility();
+  }
+
+  Future<void> _loadSidebarVisibility() async {
+    final isVisible = await StorageService.getSidebarVisible();
+    setState(() {
+      _isSidebarVisible = isVisible;
+    });
+  }
+
+  Future<void> _toggleSidebar() async {
+    final newVisibility = !_isSidebarVisible;
+    setState(() {
+      _isSidebarVisible = newVisibility;
+    });
+    await StorageService.saveSidebarVisible(newVisibility);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +89,7 @@ class _SidebarSectionState extends State<SidebarSection> {
             top: 0,
             child: SidebarToggleButton(
               isSidebarVisible: _isSidebarVisible,
-              onToggle: () {
-                setState(() {
-                  _isSidebarVisible = !_isSidebarVisible;
-                });
-              },
+              onToggle: _toggleSidebar,
             ),
           ),
         ],

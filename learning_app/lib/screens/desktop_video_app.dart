@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learning_app/controller.dart';
 import '../models/video_links.dart';
+import '../services/storage_service.dart';
 import '../widgets/sidebar_section.dart';
 import '../widgets/video_player_widget.dart';
 
@@ -43,6 +44,29 @@ class _DesktopScaffoldState extends State<_DesktopScaffold> {
   int _selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _loadSelectedIndex();
+  }
+
+  Future<void> _loadSelectedIndex() async {
+    final savedIndex = await StorageService.getExpandedAccordionIndex();
+    // Ensure the saved index is within bounds
+    final validIndex = savedIndex < widget.accordionData.length ? savedIndex : 0;
+    
+    setState(() {
+      _selectedIndex = validIndex;
+    });
+  }
+
+  Future<void> _selectSection(int index) async {
+    setState(() {
+      _selectedIndex = index;
+    });
+    await StorageService.saveExpandedAccordionIndex(index);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final sections = widget.accordionData.map((data) => data.title).toList();
     final selectedData = widget.accordionData[_selectedIndex];
@@ -57,11 +81,7 @@ class _DesktopScaffoldState extends State<_DesktopScaffold> {
           SidebarSection(
             sections: sections,
             selectedIndex: _selectedIndex,
-            onSectionSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
+            onSectionSelected: _selectSection,
           ),
           Expanded(
             child: VideoPlayerWidget(

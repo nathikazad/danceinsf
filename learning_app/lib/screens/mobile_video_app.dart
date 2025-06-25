@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:learning_app/controller.dart';
-  import '../models/video_links.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import '../models/video_links.dart';
+import '../services/storage_service.dart';
 import '../widgets/accordion_widget.dart';
 import '../widgets/video_player_widget.dart';
 
@@ -41,15 +43,58 @@ class _MobileScaffold extends StatefulWidget {
 
 class _MobileScaffoldState extends State<_MobileScaffold> {
   int _openAccordionIndex = 0;
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ScrollOffsetController scrollOffsetController = ScrollOffsetController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  final ScrollOffsetListener scrollOffsetListener = ScrollOffsetListener.create();
+  bool _hasScrolledToInitialPosition = false;
 
-  void _toggleAccordion(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _loadExpandedAccordionIndex();
+  }
+
+  Future<void> _loadExpandedAccordionIndex() async {
+    final savedIndex = await StorageService.getExpandedAccordionIndex();
+    // Ensure the saved index is within bounds
+    final validIndex = savedIndex < widget.accordionData.length ? savedIndex : 0;
+    
     setState(() {
-      if (_openAccordionIndex == index) {
-        _openAccordionIndex = -1;
-      } else {
-        _openAccordionIndex = index;
+      _openAccordionIndex = validIndex;
+    });
+
+    // Scroll to the loaded accordion index only once
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (validIndex >= 0 && 
+          validIndex < widget.accordionData.length && 
+          !_hasScrolledToInitialPosition) {
+        _scrollToAccordion(validIndex);
+        _hasScrolledToInitialPosition = true;
       }
     });
+  }
+
+  void _scrollToAccordion(int index) {
+    if (index >= 0 && index < widget.accordionData.length) {
+      itemScrollController.scrollTo(
+        index: index,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+  }
+
+  Future<void> _toggleAccordion(int index) async {
+    final newIndex = _openAccordionIndex == index ? -1 : index;
+    setState(() {
+      _openAccordionIndex = newIndex;
+    });
+    
+    // Save the expanded accordion index (only if an accordion is open)
+    if (newIndex >= 0) {
+      await StorageService.saveExpandedAccordionIndex(newIndex);
+    }
   }
 
   @override
@@ -58,27 +103,29 @@ class _MobileScaffoldState extends State<_MobileScaffold> {
       appBar: AppBar(
         title: const Text('Video Player Demo - Mobile'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: widget.accordionData.asMap().entries.map((entry) {
-            final index = entry.key;
-            final data = entry.value;
-            return AccordionWidget(
-              key: ValueKey('mobile_accordion_$index'),
-              title: data.title,
-              isExpanded: _openAccordionIndex == index,
-              onToggle: () => _toggleAccordion(index),
-              child: SizedBox(
-                height: 400,
-                child: VideoPlayerWidget(
-                  key: ValueKey('mobile_video_$index'),
-                  videoUrls: data.videoUrls,
-                  isExpanded: _openAccordionIndex == index,
-                ),
+      body: ScrollablePositionedList.builder(
+        itemCount: widget.accordionData.length,
+        itemScrollController: itemScrollController,
+        scrollOffsetController: scrollOffsetController,
+        itemPositionsListener: itemPositionsListener,
+        scrollOffsetListener: scrollOffsetListener,
+        itemBuilder: (context, index) {
+          final data = widget.accordionData[index];
+          return AccordionWidget(
+            key: ValueKey('mobile_accordion_$index'),
+            title: data.title,
+            isExpanded: _openAccordionIndex == index,
+            onToggle: () => _toggleAccordion(index),
+            child: SizedBox(
+              height: 400,
+              child: VideoPlayerWidget(
+                key: ValueKey('mobile_video_$index'),
+                videoUrls: data.videoUrls,
+                isExpanded: _openAccordionIndex == index,
               ),
-            );
-          }).toList(),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
