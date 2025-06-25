@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:chewie/chewie.dart';
-import 'package:video_player/video_player.dart';
 import '../widgets/video_player_widget.dart';
+import '../widgets/sidebar_navigation.dart';
 
 class AccordionVideoListScreen extends StatefulWidget {
   const AccordionVideoListScreen({super.key});
@@ -12,7 +11,9 @@ class AccordionVideoListScreen extends StatefulWidget {
 
 class _AccordionVideoListScreenState extends State<AccordionVideoListScreen> with TickerProviderStateMixin {
   int? expandedIndex;
-  ChewieController? _activeChewieController; // Track the currently active controller
+  bool isSidebarVisible = true;
+
+  List<int> numUrlsToShow = [5, 4, 3, 4, 2, 2, 5, 1];
 
   final List<String> sections = [
     'Intro',
@@ -22,12 +23,6 @@ class _AccordionVideoListScreenState extends State<AccordionVideoListScreen> wit
     'Paso 4',
     'Paso 5',
     'Paso 6',
-    'Paso 7',
-    'Paso 8',
-    'Paso 9',
-    'Paso 10',
-    'Paso 11',
-    'Paso 12',
     'Outro',
   ];
 
@@ -39,18 +34,6 @@ class _AccordionVideoListScreenState extends State<AccordionVideoListScreen> wit
     "https://stream.mux.com/PXEyFShMfOW6PTarzJi4Hx8JZrI500Zd00HRuPao7hjyE.m3u8",
   ];
 
-  // Method to update the active controller
-  void _setActiveController(ChewieController? controller) {
-    // Pause the previously active controller
-    _activeChewieController?.pause();
-    _activeChewieController = controller; // Set new active controller
-  }
-
-  @override
-  void dispose() {
-    _activeChewieController?.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,34 +49,26 @@ class _AccordionVideoListScreenState extends State<AccordionVideoListScreen> wit
         elevation: 0,
       ),
       body: isDesktop
-          ? Row(
+          ? Stack(
               children: [
-                Container(
-                  width: 200,
-                  color: Colors.grey[300],
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: sections.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        child: ListTile(
-                          title: Text(sections[index]),
-                          onTap: () {
-                            setState(() {
-                              expandedIndex = expandedIndex == index ? null : index;
-                            });
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _buildExpandedSection(expandedIndex ?? 0),
-                  ),
+                Row(
+                  children: [
+                    SidebarSection(
+                      sections: sections,
+                      selectedIndex: expandedIndex ?? 0,
+                      onSectionSelected: (index) {
+                        setState(() {
+                          expandedIndex = index;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _buildExpandedSection(expandedIndex ?? 0),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             )
@@ -108,12 +83,22 @@ class _AccordionVideoListScreenState extends State<AccordionVideoListScreen> wit
                     children: [
                       Card(
                         margin: const EdgeInsets.symmetric(vertical: 4),
+                        color: isExpanded ? Colors.blue[100] : null,
                         child: ListTile(
-                          title: Text(sections[index]),
+                          title: Text(
+                            sections[index],
+                            style: TextStyle(
+                              fontWeight: isExpanded ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
                           trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
                           onTap: () {
                             setState(() {
-                              expandedIndex = isExpanded ? null : index;
+                              if (expandedIndex == index) {
+                                expandedIndex = null;
+                              } else {
+                                expandedIndex = index;
+                              }
                             });
                           },
                         ),
@@ -136,13 +121,10 @@ class _AccordionVideoListScreenState extends State<AccordionVideoListScreen> wit
   Widget _buildExpandedSection(int index) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: 
-        VideoPlayerWidget(
-            videoUrls: videoUrls,
-            isPlaying: expandedIndex == index,
-            onControllerReady: _setActiveController, // Pass callback to update active controller
-          ),
-        
+      child: VideoPlayerWidget(
+        key: ValueKey('video_player_$index'),
+        videoUrls: videoUrls.sublist(0, numUrlsToShow[index]),
+      ),
     );
   }
 }

@@ -4,14 +4,10 @@ import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final List<String> videoUrls;
-  final bool isPlaying;
-  final Function(ChewieController?) onControllerReady; // Callback to notify parent
 
   const VideoPlayerWidget({
     super.key,
     required this.videoUrls,
-    this.isPlaying = false,
-    required this.onControllerReady,
   });
 
   @override
@@ -41,12 +37,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
       _chewieController = ChewieController(
         videoPlayerController: _controller!,
-        autoPlay: widget.isPlaying,
-        looping: true,
+        autoPlay: false,
+        looping: false,
         showControls: true,
+        pauseOnBackgroundTap: true
       );
-
-      widget.onControllerReady(_chewieController); // Notify parent of new controller
     } catch (e) {
       print('Error initializing video: $e');
     }
@@ -74,12 +69,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
       _chewieController = ChewieController(
         videoPlayerController: _controller!,
-        autoPlay: widget.isPlaying,
-        looping: true,
+        autoPlay: false,
+        looping: false,
         showControls: true,
+        pauseOnBackgroundTap: true
       );
 
-      widget.onControllerReady(_chewieController);
     } catch (e) {
       print('Error changing video: $e');
     }
@@ -88,27 +83,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       _isLoading = false;
     });
   }
-
-  @override
-  void didUpdateWidget(VideoPlayerWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.videoUrls != widget.videoUrls) {
-      _disposeControllers();
-      _currentIndex = 0;
-      _initializeVideoPlayer();
-    } else if (oldWidget.isPlaying != widget.isPlaying) {
-      if (widget.isPlaying) {
-        _chewieController?.play();
-      } else {
-        _chewieController?.pause();
-      }
-    }
-  }
-
   @override
   void dispose() {
+    print('dispose');
     _disposeControllers();
-    widget.onControllerReady(null); // Clear active controller on dispose
     super.dispose();
   }
 
@@ -125,54 +103,56 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.videoUrls.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () => _changeVideo(index),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: _currentIndex == index
-                              ? Colors.blue
-                              : Colors.transparent,
-                          width: 3.0,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 120,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.videoUrls.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => _changeVideo(index),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _currentIndex == index
+                                ? Colors.blue
+                                : Colors.transparent,
+                            width: 3.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(5),
-                        child: Image.network(
-                          _getThumbnailUrl(widget.videoUrls[index]),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.error),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: Image.network(
+                            _getThumbnailUrl(widget.videoUrls[index]),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.error),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: _isLoading || _chewieController == null
-              ? const Center(child: CircularProgressIndicator())
-              : Chewie(controller: _chewieController!),
-        ),
-      ],
+          const SizedBox(height: 16),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: _isLoading || _chewieController == null
+                ? const Center(child: CircularProgressIndicator())
+                : Chewie(controller: _chewieController!),
+          ),
+        ],
+      ),
     );
   }
 }
