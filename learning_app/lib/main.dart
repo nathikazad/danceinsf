@@ -1,6 +1,8 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'screens/accordion_video_list_screen.dart';
+import 'widgets/video_player_widget.dart';
 
 void main() => runApp(const VideoApp());
 
@@ -33,14 +35,7 @@ class VideoApp extends StatefulWidget {
 class _VideoAppState extends State<VideoApp> {
   VideoPlayerController? _controller;
   ChewieController? _chewieController;
-  int _currentIndex = 0;
-  bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _changeVideo(0);
-  }
 
   @override
   void dispose() {
@@ -49,103 +44,12 @@ class _VideoAppState extends State<VideoApp> {
     super.dispose();
   }
 
-  Future<void> _changeVideo(int index) async {
-    if (_currentIndex == index && _chewieController != null) {
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _currentIndex = index;
-    });
-
-    _chewieController?.dispose();
-    _controller?.dispose();
-
-    _controller = VideoPlayerController.networkUrl(Uri.parse(videoUrls[index]));
-    await _controller!.initialize();
-
-    _chewieController = ChewieController(
-      videoPlayerController: _controller!,
-      autoPlay: false,
-      looping: true,
-      hideControlsTimer: const Duration(milliseconds: 500),
-      showControlsOnInitialize: true,
-      showControls: true,
-    );
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  String _getThumbnailUrl(String videoUrl) {
-    final playbackId = Uri.parse(videoUrl).pathSegments.first.split(".").first;
-    String str = 'https://image.mux.com/$playbackId/thumbnail.jpg?width=400&height=200&fit_mode=smartcrop';
-    return str;
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Video Player Demo',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Video Player Demo'),
-        ),
-        body: Column(
-          children: [
-            SizedBox(
-              height: 120,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: videoUrls.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () => _changeVideo(index),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: _currentIndex == index
-                                  ? Colors.blue
-                                  : Colors.transparent,
-                              width: 3.0,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: Image.network(
-                              _getThumbnailUrl(videoUrls[index]),
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.error),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: _isLoading || _chewieController == null
-                    ? const CircularProgressIndicator()
-                    : Chewie(
-                        controller: _chewieController!,
-                      ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      home: const AccordionVideoListScreen(),
     );
   }
 }
