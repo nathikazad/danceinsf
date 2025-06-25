@@ -374,6 +374,34 @@ def update_verify_screen(directory, location):
         print(f"Error updating verify screen: {str(e)}")
         return False
 
+def update_city_in_web_index(directory, location):
+    """
+    Update the city constant in web/index.html.
+    """
+    web_file = os.path.join(directory, 'web', 'index.html')
+    if not os.path.exists(web_file):
+        print(f"Warning: web/index.html not found at {web_file}")
+        return False
+
+    try:
+        with open(web_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Replace the city constant
+        content = re.sub(
+            r"const city = 'sf';|const city = 'mx';",
+            f"const city = '{location}';",
+            content
+        )
+
+        with open(web_file, 'w', encoding='utf-8') as f:
+            f.write(content)
+        print(f"Set city to '{location}' in web/index.html")
+        return True
+    except Exception as e:
+        print(f"Error updating city in web/index.html: {str(e)}")
+        return False
+
 def main():
     if len(sys.argv) != 2 or sys.argv[1].lower() not in ['sf', 'mx']:
         print("Usage: python3 find_bundle_name.py [sf|mx]")
@@ -416,6 +444,9 @@ def main():
     # Update verify screen
     if update_verify_screen(mobile_dir, location):
         print("\nUpdated verify screen with location-specific phone number format")
+
+    # Update city in web/index.html
+    update_city_in_web_index(mobile_dir, location)
     
     if updated_files:
         print(f"\nUpdated {len(updated_files)} files:")

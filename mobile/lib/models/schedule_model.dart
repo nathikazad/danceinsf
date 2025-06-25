@@ -21,7 +21,7 @@ class SchedulePattern {
         break;
       case Frequency.monthly:
         assert(dayOfWeek != null && weeksOfMonth != null, 'Both day of week and weeks of month are required for monthly frequency');
-        assert(weeksOfMonth!.every((week) => week >= 1 && week <= 4), 'Weeks of month must be between 1 and 4');
+        assert(weeksOfMonth!.every((week) => week >= 1 && week <= 5), 'Weeks of month must be between 1 and 4');
         break;
     }
   }

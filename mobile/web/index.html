@@ -32,13 +32,131 @@
   <title>Dance SF</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- Splash Screen Styles -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background-color: #23160D;
+      overflow: hidden;
+    }
+
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #23160D;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .splash-content {
+      text-align: center;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .splash-image {
+      width: 260px;
+      height: 260px;
+      object-fit: contain;
+      margin-bottom: 32px;
+    }
+
+    .splash-title {
+      font-size: 32px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .splash-title-highlight {
+      color: #EA6A1B;
+    }
+
+    .splash-subtitle {
+      font-size: 20px;
+      color: #EA6A1B;
+      font-weight: bold;
+      margin-bottom: 48px;
+    }
+
+    .splash-button {
+      display: inline-block;
+      background-color: #EA6A1B;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 18px 0;
+      width: 100%;
+      margin-top: 32px;
+      cursor: not-allowed;
+      pointer-events: none;
+      letter-spacing: 0.5px;
+      box-shadow: none;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #3a2a1a;
+      border-top: 4px solid #EA6A1B;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 32px auto 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #flutter-app {
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+    }
+
+    #flutter-app.loaded {
+      opacity: 1;
+    }
+  </style>
+
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabaseUrl = 'https://swsvvoysafsqsgtvpnqg.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3c3Z2b3lzYWZzcXNndHZwbnFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5Mzk1NzgsImV4cCI6MjA2MjUxNTU3OH0.Z3J3KaWt3zd55GSx2fvAZBzd0WRYDWxFzL-eA4X0l54';
     const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    const city = 'sf';
 
+    window.addEventListener('DOMContentLoaded', function() {
+      if (city === 'mx') {
+        // Change image
+        document.getElementById('splash-image').src = 'assets/images/mx_dance.png';
+        document.getElementById('splash-image').alt = 'Dance CDMX';
+        // Change title
+        document.querySelector('.splash-title').innerHTML = 'Dance in <span class="splash-title-highlight">CDMX</span>';
+        // Change subtitle
+        document.querySelector('.splash-subtitle').textContent = 'No pienses, solo baila';
+        // If you want to re-add the button, uncomment below and add a button with class splash-button in your HTML
+        // document.querySelector('.splash-button').textContent = 'Encuentra eventos en CDMX →';
+      }
+    });
+    
     // Generate or get session ID
     function getSessionId() {
       let sessionId = localStorage.getItem('session');
@@ -53,6 +171,19 @@
 
     // Make getSessionId available to Flutter
     window.getSessionId = getSessionId;
+
+    // Function to hide splash screen
+    function hideSplashScreen() {
+      const splashScreen = document.getElementById('splash-screen');
+      const flutterApp = document.getElementById('flutter-app');
+      
+      if (splashScreen && flutterApp) {
+        splashScreen.classList.add('hidden');
+        flutterApp.classList.add('loaded');
+        
+        splashScreen.remove();
+      }
+    }
 
     // Log page load
     window.addEventListener('load', async () => {
@@ -118,9 +249,33 @@
         console.error('Failed to log to Supabase:', e);
       }
     });
+
+    // Listen for Flutter app ready event
+    window.addEventListener('flutter-first-frame', function() {
+      console.log('Flutter app is ready, hiding splash screen');
+      // Add artificial delay for testing (remove this in production)
+      hideSplashScreen();
+    });
   </script>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <div class="splash-content">
+      <img src="assets/images/sf_dance.png" alt="Dance SF" class="splash-image" id="splash-image">
+      <div class="splash-title">
+        Dance in <span class="splash-title-highlight">SF</span>
+      </div>
+      <div class="splash-subtitle">
+        Don't Think, Just Dance
+      </div>
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+
+  <!-- Flutter App Container -->
+  <div id="flutter-app">
+    <script src="flutter_bootstrap.js" async></script>
+  </div>
 </body>
 </html>
