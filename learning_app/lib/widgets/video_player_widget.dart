@@ -21,7 +21,7 @@ class VideoPlayerWidget extends StatefulWidget {
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   VideoPlayerController? _controller;
   ChewieController? _chewieController;
-  int _currentIndex = 0;
+  int _currentVideoIndex = 0;
   bool _isLoading = true;
   bool _isInitialized = false;
 
@@ -72,13 +72,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   Future<void> _changeVideo(int index) async {
-    if (_currentIndex == index && _chewieController != null) {
+    if (_currentVideoIndex == index && _chewieController != null) {
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _currentIndex = index;
+      _currentVideoIndex = index;
     });
 
     _chewieController?.dispose();
@@ -109,7 +109,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       children: [
         ThumbnailListWidget(
           videoUrls: widget.videoUrls,
-          currentIndex: _currentIndex,
+          currentIndex: _currentVideoIndex,
           isExpanded: widget.isExpanded,
           onVideoChange: _changeVideo,
         ),
