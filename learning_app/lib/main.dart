@@ -1,8 +1,24 @@
 import 'package:chewie/chewie.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-void main() => runApp(const VideoApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Get the screen width
+  final mediaQueryData = MediaQueryData.fromView(WidgetsBinding.instance.window);
+  final screenWidth = mediaQueryData.size.width;
+  print(screenWidth);
+  // Decide based on width threshold (600px)
+  if (screenWidth > 600) {
+    // Desktop version
+    runApp(const DesktopVideoApp());
+  } else {
+    // Mobile version
+    runApp(const MobileVideoApp());
+  }
+}
 
 class VideoLinks {
   String url;
@@ -289,6 +305,119 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 }
 
+class SidebarToggleButton extends StatelessWidget {
+  final bool isSidebarVisible;
+  final VoidCallback onToggle;
+
+  const SidebarToggleButton({
+    super.key,
+    required this.isSidebarVisible,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: IconButton(
+        icon: Icon(
+          isSidebarVisible ? Icons.chevron_left : Icons.chevron_right,
+          color: Colors.black87,
+          size: 16,
+        ),
+        onPressed: onToggle,
+        style: IconButton.styleFrom(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          padding: EdgeInsets.zero,
+        ),
+      ),
+    );
+  }
+}
+
+class SidebarSection extends StatefulWidget {
+  final List<String> sections;
+  final int selectedIndex;
+  final ValueChanged<int> onSectionSelected;
+
+  const SidebarSection({
+    super.key,
+    required this.sections,
+    required this.selectedIndex,
+    required this.onSectionSelected,
+  });
+
+  @override
+  State<SidebarSection> createState() => _SidebarSectionState();
+}
+
+class _SidebarSectionState extends State<SidebarSection> {
+  bool _isSidebarVisible = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: _isSidebarVisible ? 200 : 30,
+      child: Stack(
+        children: [
+          // Sidebar content
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: 200,
+            child: Transform.translate(
+              offset: Offset(_isSidebarVisible ? 0 : -170, 0),
+              child: Container(
+                width: 200,
+                color: Colors.grey[300],
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: widget.sections.length,
+                  itemBuilder: (context, index) {
+                    final bool isSelected = widget.selectedIndex == index;
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: ListTile(
+                        title: Text(
+                          widget.sections[index],
+                          style: TextStyle(
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                        onTap: () {
+                          widget.onSectionSelected(index);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          // Toggle button
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            right: _isSidebarVisible ? 0 : null,
+            left: _isSidebarVisible ? null : 0,
+            top: 0,
+            child: SidebarToggleButton(
+              isSidebarVisible: _isSidebarVisible,
+              onToggle: () {
+                setState(() {
+                  _isSidebarVisible = !_isSidebarVisible;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class Accordions extends StatefulWidget {
   final List<AccordionData> accordionData;
 
@@ -302,41 +431,76 @@ class Accordions extends StatefulWidget {
 }
 
 class _AccordionsState extends State<Accordions> {
-  int _openAccordionIndex = 0; // Track which accordion is open
+  int _openAccordionIndex = 0; // Track selected section
 
   void _toggleAccordion(int index) {
     setState(() {
       if (_openAccordionIndex == index) {
-        // If clicking the same accordion, close it
-        _openAccordionIndex = -1;
+        _openAccordionIndex = -1; // Close if same accordion is tapped
       } else {
-        // Open the clicked accordion and close others
-        _openAccordionIndex = index;
+        _openAccordionIndex = index; // Open new accordion
       }
+    });
+  }
+
+  void _selectSection(int index) {
+    setState(() {
+      _openAccordionIndex = index; // Update selected section
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: widget.accordionData.asMap().entries.map((entry) {
-          final index = entry.key;
-          final data = entry.value;
-          return AccordionWidget(
-            title: data.title,
-            isExpanded: _openAccordionIndex == index,
-            onToggle: () => _toggleAccordion(index),
-            child: SizedBox(
-              height: 400,
-              child: VideoPlayerWidget(
-                videoUrls: data.videoUrls,
-                isExpanded: _openAccordionIndex == index,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 600) {
+          // Sidebar layout for widths > 600
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SidebarSection(
+                sections: widget.accordionData.map((data) => data.title).toList(),
+                selectedIndex: _openAccordionIndex,
+                onSectionSelected: _selectSection,
               ),
+              Expanded(
+                child: VideoPlayerWidget(
+                  key: ValueKey(_openAccordionIndex), // Unique key to manage instance
+                  videoUrls: _openAccordionIndex >= 0 &&
+                          _openAccordionIndex < widget.accordionData.length
+                      ? widget.accordionData[_openAccordionIndex].videoUrls
+                      : [], // Empty list if invalid index
+                  isExpanded: true, // Always expanded in sidebar layout
+                ),
+              ),
+            ],
+          );
+        } else {
+          // Accordion layout for widths <= 600
+          return SingleChildScrollView(
+            child: Column(
+              children: widget.accordionData.asMap().entries.map((entry) {
+                final index = entry.key;
+                final data = entry.value;
+                return AccordionWidget(
+                  key: ValueKey('accordion_$index'), // Unique key for each accordion
+                  title: data.title,
+                  isExpanded: _openAccordionIndex == index,
+                  onToggle: () => _toggleAccordion(index),
+                  child: SizedBox(
+                    height: 400,
+                    child: VideoPlayerWidget(
+                      key: ValueKey('video_$index'), // Unique key for each video player
+                      videoUrls: data.videoUrls,
+                      isExpanded: _openAccordionIndex == index,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           );
-        }).toList(),
-      ),
+        }
+      },
     );
   }
 }
@@ -351,14 +515,14 @@ class AccordionData {
   });
 }
 
-class VideoApp extends StatefulWidget {
-  const VideoApp({super.key});
+class DesktopVideoApp extends StatefulWidget {
+  const DesktopVideoApp({super.key});
 
   @override
-  _VideoAppState createState() => _VideoAppState();
+  State<DesktopVideoApp> createState() => _DesktopVideoAppState();
 }
 
-class _VideoAppState extends State<VideoApp> {
+class _DesktopVideoAppState extends State<DesktopVideoApp> {
   late final List<AccordionData> accordionData;
 
   @override
@@ -383,13 +547,146 @@ class _VideoAppState extends State<VideoApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Video Player Demo',
+      title: 'Video Player Demo - Desktop',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Video Player Demo'),
+      home: _DesktopScaffold(accordionData: accordionData),
+    );
+  }
+}
+
+class _DesktopScaffold extends StatefulWidget {
+  final List<AccordionData> accordionData;
+
+  const _DesktopScaffold({required this.accordionData});
+
+  @override
+  State<_DesktopScaffold> createState() => _DesktopScaffoldState();
+}
+
+class _DesktopScaffoldState extends State<_DesktopScaffold> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final sections = widget.accordionData.map((data) => data.title).toList();
+    final selectedData = widget.accordionData[_selectedIndex];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Video Player Demo - Desktop'),
+      ),
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SidebarSection(
+            sections: sections,
+            selectedIndex: _selectedIndex,
+            onSectionSelected: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+          ),
+          Expanded(
+            child: VideoPlayerWidget(
+              key: ValueKey('desktop_video_$_selectedIndex'),
+              videoUrls: selectedData.videoUrls,
+              isExpanded: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+class MobileVideoApp extends StatefulWidget {
+  const MobileVideoApp({super.key});
+
+  @override
+  State<MobileVideoApp> createState() => _MobileVideoAppState();
+}
+
+class _MobileVideoAppState extends State<MobileVideoApp> {
+  late final List<AccordionData> accordionData;
+
+  @override
+  void initState() {
+    super.initState();
+    accordionData = [
+      AccordionData(
+        title: 'Intro',
+        videoUrls: videoUrls,
+      ),
+      AccordionData(
+        title: 'Paso 1',
+        videoUrls: videoUrls.reversed.toList(),
+      ),
+      AccordionData(
+        title: 'Paso 2',
+        videoUrls: [movieOne, movieThree, movieFive],
+      ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Video Player Demo - Mobile',
+      debugShowCheckedModeBanner: false,
+      home: _MobileScaffold(accordionData: accordionData),
+    );
+  }
+}
+
+class _MobileScaffold extends StatefulWidget {
+  final List<AccordionData> accordionData;
+
+  const _MobileScaffold({required this.accordionData});
+
+  @override
+  State<_MobileScaffold> createState() => _MobileScaffoldState();
+}
+
+class _MobileScaffoldState extends State<_MobileScaffold> {
+  int _openAccordionIndex = 0;
+
+  void _toggleAccordion(int index) {
+    setState(() {
+      if (_openAccordionIndex == index) {
+        _openAccordionIndex = -1;
+      } else {
+        _openAccordionIndex = index;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Video Player Demo - Mobile'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: widget.accordionData.asMap().entries.map((entry) {
+            final index = entry.key;
+            final data = entry.value;
+            return AccordionWidget(
+              key: ValueKey('mobile_accordion_$index'),
+              title: data.title,
+              isExpanded: _openAccordionIndex == index,
+              onToggle: () => _toggleAccordion(index),
+              child: SizedBox(
+                height: 400,
+                child: VideoPlayerWidget(
+                  key: ValueKey('mobile_video_$index'),
+                  videoUrls: data.videoUrls,
+                  isExpanded: _openAccordionIndex == index,
+                ),
+              ),
+            );
+          }).toList(),
         ),
-        body: Accordions(accordionData: accordionData),
       ),
     );
   }
