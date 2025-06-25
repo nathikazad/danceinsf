@@ -26,13 +26,15 @@ final List<String> videoUrls = [
 class AccordionWidget extends StatefulWidget {
   final String title;
   final Widget child;
-  final bool initiallyExpanded;
+  final bool isExpanded;
+  final VoidCallback onToggle;
 
   const AccordionWidget({
     super.key,
     required this.title,
     required this.child,
-    this.initiallyExpanded = false,
+    required this.isExpanded,
+    required this.onToggle,
   });
 
   @override
@@ -40,14 +42,6 @@ class AccordionWidget extends StatefulWidget {
 }
 
 class _AccordionWidgetState extends State<AccordionWidget> {
-  bool _isExpanded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _isExpanded = widget.initiallyExpanded;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -63,13 +57,9 @@ class _AccordionWidgetState extends State<AccordionWidget> {
               ),
             ),
             trailing: Icon(
-              _isExpanded ? Icons.expand_less : Icons.expand_more,
+              widget.isExpanded ? Icons.expand_less : Icons.expand_more,
             ),
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
+            onTap: widget.onToggle,
           ),
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
@@ -77,7 +67,7 @@ class _AccordionWidgetState extends State<AccordionWidget> {
               padding: const EdgeInsets.all(16.0),
               child: widget.child,
             ),
-            crossFadeState: _isExpanded
+            crossFadeState: widget.isExpanded
                 ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 300),
@@ -90,10 +80,12 @@ class _AccordionWidgetState extends State<AccordionWidget> {
 
 class VideoPlayerWidget extends StatefulWidget {
   final List<String> videoUrls;
+  final bool isExpanded;
 
   const VideoPlayerWidget({
     super.key,
     required this.videoUrls,
+    required this.isExpanded,
   });
 
   @override
@@ -105,11 +97,45 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   ChewieController? _chewieController;
   int _currentIndex = 0;
   bool _isLoading = true;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _changeVideo(0);
+    // Only initialize if the accordion is expanded
+    if (widget.isExpanded) {
+      _changeVideo(0);
+    } else {
+      setState(() {
+        _isLoading = false; // Avoid showing loading indicator when not initialized
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(VideoPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Initialize when accordion is expanded
+    if (!oldWidget.isExpanded && widget.isExpanded && !_isInitialized) {
+      _changeVideo(0);
+    }
+    // Pause when accordion is collapsed
+    if (oldWidget.isExpanded && !widget.isExpanded && _chewieController != null) {
+      _chewieController!.pause();
+      _controller?.pause();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!widget.isExpanded && mounted) {
+          _chewieController?.dispose();
+          _controller?.dispose();
+          setState(() {
+            _chewieController = null;
+            _controller = null;
+            _isInitialized = false;
+            _isLoading = false;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -133,6 +159,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _controller?.dispose();
 
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrls[index]));
+    print('Initializing video ${widget.videoUrls[index]}');
     await _controller!.initialize();
 
     _chewieController = ChewieController(
@@ -146,13 +173,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
     setState(() {
       _isLoading = false;
+      _isInitialized = true; // Mark as initialized
     });
   }
 
   String _getThumbnailUrl(String videoUrl) {
     final playbackId = Uri.parse(videoUrl).pathSegments.first.split(".").first;
-    String str = 'https://image.mux.com/$playbackId/thumbnail.jpg?width=400&height=200&fit_mode=smartcrop';
-    return str;
+    return 'https://image.mux.com/$playbackId/thumbnail.jpg?width=400&height=200&fit_mode=smartcrop';
   }
 
   @override
@@ -166,7 +193,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             itemCount: widget.videoUrls.length,
             itemBuilder: (context, index) {
               return GestureDetector(
-                onTap: () => _changeVideo(index),
+                onTap: () {
+                  if (widget.isExpanded) {
+                    _changeVideo(index);
+                  }
+                },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AspectRatio(
@@ -199,11 +230,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         ),
         Expanded(
           child: Center(
-            child: _isLoading || _chewieController == null
+            child: _isLoading
                 ? const CircularProgressIndicator()
-                : Chewie(
-                    controller: _chewieController!,
-                  ),
+                : (_chewieController == null || !widget.isExpanded)
+                    ? const Text('Video not loaded') // Placeholder when not expanded
+                    : Chewie(controller: _chewieController!),
           ),
         ),
       ],
@@ -219,6 +250,20 @@ class VideoApp extends StatefulWidget {
 }
 
 class _VideoAppState extends State<VideoApp> {
+  int _openAccordionIndex = 0; // Track which accordion is open
+
+  void _toggleAccordion(int index) {
+    setState(() {
+      if (_openAccordionIndex == index) {
+        // If clicking the same accordion, close it
+        _openAccordionIndex = -1;
+      } else {
+        // Open the clicked accordion and close others
+        _openAccordionIndex = index;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -233,24 +278,38 @@ class _VideoAppState extends State<VideoApp> {
             children: [
               AccordionWidget(
                 title: 'Video Player 1',
-                initiallyExpanded: true,
+                isExpanded: _openAccordionIndex == 0,
+                onToggle: () => _toggleAccordion(0),
                 child: SizedBox(
                   height: 400,
-                  child: VideoPlayerWidget(videoUrls: videoUrls),
+                  child: VideoPlayerWidget(
+                    videoUrls: videoUrls,
+                    isExpanded: _openAccordionIndex == 0, // Pass isExpanded
+                  ),
                 ),
               ),
               AccordionWidget(
                 title: 'Video Player 2',
+                isExpanded: _openAccordionIndex == 1,
+                onToggle: () => _toggleAccordion(1),
                 child: SizedBox(
                   height: 400,
-                  child: VideoPlayerWidget(videoUrls: videoUrls.reversed.toList()),
+                  child: VideoPlayerWidget(
+                    videoUrls: videoUrls.reversed.toList(),
+                    isExpanded: _openAccordionIndex == 1, // Pass isExpanded
+                  ),
                 ),
               ),
               AccordionWidget(
                 title: 'Video Player 3',
+                isExpanded: _openAccordionIndex == 2,
+                onToggle: () => _toggleAccordion(2),
                 child: SizedBox(
                   height: 400,
-                  child: VideoPlayerWidget(videoUrls: [movieOne, movieThree, movieFive]),
+                  child: VideoPlayerWidget(
+                    videoUrls: [movieOne, movieThree, movieFive],
+                    isExpanded: _openAccordionIndex == 2, // Pass isExpanded
+                  ),
                 ),
               ),
             ],
