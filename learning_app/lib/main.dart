@@ -290,7 +290,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 }
 
 class Accordions extends StatefulWidget {
-  const Accordions({super.key});
+  final List<AccordionData> accordionData;
+
+  const Accordions({
+    super.key,
+    required this.accordionData,
+  });
 
   @override
   State<Accordions> createState() => _AccordionsState();
@@ -315,47 +320,35 @@ class _AccordionsState extends State<Accordions> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
-        children: [
-          AccordionWidget(
-            title: 'Intro',
-            isExpanded: _openAccordionIndex == 0,
-            onToggle: () => _toggleAccordion(0),
+        children: widget.accordionData.asMap().entries.map((entry) {
+          final index = entry.key;
+          final data = entry.value;
+          return AccordionWidget(
+            title: data.title,
+            isExpanded: _openAccordionIndex == index,
+            onToggle: () => _toggleAccordion(index),
             child: SizedBox(
               height: 400,
               child: VideoPlayerWidget(
-                videoUrls: videoUrls,
-                isExpanded: _openAccordionIndex == 0, // Pass isExpanded
+                videoUrls: data.videoUrls,
+                isExpanded: _openAccordionIndex == index,
               ),
             ),
-          ),
-          AccordionWidget(
-            title: 'Paso 1',
-            isExpanded: _openAccordionIndex == 1,
-            onToggle: () => _toggleAccordion(1),
-            child: SizedBox(
-              height: 400,
-              child: VideoPlayerWidget(
-                videoUrls: videoUrls.reversed.toList(),
-                isExpanded: _openAccordionIndex == 1, // Pass isExpanded
-              ),
-            ),
-          ),
-          AccordionWidget(
-            title: 'Paso 2',
-            isExpanded: _openAccordionIndex == 2,
-            onToggle: () => _toggleAccordion(2),
-            child: SizedBox(
-              height: 400,
-              child: VideoPlayerWidget(
-                videoUrls: [movieOne, movieThree, movieFive],
-                isExpanded: _openAccordionIndex == 2, // Pass isExpanded
-              ),
-            ),
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
+}
+
+class AccordionData {
+  final String title;
+  final List<VideoLinks> videoUrls;
+
+  AccordionData({
+    required this.title,
+    required this.videoUrls,
+  });
 }
 
 class VideoApp extends StatefulWidget {
@@ -366,6 +359,27 @@ class VideoApp extends StatefulWidget {
 }
 
 class _VideoAppState extends State<VideoApp> {
+  late final List<AccordionData> accordionData;
+
+  @override
+  void initState() {
+    super.initState();
+    accordionData = [
+      AccordionData(
+        title: 'Intro',
+        videoUrls: videoUrls,
+      ),
+      AccordionData(
+        title: 'Paso 1',
+        videoUrls: videoUrls.reversed.toList(),
+      ),
+      AccordionData(
+        title: 'Paso 2',
+        videoUrls: [movieOne, movieThree, movieFive],
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -375,7 +389,7 @@ class _VideoAppState extends State<VideoApp> {
         appBar: AppBar(
           title: const Text('Video Player Demo'),
         ),
-        body: const Accordions(),
+        body: Accordions(accordionData: accordionData),
       ),
     );
   }
