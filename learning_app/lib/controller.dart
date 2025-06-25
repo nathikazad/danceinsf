@@ -5,15 +5,15 @@ class VideoController {
     return [
       AccordionData(
         title: 'Intro',
-        videoUrls: videoUrls,
+        videoUrls: introUrls,
       ),
       AccordionData(
         title: 'Paso 1',
-        videoUrls: videoUrls.reversed.toList(),
+        videoUrls: pasoUnoUrls,
       ),
       AccordionData(
         title: 'Paso 2',
-        videoUrls: [movieOne, movieThree, movieFive],
+        videoUrls: pasoDosUrls,
       ),
     ];
   }

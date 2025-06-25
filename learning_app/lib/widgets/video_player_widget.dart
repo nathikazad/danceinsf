@@ -91,10 +91,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _chewieController = ChewieController(
       videoPlayerController: _controller!,
       autoPlay: false,
-      looping: true,
-      hideControlsTimer: const Duration(milliseconds: 500),
+      looping: false,
+      hideControlsTimer: const Duration(milliseconds: 1500),
       showControlsOnInitialize: true,
       showControls: true,
+      pauseOnBackgroundTap: true,
     );
 
     setState(() {

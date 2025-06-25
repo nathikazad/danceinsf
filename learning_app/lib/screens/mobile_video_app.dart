@@ -101,7 +101,7 @@ class _MobileScaffoldState extends State<_MobileScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Video Player Demo - Mobile'),
+        title: const Text('Bachata Gram'),
       ),
       body: ScrollablePositionedList.builder(
         itemCount: widget.accordionData.length,

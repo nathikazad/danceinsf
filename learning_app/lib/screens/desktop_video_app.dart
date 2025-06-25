@@ -73,7 +73,7 @@ class _DesktopScaffoldState extends State<_DesktopScaffold> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Video Player Demo - Desktop'),
+        title: const Text('Bachata Gram'),
       ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
