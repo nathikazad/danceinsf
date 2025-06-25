@@ -4,18 +4,25 @@ import 'package:video_player/video_player.dart';
 
 void main() => runApp(const VideoApp());
 
-const String movieOne =
-    "https://stream.mux.com/6xid2UmDgaZRybbQiOWTOeRF006lcls2QIjazfTaLPx00.m3u8";
-const String movieTwo =
-    "https://stream.mux.com/9yDN01VI8QmctgJEPF4i9evZIQFtR6CIwCnW1kt9uyyM.m3u8";
-const String movieThree =
-    "https://stream.mux.com/SW5iarXYcodHwfWkYlgzvUM5j9xqfxGfxYYYH02r4ZL00.m3u8";
-const String movieFour =
-    "https://stream.mux.com/1NeM2I7uIHVBRlqjzPijZu4Tzz01zcCvljDRFS005MNZ8.m3u8";
-const String movieFive =
-    "https://stream.mux.com/PXEyFShMfOW6PTarzJi4Hx8JZrI500Zd00HRuPao7hjyE.m3u8";
+class VideoLinks {
+  String url;
+  String title;
 
-final List<String> videoUrls = [
+  VideoLinks({required this.url, required this.title});
+}
+
+VideoLinks movieOne =
+    VideoLinks(url: "https://stream.mux.com/6xid2UmDgaZRybbQiOWTOeRF006lcls2QIjazfTaLPx00.m3u8", title: "Musica");
+VideoLinks movieTwo =
+    VideoLinks(url: "https://stream.mux.com/9yDN01VI8QmctgJEPF4i9evZIQFtR6CIwCnW1kt9uyyM.m3u8", title: "Cuentas");
+VideoLinks movieThree =
+    VideoLinks(url: "https://stream.mux.com/SW5iarXYcodHwfWkYlgzvUM5j9xqfxGfxYYYH02r4ZL00.m3u8", title: "Chicos");
+VideoLinks movieFour =
+    VideoLinks(url: "https://stream.mux.com/1NeM2I7uIHVBRlqjzPijZu4Tzz01zcCvljDRFS005MNZ8.m3u8", title: "Chicas");
+VideoLinks movieFive =
+    VideoLinks(url: "https://stream.mux.com/PXEyFShMfOW6PTarzJi4Hx8JZrI500Zd00HRuPao7hjyE.m3u8", title: "Extra");
+
+final List<VideoLinks> videoUrls = [
   movieOne,
   movieTwo,
   movieThree,
@@ -78,8 +85,89 @@ class _AccordionWidgetState extends State<AccordionWidget> {
   }
 }
 
+class ThumbnailListWidget extends StatelessWidget {
+  final List<VideoLinks> videoUrls;
+  final int currentIndex;
+  final bool isExpanded;
+  final Function(int) onVideoChange;
+
+  const ThumbnailListWidget({
+    super.key,
+    required this.videoUrls,
+    required this.currentIndex,
+    required this.isExpanded,
+    required this.onVideoChange,
+  });
+
+  String _getThumbnailUrl(String videoUrl) {
+    final playbackId = Uri.parse(videoUrl).pathSegments.first.split(".").first;
+    return 'https://image.mux.com/$playbackId/thumbnail.jpg?width=400&height=200&fit_mode=smartcrop';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 140, // Increased to match Container height
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: videoUrls.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              if (isExpanded) {
+                onVideoChange(index);
+              }
+            },
+            child: Container(
+              width: 200, // Define a fixed width
+              height: 140, // Increased height to accommodate thumbnail + text
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: currentIndex == index
+                                ? Colors.blue
+                                : Colors.transparent,
+                            width: 3.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: Image.network(
+                            _getThumbnailUrl(videoUrls[index].url),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    videoUrls[index].title,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class VideoPlayerWidget extends StatefulWidget {
-  final List<String> videoUrls;
+  final List<VideoLinks> videoUrls;
   final bool isExpanded;
 
   const VideoPlayerWidget({
@@ -158,7 +246,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _chewieController?.dispose();
     _controller?.dispose();
 
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrls[index]));
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrls[index].url));
     print('Initializing video ${widget.videoUrls[index]}');
     await _controller!.initialize();
 
@@ -177,56 +265,15 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     });
   }
 
-  String _getThumbnailUrl(String videoUrl) {
-    final playbackId = Uri.parse(videoUrl).pathSegments.first.split(".").first;
-    return 'https://image.mux.com/$playbackId/thumbnail.jpg?width=400&height=200&fit_mode=smartcrop';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.videoUrls.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  if (widget.isExpanded) {
-                    _changeVideo(index);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: _currentIndex == index
-                              ? Colors.blue
-                              : Colors.transparent,
-                          width: 3.0,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(5),
-                        child: Image.network(
-                          _getThumbnailUrl(widget.videoUrls[index]),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.error),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
+        ThumbnailListWidget(
+          videoUrls: widget.videoUrls,
+          currentIndex: _currentIndex,
+          isExpanded: widget.isExpanded,
+          onVideoChange: _changeVideo,
         ),
         Expanded(
           child: Center(
@@ -242,14 +289,14 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 }
 
-class VideoApp extends StatefulWidget {
-  const VideoApp({super.key});
+class Accordions extends StatefulWidget {
+  const Accordions({super.key});
 
   @override
-  _VideoAppState createState() => _VideoAppState();
+  State<Accordions> createState() => _AccordionsState();
 }
 
-class _VideoAppState extends State<VideoApp> {
+class _AccordionsState extends State<Accordions> {
   int _openAccordionIndex = 0; // Track which accordion is open
 
   void _toggleAccordion(int index) {
@@ -266,6 +313,61 @@ class _VideoAppState extends State<VideoApp> {
 
   @override
   Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          AccordionWidget(
+            title: 'Intro',
+            isExpanded: _openAccordionIndex == 0,
+            onToggle: () => _toggleAccordion(0),
+            child: SizedBox(
+              height: 400,
+              child: VideoPlayerWidget(
+                videoUrls: videoUrls,
+                isExpanded: _openAccordionIndex == 0, // Pass isExpanded
+              ),
+            ),
+          ),
+          AccordionWidget(
+            title: 'Paso 1',
+            isExpanded: _openAccordionIndex == 1,
+            onToggle: () => _toggleAccordion(1),
+            child: SizedBox(
+              height: 400,
+              child: VideoPlayerWidget(
+                videoUrls: videoUrls.reversed.toList(),
+                isExpanded: _openAccordionIndex == 1, // Pass isExpanded
+              ),
+            ),
+          ),
+          AccordionWidget(
+            title: 'Paso 2',
+            isExpanded: _openAccordionIndex == 2,
+            onToggle: () => _toggleAccordion(2),
+            child: SizedBox(
+              height: 400,
+              child: VideoPlayerWidget(
+                videoUrls: [movieOne, movieThree, movieFive],
+                isExpanded: _openAccordionIndex == 2, // Pass isExpanded
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class VideoApp extends StatefulWidget {
+  const VideoApp({super.key});
+
+  @override
+  _VideoAppState createState() => _VideoAppState();
+}
+
+class _VideoAppState extends State<VideoApp> {
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Video Player Demo',
       debugShowCheckedModeBanner: false,
@@ -273,48 +375,7 @@ class _VideoAppState extends State<VideoApp> {
         appBar: AppBar(
           title: const Text('Video Player Demo'),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              AccordionWidget(
-                title: 'Video Player 1',
-                isExpanded: _openAccordionIndex == 0,
-                onToggle: () => _toggleAccordion(0),
-                child: SizedBox(
-                  height: 400,
-                  child: VideoPlayerWidget(
-                    videoUrls: videoUrls,
-                    isExpanded: _openAccordionIndex == 0, // Pass isExpanded
-                  ),
-                ),
-              ),
-              AccordionWidget(
-                title: 'Video Player 2',
-                isExpanded: _openAccordionIndex == 1,
-                onToggle: () => _toggleAccordion(1),
-                child: SizedBox(
-                  height: 400,
-                  child: VideoPlayerWidget(
-                    videoUrls: videoUrls.reversed.toList(),
-                    isExpanded: _openAccordionIndex == 1, // Pass isExpanded
-                  ),
-                ),
-              ),
-              AccordionWidget(
-                title: 'Video Player 3',
-                isExpanded: _openAccordionIndex == 2,
-                onToggle: () => _toggleAccordion(2),
-                child: SizedBox(
-                  height: 400,
-                  child: VideoPlayerWidget(
-                    videoUrls: [movieOne, movieThree, movieFive],
-                    isExpanded: _openAccordionIndex == 2, // Pass isExpanded
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        body: const Accordions(),
       ),
     );
   }
