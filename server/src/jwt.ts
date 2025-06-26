@@ -131,7 +131,42 @@ const videoLinksData = [
                 signed: true
             },
             {
+                playbackId: "7yE02oLqKxyVVvGbWQr200ds7bCu8cRn2sdaPy601Bxlng",
+                title: "Cuentas",
+                signed: true
+            },
+            {
+                playbackId: "iQj024hBiysR02jKJGOm8JJ3wJbYjLUjFWEHugev01dhjU",
+                title: "Chicos",
+                signed: true
+            },
+            {
                 playbackId: "sI500X6a4VeAhjRe7LfTfDSz3WXPq9i5pwqtNL2XkkhA",
+                title: "Chicas",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Paso Cuatro",
+        videos: [
+            {
+                playbackId: "vFdGM02DUdZPPR8FZ1ta8NBteLlyM2ZKQ1Jx01OvbKnpU",
+                title: "Musica",
+                signed: true    
+            },
+            {
+                playbackId: "Y02QDctg5WXYjLf601tpY8CC6AizdlJYEleSBXTHmpNyM",
+                title: "Cuentas",
+                signed: true
+            },
+            // {
+            //     playbackId: "01IyXQuljRPd3kwi6e2O93aBl1IE15qRkA6SbqRmzJy4",
+            //     title: "Chicos",
+            //     signed: true
+            // },
+            {   
+                playbackId: "02Ag9GWea001lmgZGx2p1z2oIu3RDWZAzH35zKvoecrbs",
                 title: "Chicas",
                 signed: true
             }
