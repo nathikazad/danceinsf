@@ -41,8 +41,8 @@ export function generateToken(
   }
 }
 
-const videoLinksData = {
-    intro: {
+const videoLinksData = [
+    {
         title: "Intro Videos",
         videos: [
             {
@@ -72,7 +72,7 @@ const videoLinksData = {
             }
         ]
     },
-    pasoUno: {
+    {
         title: "Paso Uno",
         videos: [
             {
@@ -97,7 +97,7 @@ const videoLinksData = {
             }
         ]
     },
-    pasoDos: {
+    {
         title: "Paso Dos",
         videos: [
             {
@@ -122,7 +122,7 @@ const videoLinksData = {
             }
         ]
     },
-    pasoTres: {
+    {
         title: "Paso Tres",
         videos: [
             {
@@ -137,7 +137,25 @@ const videoLinksData = {
             }
         ]
     }
-};
+];
+
+function generateStreamUrl(playbackId: string, signed: boolean) {
+    if (signed) {
+        const token = generateToken(playbackId, false, 3600);
+        return `https://stream.mux.com/${playbackId}.m3u8?token=${token}`;
+    } else {
+        return `https://stream.mux.com/${playbackId}.m3u8`;
+    }
+}
+
+function generateThumbnailUrl(playbackId: string, signed: boolean) {
+    if (signed) {
+        const token = generateToken(playbackId, true, 3600);
+        return `https://image.mux.com/${playbackId}/thumbnail.jpg?width=400&height=200&fit_mode=smartcrop&token=${token}`;
+    } else {
+        return `https://image.mux.com/${playbackId}/thumbnail.jpg?width=400&height=200&fit_mode=smartcrop`;
+    }
+}
 
 export function videoLinksWithTokens() {
     const result: any = {};
@@ -145,11 +163,14 @@ export function videoLinksWithTokens() {
     for (const key in videoLinksData) {
         result[key] = {
             title: (videoLinksData as any)[key].title,
-            videos: (videoLinksData as any)[key].videos.map((video: any) => ({
-                ...video,
-                streamToken: generateToken(video.playbackId, false, 3600),
-                thumbnailToken: generateToken(video.playbackId, true, 3600)
-            }))
+            videos: (videoLinksData as any)[key].videos.map((video: any) => {
+                return {
+                    ...video,
+                    signed: true,
+                    streamUrl: generateStreamUrl(video.playbackId, true),
+                    thumbnailUrl: generateThumbnailUrl(video.playbackId, true)
+                };
+            })
         };
     }
     
