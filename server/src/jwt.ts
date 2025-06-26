@@ -167,8 +167,8 @@ export function videoLinksWithTokens() {
                 return {
                     ...video,
                     signed: true,
-                    streamUrl: generateStreamUrl(video.playbackId, true),
-                    thumbnailUrl: generateThumbnailUrl(video.playbackId, true)
+                    streamUrl: generateStreamUrl(video.playbackId, video.signed),
+                    thumbnailUrl: generateThumbnailUrl(video.playbackId, video.signed)
                 };
             })
         };
