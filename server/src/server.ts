@@ -24,6 +24,7 @@ const reserved = [
     'hasuraJWT',
     'deleteUser',
     'notifyParticipants',
+    'video-links',
 ];
 
 // Catch-all redirect for short URLs
@@ -64,6 +65,107 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
     return res.redirect(301, `https://wheredothey.dance/`);
 });
 
+app.get('/video-links', (req: Request, res: Response) => {
+    const videoLinksData = {
+        intro: {
+            title: "Intro Videos",
+            videos: [
+                {
+                    playbackId: "6xid2UmDgaZRybbQiOWTOeRF006lcls2QIjazfTaLPx00",
+                    title: "Paso 1",
+                    signed: false
+                },
+                {
+                    playbackId: "9yDN01VI8QmctgJEPF4i9evZIQFtR6CIwCnW1kt9uyyM",
+                    title: "Paso 2",
+                    signed: false
+                },
+                {
+                    playbackId: "SW5iarXYcodHwfWkYlgzvUM5j9xqfxGfxYYYH02r4ZL00",
+                    title: "Paso 3",
+                    signed: false
+                },
+                {
+                    playbackId: "1NeM2I7uIHVBRlqjzPijZu4Tzz01zcCvljDRFS005MNZ8",
+                    title: "Paso 4",
+                    signed: false
+                },
+                {
+                    playbackId: "PXEyFShMfOW6PTarzJi4Hx8JZrI500Zd00HRuPao7hjyE",
+                    title: "Paso 5",
+                    signed: false
+                }
+            ]
+        },
+        pasoUno: {
+            title: "Paso Uno",
+            videos: [
+                {
+                    playbackId: "AQ55vZPsJJnzWziqMmrufpoGyRr5WOL8RGI1PgAGphY",
+                    title: "Musica",
+                    signed: false
+                },
+                {
+                    playbackId: "ZPnuFoZGQ01EFRuJwhq6qjWUdIcXxi00015i101aXWQluW8",
+                    title: "Cuentas",
+                    signed: false
+                },
+                {
+                    playbackId: "74y1BX00aRR0201dLx0039m2Qm0253zQDjm3x9bc4RTv02kIM",
+                    title: "Chicos",
+                    signed: false
+                },
+                {
+                    playbackId: "qq02MXs3kWmcyPS9P7DMgxZa4O6sP01h00le3z5oi5hz00g",
+                    title: "Chicas",
+                    signed: false
+                }
+            ]
+        },
+        pasoDos: {
+            title: "Paso Dos",
+            videos: [
+                {
+                    playbackId: "Qu86eMOGBCXYaPlmGLFoM6AEbmJ3Ia27BNjV99rtzmQ",
+                    title: "Musica",
+                    signed: true
+                },
+                {
+                    playbackId: "35Lw4d3vY01bBPY9ZAu8uhLxs3kDLvAI6RlqzjPbMWps",
+                    title: "Cuentas",
+                    signed: true
+                },
+                {
+                    playbackId: "01IyXQuljRPd3kwi6e2O93aBl1IE15qRkA6SbqRmzJy4",
+                    title: "Chicos",
+                    signed: true
+                },
+                {
+                    playbackId: "mhWPMk9g02TzBcAqAMXgqbpmTJ2uDx7mVD0101ZEpP3tv8",
+                    title: "Chicas",
+                    signed: true
+                }
+            ]
+        },
+        pasoTres: {
+            title: "Paso Tres",
+            videos: [
+                {
+                    playbackId: "wD6vFBH6Zxt4tqsuuPPVozvraS00Mc99DEW412yqtELA",
+                    title: "Musica",
+                    signed: true
+                },
+                {
+                    playbackId: "sI500X6a4VeAhjRe7LfTfDSz3WXPq9i5pwqtNL2XkkhA",
+                    title: "Chicas",
+                    signed: true
+                }
+            ]
+        }
+    };
+
+    res.json(videoLinksData);
+});
 
 app.get('/ping', (req, res) => {
     res.send('pong');
