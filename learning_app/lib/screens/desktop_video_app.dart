@@ -13,20 +13,56 @@ class DesktopVideoApp extends StatefulWidget {
 }
 
 class _DesktopVideoAppState extends State<DesktopVideoApp> {
-  late final List<AccordionData> accordionData;
+  List<AccordionData>? accordionData;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    accordionData = VideoController.getVideos();
+    VideoController.getVideosFromApi().then((value) {
+      setState(() {
+        accordionData = value;
+        isLoading = false;
+      });
+    });
+    // }).catchError((error) {
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+    //   print('Error loading videos: $error');
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return MaterialApp(
+        title: 'Pura Bachata',
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
+    if (accordionData == null) {
+      return MaterialApp(
+        title: 'Pura Bachata',
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: Text('Error loading videos'),
+          ),
+        ),
+      );
+    }
+
     return MaterialApp(
-      title: 'Video Player Demo - Desktop',
+      title: 'Pura Bachata',
       debugShowCheckedModeBanner: false,
-      home: _DesktopScaffold(accordionData: accordionData),
+      home: _DesktopScaffold(accordionData: accordionData!),
     );
   }
 }
@@ -73,7 +109,7 @@ class _DesktopScaffoldState extends State<_DesktopScaffold> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bachata Gram'),
+        title: const Text('Pura Bachata'),
       ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

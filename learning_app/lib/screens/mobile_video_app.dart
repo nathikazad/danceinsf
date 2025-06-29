@@ -19,13 +19,17 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
   @override
   void initState() {
     super.initState();
-    accordionData = VideoController.getVideos();
+    VideoController.getVideosFromApi().then((value) {
+      setState(() {
+        accordionData = value;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Video Player Demo - Mobile',
+      title: 'Pura Bachata',
       debugShowCheckedModeBanner: false,
       home: _MobileScaffold(accordionData: accordionData),
     );
@@ -101,7 +105,7 @@ class _MobileScaffoldState extends State<_MobileScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bachata Gram'),
+        title: const Text('Pura Bachata'),
       ),
       body: ScrollablePositionedList.builder(
         itemCount: widget.accordionData.length,
