@@ -160,11 +160,11 @@ const videoLinksData = [
                 title: "Cuentas",
                 signed: true
             },
-            // {
-            //     playbackId: "01IyXQuljRPd3kwi6e2O93aBl1IE15qRkA6SbqRmzJy4",
-            //     title: "Chicos",
-            //     signed: true
-            // },
+            {
+                playbackId: "RB01Giw3t701wOdBDwkUG02licseSRJjqCfHs9uYmQJL5g",
+                title: "Chicos",
+                signed: true
+            },
             {   
                 playbackId: "rixSiMvvtf022tAGFrqhQHhMEaiddKBaUDhg49dmlrfo",
                 title: "Chicas",
