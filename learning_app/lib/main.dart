@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'screens/accordion_video_list_screen.dart';
-import 'widgets/video_player_widget.dart';
 import 'screens/desktop_video_app.dart';
 import 'screens/mobile_video_app.dart';
 
