@@ -51,29 +51,34 @@ const videoLinksData = [
                 signed: true
             },
             {
-                playbackId: "6xid2UmDgaZRybbQiOWTOeRF006lcls2QIjazfTaLPx00",
+                playbackId: "AQ55vZPsJJnzWziqMmrufpoGyRr5WOL8RGI1PgAGphY",
                 title: "Paso 1",
                 signed: false
             },
             {
-                playbackId: "9yDN01VI8QmctgJEPF4i9evZIQFtR6CIwCnW1kt9uyyM",
+                playbackId: "Qu86eMOGBCXYaPlmGLFoM6AEbmJ3Ia27BNjV99rtzmQ",
                 title: "Paso 2",
-                signed: false
+                signed: true
             },
             {
-                playbackId: "SW5iarXYcodHwfWkYlgzvUM5j9xqfxGfxYYYH02r4ZL00",
+                playbackId: "wD6vFBH6Zxt4tqsuuPPVozvraS00Mc99DEW412yqtELA",
                 title: "Paso 3",
-                signed: false
+                signed: true
             },
             {
-                playbackId: "1NeM2I7uIHVBRlqjzPijZu4Tzz01zcCvljDRFS005MNZ8",
+                playbackId: "vFdGM02DUdZPPR8FZ1ta8NBteLlyM2ZKQ1Jx01OvbKnpU",
                 title: "Paso 4",
-                signed: false
+                signed: true
             },
             {
-                playbackId: "PXEyFShMfOW6PTarzJi4Hx8JZrI500Zd00HRuPao7hjyE",
+                playbackId: "FL7KL5Km00kpcm901lFVTnCsEOxYf3sOxhp7mYkBqGm7o",
                 title: "Paso 5",
-                signed: false
+                signed: true
+            },
+            {
+                playbackId: "IbUSlYa7fVr702h4814awwkVKmU7zOGJ502W3UFeZaZEs",
+                title: "Paso 6",
+                signed: true
             }
         ]
     },
