@@ -151,11 +151,15 @@ class _CustomFullscreenWidgetState extends State<CustomFullscreenWidget> {
 class VideoPlayerWidget extends StatefulWidget {
   final List<VideoLinks> videoUrls;
   final bool isExpanded;
+  final bool forDesktop;
+  final String? sectionTitle;
 
   const VideoPlayerWidget({
     super.key,
     required this.videoUrls,
     required this.isExpanded,
+    this.forDesktop = false,
+    this.sectionTitle,
   });
 
   @override
@@ -289,71 +293,92 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (widget.forDesktop && widget.sectionTitle != null)
+        Padding(
+          padding: const EdgeInsets.only(left: 24, bottom: 8, top: 16),
+          child: Text(
+            widget.sectionTitle!,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+        ),
+        // Thumbnails
         ThumbnailListWidget(
           videoUrls: widget.videoUrls,
           currentIndex: _currentVideoIndex,
           isExpanded: widget.isExpanded,
           onVideoChange: _changeVideo,
         ),
+        // Video Player
         Expanded(
-          child: Stack(
-            children: [
-              Center(
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : (_chewieController == null || !widget.isExpanded)
-                        ? const Text('Video not loaded') // Placeholder when not expanded
-                        : Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.rotationY(_isFlipped ? 3.14159 : 0),
-                            child: Chewie(controller: _chewieController!),
-                          ),
-              ),
-              if (_chewieController != null && widget.isExpanded && !_isLoading)
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Flip button
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.flip,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: _toggleFlip,
-                          tooltip: 'Flip Video',
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Fullscreen button
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.fullscreen,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: _openFullscreen,
-                          tooltip: 'Fullscreen',
-                        ),
-                      ),
-                    ],
-                  ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              // borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Stack(
+              children: [
+                Center(
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : (_chewieController == null || !widget.isExpanded)
+                          ? const Text('Video not loaded')
+                          : Transform(
+                              alignment: Alignment.center,
+                              transform: Matrix4.rotationY(_isFlipped ? 3.14159 : 0),
+                              child: Chewie(controller: _chewieController!),
+                            ),
                 ),
-            ],
+                if (_chewieController != null && widget.isExpanded && !_isLoading)
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Flip button
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.flip,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            onPressed: _toggleFlip,
+                            tooltip: 'Flip Video',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Fullscreen button
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.fullscreen,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            onPressed: _openFullscreen,
+                            tooltip: 'Fullscreen',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ],

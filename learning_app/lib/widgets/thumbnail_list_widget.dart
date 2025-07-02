@@ -6,6 +6,7 @@ class ThumbnailListWidget extends StatelessWidget {
   final int currentIndex;
   final bool isExpanded;
   final Function(int) onVideoChange;
+  final bool forDesktop;
 
   const ThumbnailListWidget({
     super.key,
@@ -13,6 +14,7 @@ class ThumbnailListWidget extends StatelessWidget {
     required this.currentIndex,
     required this.isExpanded,
     required this.onVideoChange,
+    this.forDesktop = false,
   });
 
   @override
@@ -21,17 +23,18 @@ class ThumbnailListWidget extends StatelessWidget {
     final maxWidth = 200.0;
     final containerWidth = (screenWidth * 0.25).clamp(80.0, maxWidth); // 25% of screen width, max 200
     final containerHeight = containerWidth * 0.8; // 80% of width for height
-    final listHeight = containerHeight + 20; // Add some padding for text
+    final listHeight = forDesktop ? containerHeight + 20 : containerHeight; // Add some padding for text
 
     return SizedBox(
       height: listHeight,
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth * 4), // Allow up to 4 thumbnails
+          constraints: BoxConstraints(maxWidth: maxWidth * 6), // Allow up to 4 thumbnails
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: videoUrls.length,
             itemBuilder: (context, index) {
+              final isSelected = currentIndex == index;
               return GestureDetector(
                 onTap: () {
                   if (isExpanded) {
@@ -44,21 +47,30 @@ class ThumbnailListWidget extends StatelessWidget {
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(4.0), // Reduced from 8.0 to save space
+                        padding: const EdgeInsets.all(4.0),
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: currentIndex == index
-                                    ? Colors.blue
+                                color: isSelected
+                                    ? Color(0xFFFFA726)
                                     : Colors.transparent,
-                                width: 3.0,
+                                width: isSelected ? 4.0 : 3.0,
                               ),
-                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: Color(0x33FFA726),
+                                        blurRadius: 8,
+                                        spreadRadius: 1,
+                                      ),
+                                    ]
+                                  : [],
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
+                              borderRadius: BorderRadius.circular(9),
                               child: Image.network(
                                 videoUrls[index].thumbnailUrl,
                                 fit: BoxFit.cover,
@@ -73,8 +85,9 @@ class ThumbnailListWidget extends StatelessWidget {
                         child: Text(
                           videoUrls[index].title,
                           style: TextStyle(
-                            fontSize: 15, // Reduced from 10
-                            color: Colors.black,
+                            fontSize: 15,
+                            color: isSelected ? Color(0xFFFFA726) : Color(0xFF222222),
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 2,

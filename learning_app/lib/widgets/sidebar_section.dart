@@ -45,39 +45,101 @@ class _SidebarSectionState extends State<SidebarSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: _isSidebarVisible ? 200 : 30,
+      width: _isSidebarVisible ? 220 : 30,
+      color: const Color(0xFF231404),
       child: Stack(
         children: [
           // Sidebar content
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: 200,
+            width: 220,
             child: Transform.translate(
               offset: Offset(_isSidebarVisible ? 0 : -170, 0),
-              child: Container(
-                width: 200,
-                color: Colors.grey[300],
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: widget.sections.length,
-                  itemBuilder: (context, index) {
-                    final bool isSelected = widget.selectedIndex == index;
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      child: ListTile(
-                        title: Text(
-                          widget.sections[index],
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              child: Column(
+                children: [
+                  // Logo
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 32),
+                    child: Image.asset(
+                      'assets/logo.png',
+                      // height: 68,
+                      width: 136,
+                    ),
+                  ),
+                  // Section buttons
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: widget.sections.length,
+                      itemBuilder: (context, index) {
+                        final isSelected = widget.selectedIndex == index;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          child: Material(
+                            color: isSelected ? const Color(0xFFFFA726) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () => widget.onSectionSelected(index),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.ondemand_video,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        widget.sections[index],
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                          fontSize: 16,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Logout button
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24, left: 12, right: 12, top: 12),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {/* TODO: Implement logout */},
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.logout, color: Colors.white),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Logout',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        onTap: () {
-                          widget.onSectionSelected(index);
-                        },
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

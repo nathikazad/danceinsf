@@ -1,4 +1,3 @@
-import 'package:learning_app/services/jwt_service.dart';
 
 class VideoLinks {
   String playbackId;

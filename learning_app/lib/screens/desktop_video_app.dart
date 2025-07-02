@@ -108,9 +108,7 @@ class _DesktopScaffoldState extends State<_DesktopScaffold> {
     final selectedData = widget.accordionData[_selectedIndex];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pura Bachata'),
-      ),
+      backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -124,6 +122,8 @@ class _DesktopScaffoldState extends State<_DesktopScaffold> {
               key: ValueKey('desktop_video_$_selectedIndex'),
               videoUrls: selectedData.videoUrls,
               isExpanded: true,
+              forDesktop: true,
+              sectionTitle: selectedData.title,
             ),
           ),
         ],
