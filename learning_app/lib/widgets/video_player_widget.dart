@@ -281,7 +281,18 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       pauseOnBackgroundTap: false,
       showSubtitles: false,
       allowFullScreen: false,
-      
+      cupertinoProgressColors: ChewieProgressColors(
+        playedColor: Color(0xFF231404).withOpacity(0.5),
+        handleColor: Color(0xFFFFA726),
+        backgroundColor: Colors.white.withOpacity(0.2),
+        bufferedColor: Colors.white.withOpacity(0.2),
+      ),
+      materialProgressColors: ChewieProgressColors(
+        playedColor: Color(0xFF231404).withOpacity(0.5),
+        handleColor: Color(0xFFFFA726),
+        backgroundColor: Colors.white.withOpacity(0.2),
+        bufferedColor: Colors.white.withOpacity(0.2),
+      ),
     );
 
     setState(() {

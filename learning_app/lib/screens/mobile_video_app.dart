@@ -37,9 +37,21 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return MaterialApp(
-        title: 'Pura Bachata',
+        title: 'Only Bachateros',
         debugShowCheckedModeBanner: false,
         home: Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                Image.asset(
+                  'assets/logo.png',
+                  height: 32,
+                ),
+                const SizedBox(width: 12),
+                const Text('Only Bachateros'),
+              ],
+            ),
+          ),
           body: Center(
             child: CircularProgressIndicator(),
           ),
@@ -49,7 +61,7 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
 
     if (accordionData == null) {
       return MaterialApp(
-        title: 'Pura Bachata',
+        title: 'Only Bachateros',
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(
@@ -60,7 +72,7 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
     }
 
     return MaterialApp(
-      title: 'Pura Bachata',
+      title: 'Only Bachateros',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Color(0xFF231404),
@@ -150,7 +162,16 @@ class _MobileScaffoldState extends State<_MobileScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pura Bachata'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.png',
+              height: 32,
+            ),
+            const SizedBox(width: 12),
+            const Text('Only Bachateros'),
+          ],
+        ),
       ),
       body: ScrollablePositionedList.builder(
         itemCount: widget.accordionData.length,

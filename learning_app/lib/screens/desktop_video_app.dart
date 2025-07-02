@@ -37,7 +37,7 @@ class _DesktopVideoAppState extends State<DesktopVideoApp> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return MaterialApp(
-        title: 'Pura Bachata',
+        title: 'Only Bachateros',
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(
@@ -49,7 +49,7 @@ class _DesktopVideoAppState extends State<DesktopVideoApp> {
 
     if (accordionData == null) {
       return MaterialApp(
-        title: 'Pura Bachata',
+        title: 'Only Bachateros',
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(
@@ -60,7 +60,7 @@ class _DesktopVideoAppState extends State<DesktopVideoApp> {
     }
 
     return MaterialApp(
-      title: 'Pura Bachata',
+      title: 'Only Bachateros',
       debugShowCheckedModeBanner: false,
       home: _DesktopScaffold(accordionData: accordionData!),
     );
