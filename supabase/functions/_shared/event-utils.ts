@@ -31,15 +31,6 @@ export interface EventInstance {
   ticket_link?: string | null
 }
 
-// Helper function to get the day of week as a number (0 = Sunday, 6 = Saturday)
-function getDayOfWeek(date: Date): number {
-  return date.getDay()
-}
-
-// Helper function to get the day of month
-function getDayOfMonth(date: Date): number {
-  return date.getDate()
-}
 
 // Helper function to get current time in PST
 function getCurrentPSTTime(): Date {
@@ -54,16 +45,19 @@ function toPST(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0)
 }
 
-// Helper function to get the week number of the month (1-5)
-function getWeekOfMonth(date: Date): number {
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
-  const dayOfWeek = firstDay.getDay()
+// Helper function to get the position of the current day in the month (1-5)
+// e.g., first Sunday = 1, second Sunday = 2, etc.
+function getDayOccurrenceInMonth(date: Date): number {
+  const dayOfWeek = date.getDay()
   const dateOfMonth = date.getDate()
   
-  // Calculate which week of the month this date falls in
-  // If the first day of the month is not Sunday, we need to adjust
-  const adjustedDate = dateOfMonth + dayOfWeek
-  return Math.ceil(adjustedDate / 7)
+  // Find the first occurrence of this day of week in the month
+  const firstOccurrence = 1 + (dayOfWeek - new Date(date.getFullYear(), date.getMonth(), 1).getDay() + 7) % 7
+  
+  // Calculate which occurrence this is
+  const occurrence = Math.floor((dateOfMonth - firstOccurrence) / 7) + 1
+  
+  return occurrence
 }
 
 // Helper function to get the day name
@@ -76,21 +70,14 @@ function getDayName(date: Date): string {
 function matchesMonthlyPattern(date: Date, pattern: string): boolean {
   // Split the pattern by comma to handle multiple patterns
   const patterns = pattern.split(',')
-  
   // Check if any of the patterns match
   return patterns.some(singlePattern => {
     const [week, day] = singlePattern.trim().split('-')
     const weekNum = parseInt(week)
-    const currentWeek = getWeekOfMonth(date)
+    const currentOccurrence = getDayOccurrenceInMonth(date)
     const currentDay = getDayName(date)
-    
-    return currentWeek === weekNum && currentDay === day
+    return currentOccurrence === weekNum && currentDay === day
   })
-}
-
-// Helper function to check if a date matches a weekly pattern
-function matchesWeeklyPattern(date: Date, day: string): boolean {
-  return getDayName(date) === day
 }
 
 // Function to generate instances for a one-time event

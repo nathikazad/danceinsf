@@ -14,7 +14,8 @@ class MobileVideoApp extends StatefulWidget {
 }
 
 class _MobileVideoAppState extends State<MobileVideoApp> {
-  late final List<AccordionData> accordionData;
+  List<AccordionData>? accordionData;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -22,16 +23,46 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
     VideoController.getVideosFromApi().then((value) {
       setState(() {
         accordionData = value;
+        isLoading = false;
       });
+    }).catchError((error) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error loading videos: $error');
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return MaterialApp(
+        title: 'Pura Bachata',
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
+    if (accordionData == null) {
+      return MaterialApp(
+        title: 'Pura Bachata',
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: Text('Error loading videos'),
+          ),
+        ),
+      );
+    }
+
     return MaterialApp(
       title: 'Pura Bachata',
       debugShowCheckedModeBanner: false,
-      home: _MobileScaffold(accordionData: accordionData),
+      home: _MobileScaffold(accordionData: accordionData!),
     );
   }
 }

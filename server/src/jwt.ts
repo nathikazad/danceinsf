@@ -46,6 +46,11 @@ const videoLinksData = [
         title: "Intro Videos",
         videos: [
             {
+                playbackId: "O5trriahYhJmamV1xEIHbiv01bpErvesx584SqO7bP8s",
+                title: "Todo",
+                signed: true
+            },
+            {
                 playbackId: "6xid2UmDgaZRybbQiOWTOeRF006lcls2QIjazfTaLPx00",
                 title: "Paso 1",
                 signed: false
@@ -192,6 +197,31 @@ const videoLinksData = [
             },
             {
                 playbackId: "CxHHoqUYaNDmh01wt92OpU5P82XQGwDnkWOZD1GWAm9Q",
+                title: "Chicas",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Paso Seis",
+        videos: [
+            {
+                playbackId: "IbUSlYa7fVr702h4814awwkVKmU7zOGJ502W3UFeZaZEs",
+                title: "Musica",
+                signed: true
+            },
+            {
+                playbackId: "2aBSFVsCouGm5zABKv22kyjlUtarAKrVr00hN3NwLWJI",
+                title: "Cuentas",
+                signed: true
+            },
+            {
+                playbackId: "qhkZwuw6pWchRa00IHhIk4A7dWW01nWCuGgId00uS79xts",
+                title: "Chicos",
+                signed: true
+            },
+            {
+                playbackId: "zLM8lxN5yybJOCkEeO00v9AibYZWePhIELXwDVwQeQnM",
                 title: "Chicas",
                 signed: true
             }
