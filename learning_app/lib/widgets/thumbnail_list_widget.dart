@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import '../models/video_links.dart';
 
@@ -29,7 +31,7 @@ class ThumbnailListWidget extends StatelessWidget {
       height: listHeight,
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth * 6), // Allow up to 4 thumbnails
+          constraints: BoxConstraints(maxWidth: maxWidth * min(6, videoUrls.length)), // Allow up to 4 thumbnails
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: videoUrls.length,

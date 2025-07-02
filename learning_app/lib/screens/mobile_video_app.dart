@@ -62,6 +62,20 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
     return MaterialApp(
       title: 'Pura Bachata',
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: Color(0xFF231404),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF231404),
+          foregroundColor: Colors.white,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        scaffoldBackgroundColor: Color(0xFFF8F8F8),
+      ),
       home: _MobileScaffold(accordionData: accordionData!),
     );
   }
