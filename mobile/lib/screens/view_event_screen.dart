@@ -289,7 +289,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
         return l10n.repeatWeekly(_getLocalizedDayName(schedule.dayOfWeek, l10n));
       case Frequency.monthly:
         final weekNumber = schedule.weeksOfMonth != null && schedule.weeksOfMonth!.isNotEmpty ? schedule.weeksOfMonth!.first : 1;
-        final weekString = _getWeekOfMonthString(weekNumber, l10n);
+        final weekString = _getWeekOfMonthString(weekNumber, l10n).capitalize;
         return l10n.repeatMonthly(weekString, _getLocalizedDayName(schedule.dayOfWeek, l10n));
     }
   }
