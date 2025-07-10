@@ -39,6 +39,7 @@ const reserved = [
     'deleteUser',
     'notifyParticipants',
     'video-links',
+    'api',
 ];
 
 // Catch-all redirect for short URLs
@@ -85,6 +86,54 @@ app.get('/video-links', (req: Request, res: Response) => {
 
 app.get('/ping', (req, res) => {
     res.send('pong');
+});
+
+// Google Places API proxy endpoints
+app.get('/api/places/autocomplete', async (req: Request, res: Response) => {
+    try {
+        const { input, location, radius, key } = req.query;
+        
+        if (!input || !key) {
+            return res.status(400).json({ error: 'Missing required parameters: input and key' });
+        }
+
+        const url = new URL('https://maps.googleapis.com/maps/api/place/autocomplete/json');
+        url.searchParams.set('input', input as string);
+        if (location) url.searchParams.set('location', location as string);
+        if (radius) url.searchParams.set('radius', radius as string);
+        url.searchParams.set('key', key as string);
+
+        const response = await fetch(url.toString());
+        const data = await response.json();
+
+        res.json(data);
+    } catch (error) {
+        console.error('Places autocomplete proxy error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/api/places/details', async (req: Request, res: Response) => {
+    try {
+        const { place_id, fields, key } = req.query;
+        
+        if (!place_id || !key) {
+            return res.status(400).json({ error: 'Missing required parameters: place_id and key' });
+        }
+
+        const url = new URL('https://maps.googleapis.com/maps/api/place/details/json');
+        url.searchParams.set('place_id', place_id as string);
+        if (fields) url.searchParams.set('fields', fields as string);
+        url.searchParams.set('key', key as string);
+
+        const response = await fetch(url.toString());
+        const data = await response.json();
+
+        res.json(data);
+    } catch (error) {
+        console.error('Places details proxy error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
