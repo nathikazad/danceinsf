@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createClient } from '@supabase/supabase-js';
 import { videoLinksWithTokens } from './jwt';
+import fetch from 'node-fetch';
 
 const app: Express = express();
 

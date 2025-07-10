@@ -25,6 +25,7 @@
     "@supabase/supabase-js": "^2.49.8",
     "@types/apn": "^2.1.2",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/node-fetch": "^2.6.12",
     "apn": "^2.2.0",
     "busboy": "^1.6.0",
     "dotenv": "^16.4.5",
@@ -33,6 +34,7 @@
     "groq-sdk": "^0.3.3",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
+    "node-fetch": "^2.7.0",
     "openai": "^4.28.4",
     "uuid": "^8.3.2",
     "ws": "^8.2.3"
