@@ -58,6 +58,12 @@ dependencies:
   # Scrollable positioned list
   scrollable_positioned_list: ^0.3.8
 
+  # Text auto-sizing
+  auto_size_text: ^3.0.0
+  
+  # Responsive grid
+  responsive_grid: ^2.4.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
