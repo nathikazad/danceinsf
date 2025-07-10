@@ -17,9 +17,29 @@ app.use(express.json());
 
 // Add CORS middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    // Allow specific origins for production, or all for development
+    const allowedOrigins = [
+        'https://wheredothey.dance',
+        'http://dondebailan.com',
+        'https://dancesf.herokuapp.com',
+        'http://localhost:3000',
+        'http://localhost:8080',
+        'http://localhost:5000',
+        'http://localhost:57555',
+
+    ];
+    
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    } else {
+        console.log('origin', origin);
+        res.header('Access-Control-Allow-Origin', '*');
+    }
+    
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
     
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
@@ -90,6 +110,11 @@ app.get('/ping', (req, res) => {
 
 // Google Places API proxy endpoints
 app.get('/api/places/autocomplete', async (req: Request, res: Response) => {
+    // Set CORS headers specifically for this endpoint
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
     try {
         const { input, location, radius, key } = req.query;
         
@@ -114,6 +139,11 @@ app.get('/api/places/autocomplete', async (req: Request, res: Response) => {
 });
 
 app.get('/api/places/details', async (req: Request, res: Response) => {
+    // Set CORS headers specifically for this endpoint
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
     try {
         const { place_id, fields, key } = req.query;
         
@@ -134,6 +164,21 @@ app.get('/api/places/details', async (req: Request, res: Response) => {
         console.error('Places details proxy error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+// Handle OPTIONS requests for CORS preflight
+app.options('/api/places/autocomplete', (req: Request, res: Response) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.sendStatus(200);
+});
+
+app.options('/api/places/details', (req: Request, res: Response) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.sendStatus(200);
 });
 
 const PORT = process.env.PORT || 3000;
