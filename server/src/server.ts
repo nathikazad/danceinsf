@@ -131,10 +131,10 @@ app.get('/api/places/autocomplete', async (req: Request, res: Response) => {
         const response = await fetch(url.toString());
         const data = await response.json();
 
-        res.json(data);
+        return res.json(data);
     } catch (error) {
         console.error('Places autocomplete proxy error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 });
 
@@ -159,10 +159,10 @@ app.get('/api/places/details', async (req: Request, res: Response) => {
         const response = await fetch(url.toString());
         const data = await response.json();
 
-        res.json(data);
+        return res.json(data);
     } catch (error) {
         console.error('Places details proxy error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 });
 
