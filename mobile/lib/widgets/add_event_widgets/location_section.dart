@@ -20,6 +20,8 @@ class LocationSection extends StatefulWidget {
 
 class _LocationSectionState extends State<LocationSection> {
   final _searchController = TextEditingController();
+  final _venueNameController = TextEditingController();
+  final _cityController = TextEditingController();
   Location _currentLocation = Location(venueName: '', city: '', url: '');
   List<Map<String, dynamic>> _predictions = [];
   bool _isLoading = false;
@@ -29,11 +31,15 @@ class _LocationSectionState extends State<LocationSection> {
     super.initState();
     _currentLocation = widget.location;
     _searchController.text = widget.location.venueName;
+    _venueNameController.text = widget.location.venueName;
+    _cityController.text = widget.location.city;
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _venueNameController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -50,8 +56,11 @@ class _LocationSectionState extends State<LocationSection> {
       _isLoading = true;
     });
 
+    // Use proxy endpoint for web, direct API for mobile
+    final baseUrl = 'https://sfdn.cc/api/places/autocomplete';
+    
     final url = Uri.parse(
-      'https://maps.googleapis.com/maps/api/place/autocomplete/json'
+      '$baseUrl'
       '?input=${Uri.encodeComponent(query)}'
       '&location=${AppStorage.defaultMapCenter.latitude},${AppStorage.defaultMapCenter.longitude}'
       '&radius=50000' // 50km radius
@@ -97,11 +106,13 @@ class _LocationSectionState extends State<LocationSection> {
 
   Future<void> _getPlaceDetails(String placeId) async {
     try {
+      // Use proxy endpoint for web, direct API for mobile
+      final baseUrl = 'https://sfdn.cc/api/places/details';
       final response = await http.get(
         Uri.parse(
-          'https://maps.googleapis.com/maps/api/place/details/json'
+          '$baseUrl'
           '?place_id=$placeId'
-          '&fields=name,formatted_address,geometry'
+          '&fields=name,formatted_address,geometry,url'
           '&key=AIzaSyAYc3SKKnIrnvetF3e_sVIgvPw680wi2_4',
         ),
       );
@@ -125,17 +136,18 @@ class _LocationSectionState extends State<LocationSection> {
           );
           print(gpsPoint.latitude);
           print(gpsPoint.longitude);
-
           final newLocation = Location(
             venueName: result['name'],
             city: city,
-            url: 'https://www.google.com/maps/place/?q=place_id:$placeId',
+            url: result['url'] ?? 'https://www.google.com/maps/place/?q=place_id:$placeId',
             gpsPoint: gpsPoint,
           );
 
           setState(() {
             _currentLocation = newLocation;
             _searchController.text = newLocation.venueName;
+            _venueNameController.text = newLocation.venueName;
+            _cityController.text = newLocation.city;
             _predictions = [];
           });
 
@@ -219,15 +231,83 @@ class _LocationSectionState extends State<LocationSection> {
         if (_currentLocation.venueName.isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(
-            'Selected Location:',
+            'Venue Name:',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           const SizedBox(height: 4),
+          TextField(
+            controller: _venueNameController,
+            decoration: InputDecoration(
+              hintText: "Venue name",
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  width: 1,
+                ),
+              ),
+            ),
+            onChanged: (value) {
+              final updatedLocation = Location(
+                venueName: value,
+                city: _currentLocation.city,
+                url: _currentLocation.url,
+                gpsPoint: _currentLocation.gpsPoint,
+              );
+              setState(() {
+                _currentLocation = updatedLocation;
+              });
+              widget.onLocationChanged(updatedLocation);
+            },
+          ),
+          const SizedBox(height: 8),
           Text(
-            '${_currentLocation.venueName}, ${_currentLocation.city}',
-            style: Theme.of(context).textTheme.bodyMedium,
+            'City:',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _cityController,
+            decoration: InputDecoration(
+              hintText: "City",
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  width: 1,
+                ),
+              ),
+            ),
+            onChanged: (value) {
+              final updatedLocation = Location(
+                venueName: _currentLocation.venueName,
+                city: value,
+                url: _currentLocation.url,
+                gpsPoint: _currentLocation.gpsPoint,
+              );
+              setState(() {
+                _currentLocation = updatedLocation;
+              });
+              widget.onLocationChanged(updatedLocation);
+            },
           ),
         ],
       ],
