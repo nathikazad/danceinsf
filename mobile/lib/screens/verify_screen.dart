@@ -84,7 +84,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
           context.pop(true);
         }
       } else {
-        context.go('/events');
+        context.pop(true);
       }
     } catch (e) {
       setState(() {

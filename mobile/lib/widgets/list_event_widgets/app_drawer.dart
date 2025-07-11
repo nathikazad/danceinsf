@@ -149,8 +149,10 @@ class AppDrawer extends ConsumerWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   title: Text(l10n.drawerLogin),
-                  onTap: () {
-                    GoRouter.of(context).push('/verify');
+                  onTap: () async {
+                    await GoRouter.of(context).push('/verify');
+                    if (!context.mounted) return;
+                    context.pop(true);
                   },
                 ),
             ],
