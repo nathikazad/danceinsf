@@ -1,3 +1,4 @@
+import 'package:dance_sf/controllers/log_controller.dart';
 import 'package:dance_shared/dance_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,7 +16,7 @@ void main() async {
   print('Initializing Supabase');
   await SupabaseConfig.initialize();
 
-  LogController.setZone(AppStorage.zone);
+  // LogController.setZone(AppStorage.zone);
 
   LogController.logNavigation('App initialization started');
 

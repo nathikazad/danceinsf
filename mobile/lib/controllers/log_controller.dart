@@ -51,14 +51,15 @@ class LogController {
             .select()
             .eq('session_id', sessionId)
             .eq('created_at', dateOnly)
+            .eq('zone', AppStorage.zone)
             .maybeSingle();
             
         if (existingLogs != null) {
-          print('Updating existing log');
+          print('Updating existing log id: ${existingLogs['id']}');
           currentDateId = existingLogs['id'];
           currentActions = Map<String, String>.from(existingLogs['actions']);
         } else {
-          print('Creating new log');
+          
           final currentUser = Supabase.instance.client.auth.currentUser;
           final newLog = await Supabase.instance.client.from('logs').insert({
             'session_id': sessionId,
@@ -68,6 +69,7 @@ class LogController {
             'zone': AppStorage.zone,
           }).select().single();
           currentDateId = newLog['id'];
+          print('Creating new log id: ${newLog['id']}');
           currentActions = {};
         }
       }

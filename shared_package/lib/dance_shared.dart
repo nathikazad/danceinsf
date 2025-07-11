@@ -7,5 +7,5 @@ export 'auth/auth_service.dart';
 export 'config/supabase_config.dart';
 
 // Utils exports
-export 'utils/log_controller.dart';
+// export 'utils/log_controller.dart';
 export 'utils/uni_links.dart'; 

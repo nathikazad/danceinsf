@@ -1,13 +1,13 @@
+import 'package:dance_sf/controllers/log_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import './screens/splash_screen.dart' as splash;
 import 'package:dance_sf/screens/verify_screen.dart' deferred as verify;
 import 'screens/list_events_screen.dart' deferred as list_events;
-import './screens/add_event_screen.dart' as add_event;
-import 'package:dance_sf/screens/view_event_screen.dart' as view_event;
+import './screens/add_event_screen.dart' deferred as add_event;
+import 'package:dance_sf/screens/view_event_screen.dart' deferred as view_event;
 import 'utils/app_storage.dart';
-import 'package:dance_shared/dance_shared.dart';
 import 'screens/edit_event_screen.dart' deferred as edit_event;
 import 'screens/edit_event_instance_screen.dart' deferred as edit_event_instance;
 import 'screens/help_screen.dart' deferred as help;
@@ -103,8 +103,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/add-event',
-        builder: (context, state) => const AppScaffold(
-          child: add_event.AddEventScreen(),
+        builder: (context, state) => AppScaffold(
+          child: DeferredScreen(
+            loadLibrary: add_event.loadLibrary,
+            buildScreen: () => add_event.AddEventScreen(),
+          ),
         ),
       ),
       GoRoute(
@@ -113,9 +116,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           final eventId = state.pathParameters['eventId']!;
           final initialEvent = state.extra as EventInstance?;
           return AppScaffold(
-            child: view_event.ViewEventScreen(
-              eventInstanceId: eventId,
-              initialEventInstance: initialEvent,
+            child: DeferredScreen(
+              loadLibrary: view_event.loadLibrary,
+              buildScreen: () => view_event.ViewEventScreen(
+                eventInstanceId: eventId,
+                initialEventInstance: initialEvent,
+              ),
             ),
           );
         },
