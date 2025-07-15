@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:dance_sf/utils/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'router.dart';
 import 'package:dance_sf/utils/app_storage.dart';
@@ -25,7 +26,7 @@ void main() async {
     FlutterError.presentError(details);
     debugPrint(details.toString());
   };
-
+  GoRouter.optionURLReflectsImperativeAPIs = true;
   runApp(const ProviderScope(child: DanceApp()));
 }
 
