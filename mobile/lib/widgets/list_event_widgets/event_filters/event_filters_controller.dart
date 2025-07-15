@@ -51,7 +51,6 @@ class FilterController extends ChangeNotifier {
       selectedStyles: _selectedStyles,
       selectedFrequencies: _selectedFrequencies,
       selectedCities: _selectedCities,
-      searchText: _searchText,
     );
   }
 

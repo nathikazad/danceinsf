@@ -8,7 +8,6 @@ class AppStorage {
   static const String _selectedStylesKey = 'selected_styles';
   static const String _selectedFrequenciesKey = 'selected_frequencies';
   static const String _selectedCitiesKey = 'selected_cities';
-  static const String _searchTextKey = 'search_text';
   static const String _zoneKey = 'selected_zone';
   static const String _localeKey = 'selected_locale';
 
@@ -34,13 +33,11 @@ class AppStorage {
     required List<String> selectedStyles,
     required List<String> selectedFrequencies,
     required List<String> selectedCities,
-    required String searchText,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_selectedStylesKey, selectedStyles);
     await prefs.setStringList(_selectedFrequenciesKey, selectedFrequencies);
     await prefs.setStringList(_selectedCitiesKey, selectedCities);
-    await prefs.setString(_searchTextKey, searchText);
   }
 
   // Load filter settings
@@ -50,7 +47,7 @@ class AppStorage {
       'selectedStyles': prefs.getStringList(_selectedStylesKey) ?? [],
       'selectedFrequencies': prefs.getStringList(_selectedFrequenciesKey) ?? [],
       'selectedCities': prefs.getStringList(_selectedCitiesKey) ?? [],
-      'searchText': prefs.getString(_searchTextKey) ?? '',
+      'searchText': '',
     };
   }
   static const defaultZone = 'San Francisco';
