@@ -17,7 +17,7 @@ class Event {
   final List<DanceStyle> styles;
   final Frequency frequency;
   final Location location;
-  final String? linkToEvent;
+  final List<String> linkToEvents;
   final SchedulePattern schedule;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
@@ -30,7 +30,6 @@ class Event {
   final String? organizerId;
   final String creatorId;
 
-
   Event({
     required this.eventId,
     required this.name,
@@ -42,7 +41,7 @@ class Event {
     required this.startTime,
     required this.endTime,
     required this.creatorId,
-    this.linkToEvent,
+    List<String>? linkToEvents,
     this.cost = 0.0,
     this.description,
     this.rating,
@@ -50,7 +49,7 @@ class Event {
     this.proposals,
     this.flyerUrl,
     this.organizerId,
-  });
+  }) : linkToEvents = linkToEvents ?? [];
 
   // Factory method to create Event from map
   static Event fromMap(Map eventData, {double? rating, int ratingCount = 0, List<Proposal>? proposals}) {
@@ -59,6 +58,21 @@ class Event {
     final weeklyDays = toStringList(eventData['weekly_days']);
     final monthlyPattern = toStringList(eventData['monthly_pattern']);
     final eventCategories = toStringList(eventData['event_category']).map((category) => DanceStyleExtension.fromString(category)).toList();
+    
+    // Handle linkToEvents - convert to List<String>
+    List<String> linkToEvents = [];
+    final ticketLinkData = eventData['default_ticket_link'];
+    if (ticketLinkData != null) {
+      if (ticketLinkData is List) {
+        linkToEvents = ticketLinkData.cast<String>();
+      } else if (ticketLinkData is String && ticketLinkData.contains(',')) {
+        // Handle comma-separated string
+        linkToEvents = ticketLinkData.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      } else {
+        linkToEvents = [ticketLinkData.toString()];
+      }
+    }
+    
     return Event(
       eventId: eventData['event_id'],
       name: eventData['name'].toString().capitalizeWords,
@@ -75,7 +89,7 @@ class Event {
         ) : null,
       ),
       flyerUrl: eventData['default_flyer_url'],
-      linkToEvent: eventData['default_ticket_link'],
+      linkToEvents: linkToEvents,
       schedule: SchedulePattern.fromMap(
         eventData['recurrence_type'],
         weeklyDays,
@@ -100,7 +114,7 @@ class Event {
     List<DanceStyle>? styles,
     Frequency? frequency,
     Location? location,
-    String? linkToEvent,
+    List<String>? linkToEvents,
     SchedulePattern? schedule,
     TimeOfDay? startTime,
     TimeOfDay? endTime,
@@ -112,6 +126,7 @@ class Event {
     String? creatorId,
     String? organizerId,
     String? flyerUrl,
+    String? ticketLink,
   }) {
     return Event(
       eventId: eventId ?? this.eventId,
@@ -120,7 +135,7 @@ class Event {
       styles: styles ?? this.styles,
       frequency: frequency ?? this.frequency,
       location: location ?? this.location,
-      linkToEvent: linkToEvent ?? this.linkToEvent,
+      linkToEvents: linkToEvents ?? this.linkToEvents,
       schedule: schedule ?? this.schedule,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -186,13 +201,18 @@ class Event {
     addIfDifferent('type', event1.type, event2.type);
     addIfDifferentStyles('styles', event1.styles, event2.styles);
     addIfDifferent('frequency', event1.frequency, event2.frequency);
-    addIfDifferent('linkToEvent', event1.linkToEvent, event2.linkToEvent);
+    // Compare linkToEvents
+    if (!listEquals(event1.linkToEvents, event2.linkToEvents)) {
+      differences['linkToEvents'] = {
+        'old': event1.linkToEvents,
+        'new': event2.linkToEvents,
+      };
+    }
     addIfDifferent('cost', event1.cost, event2.cost);
     addIfDifferent('description', event1.description, event2.description);
     addIfDifferent('rating', event1.rating, event2.rating);
     addIfDifferent('ratingCount', event1.ratingCount, event2.ratingCount);
     addIfDifferent('flyerUrl', event1.flyerUrl, event2.flyerUrl);
-
     // Compare TimeOfDay objects
     if (event1.startTime.hour != event2.startTime.hour || 
         event1.startTime.minute != event2.startTime.minute) {

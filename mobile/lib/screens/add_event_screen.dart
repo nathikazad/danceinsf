@@ -179,9 +179,9 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             ),
             const SizedBox(height: 20),
             TicketsSection(
-              initialTicketLink: _event.linkToEvent,
-              onTicketLinkChanged: (link) => setState(() {
-                _event = _event.copyWith(linkToEvent: link);
+              initialTicketLinks: _event.linkToEvents,
+              onTicketLinksChanged: (links) => setState(() {
+                _event = _event.copyWith(linkToEvents: links);
               }),
               validator: (value) {
                 if (value == null || value.isEmpty) return null;

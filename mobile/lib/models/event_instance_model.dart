@@ -1,5 +1,6 @@
 import 'package:dance_sf/utils/string.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:dance_sf/models/event_model.dart';
 import 'package:dance_sf/models/proposal_model.dart';
 
@@ -9,8 +10,7 @@ class EventInstance {
   final String venueName;
   final String city;
   final String? url;
-  final String? linkToEvent;
-  final String? ticketLink;
+  final List<String> linkToEvents;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
   final double cost;
@@ -31,7 +31,7 @@ class EventInstance {
     String? venueName,
     String? city,
     String? url,
-    String? linkToEvent,
+    List<String>? linkToEvents,
     String? ticketLink,
     TimeOfDay? startTime,
     TimeOfDay? endTime,
@@ -45,8 +45,7 @@ class EventInstance {
   }) : venueName = venueName ?? event.location.venueName,
        city = city ?? event.location.city,
        url = url ?? event.location.url,
-       linkToEvent = linkToEvent ?? event.linkToEvent,
-       ticketLink = ticketLink ?? event.linkToEvent,
+       linkToEvents = linkToEvents ?? event.linkToEvents,
        startTime = startTime ?? event.startTime,
        endTime = endTime ?? event.endTime,
        cost = cost ?? event.cost,
@@ -60,6 +59,19 @@ class EventInstance {
 
   // Factory method to create EventInstance from map
   static EventInstance fromMap(Map instance, Event event, {List<EventRating>? ratings, List<Proposal>? proposals}) {
+    // Handle linkToEvents - convert to List<String>
+    List<String>? linkToEvents;
+    final ticketLinkData = instance['ticket_link'];
+ 
+    if (ticketLinkData is List) {
+      linkToEvents = ticketLinkData.cast<String>();
+    } else if (ticketLinkData is String && ticketLinkData.contains(',')) {
+      // Handle comma-separated string
+      linkToEvents = ticketLinkData.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    } else if (ticketLinkData != null) {
+      linkToEvents = [ticketLinkData.toString()];
+    }
+    
     return EventInstance(
       eventInstanceId: instance['instance_id'],
       event: event,
@@ -67,7 +79,7 @@ class EventInstance {
       venueName: instance['venue_name']?.toString().capitalizeWords ?? event.location.venueName.capitalizeWords,
       city: instance['city']?.toString().capitalizeWords ?? event.location.city.capitalizeWords,
       url: instance['google_maps_link'] ?? event.location.url,
-      ticketLink: instance['ticket_link'] ?? event.linkToEvent,
+      linkToEvents: [...(linkToEvents ?? []), ...(event.linkToEvents)],
       startTime: parseTimeOfDay(instance['start_time']) ?? event.startTime,
       endTime: parseTimeOfDay(instance['end_time']) ?? event.endTime,
       cost: instance['cost'] ?? event.cost,
@@ -89,7 +101,7 @@ class EventInstance {
     String? venueName,
     String? city,
     String? url,
-    String? linkToEvent,
+    List<String>? linkToEvents,
     String? ticketLink,
     TimeOfDay? startTime,
     TimeOfDay? endTime,
@@ -109,8 +121,7 @@ class EventInstance {
       venueName: venueName ?? this.venueName,
       city: city ?? this.city,
       url: url ?? this.url,
-      linkToEvent: linkToEvent ?? this.linkToEvent,
-      ticketLink: ticketLink ?? this.ticketLink,
+      linkToEvents: linkToEvents ?? this.linkToEvents,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       cost: cost ?? this.cost,
@@ -142,8 +153,13 @@ class EventInstance {
     addIfDifferent('venueName', instance1.venueName, instance2.venueName);
     addIfDifferent('city', instance1.city, instance2.city);
     addIfDifferent('url', instance1.url, instance2.url);
-    addIfDifferent('linkToEvent', instance1.linkToEvent, instance2.linkToEvent);
-    addIfDifferent('ticketLink', instance1.ticketLink, instance2.ticketLink);
+    // Compare linkToEvents
+    if (!listEquals(instance1.linkToEvents, instance2.linkToEvents)) {
+      differences['linkToEvents'] = {
+        'old': instance1.linkToEvents,
+        'new': instance2.linkToEvents,
+      };
+    }
     
     // Compare TimeOfDay objects
     if (instance1.startTime.hour != instance2.startTime.hour || 

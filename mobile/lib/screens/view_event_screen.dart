@@ -95,6 +95,24 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     );
   }
 
+  (SvgIcon, String) getIconAndLabel(String link) {
+    final icon = SvgIcon(
+      icon: SvgIconData("assets/icons/line-md_link.svg"),
+      size: 18,
+    );
+    if (link.contains('facebook')) {
+      return (icon, 'Facebook');
+    } else if (link.contains('instagram')) {
+      return (icon, 'Instagram');
+    } else if (link.contains('wa.me')) {
+      return (icon, 'WhatsApp');
+    } else if (link.contains('eventbrite')) {
+      return (icon, 'EventBrite');
+    } else {
+      return (icon, 'Website');
+    }
+  }
+
   Widget _buildEventContent(EventInstance eventInstance, AppLocalizations l10n) {
     final event = eventInstance.event;
     final currentUserId = Supabase.instance.client.auth.currentUser?.id;
@@ -215,15 +233,16 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                     color: Theme.of(context).colorScheme.primary, size: 18),
                 text: '${eventInstance.venueName}, ${eventInstance.city}',
                 linkUrl: eventInstance.url),
-            if (eventInstance.ticketLink != null &&
-                eventInstance.ticketLink!.isNotEmpty)
-              EventDetailRow(
-                  icon: SvgIcon(
-                    icon: SvgIconData("assets/icons/line-md_link.svg"),
-                    size: 18,
-                  ),
-                  text: l10n.linkToEvent,
-                  linkUrl: eventInstance.ticketLink),
+            ...eventInstance.linkToEvents.asMap().entries.map((entry) {
+              // final index = entry.key;
+              final link = entry.value;
+              final (icon, label) = getIconAndLabel(link);
+              return EventDetailRow(
+                icon: icon,
+                text: label,
+                linkUrl: link,
+              );
+            }),
             if (eventInstance.flyerUrl != null &&
                 eventInstance.flyerUrl!.isNotEmpty)
               FlyerViewer(url: eventInstance.flyerUrl!),

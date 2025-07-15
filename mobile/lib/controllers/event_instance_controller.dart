@@ -52,7 +52,7 @@ class EventInstanceController {
       final ratingCount = eventRatings.length;
 
       final event = Event.fromMap(eventData, rating: averageRating, ratingCount: ratingCount, proposals: eventProposals);
-
+      
       // 6. Process instance proposals and ratings from the nested response
       final instanceProposals = (instanceResponse['proposals'] as List)
           .map<Proposal>((proposal) => Proposal.fromMap(proposal))
@@ -138,7 +138,7 @@ class EventInstanceController {
         'venue_name': instance.venueName,
         'city': instance.city,
         'google_maps_link': instance.url,
-        'ticket_link': instance.ticketLink,
+        'ticket_link': instance.linkToEvents.isNotEmpty ? instance.linkToEvents.join(',') : null,
         'flyer_url': instance.flyerUrl,
       };
 

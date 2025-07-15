@@ -159,9 +159,9 @@ class _EditEventInstanceScreenState extends ConsumerState<EditEventInstanceScree
             ),
             const SizedBox(height: 20),
             TicketsSection(
-              initialTicketLink: _eventInstance.ticketLink,
-              onTicketLinkChanged: (link) => setState(() {
-                _eventInstance = _eventInstance.copyWith(ticketLink: link);
+              initialTicketLinks: _eventInstance.linkToEvents,
+              onTicketLinksChanged: (links) => setState(() {
+                _eventInstance = _eventInstance.copyWith(linkToEvents: links);
               }),
               validator: (value) {
                 if (value == null || value.isEmpty) return null;
