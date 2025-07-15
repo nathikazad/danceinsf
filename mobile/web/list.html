@@ -45,12 +45,76 @@
         #copyButton:active {
             background-color: #3d8b40;
         }
+        .zone-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .zone-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: white;
+            color: #333;
+        }
+        .zone-button:hover {
+            border-color: #4CAF50;
+        }
+        .zone-button.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <div id="content">Loading...</div>
+    <div class="zone-buttons">
+        <button class="zone-button active" onclick="switchZone('San Francisco')">San Francisco</button>
+        <button class="zone-button" onclick="switchZone('Mexico')">Mexico</button>
+    </div>
+    <div id="content" class="loading">Loading...</div>
     <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
     <script>
+        let currentZone = 'San Francisco';
+
+        function switchZone(zone) {
+            currentZone = zone;
+            
+            // Update button states
+            document.querySelectorAll('.zone-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reload data with new zone
+            loadEvents(zone);
+        }
+
+        function loadEvents(zone) {
+            document.getElementById('content').textContent = 'Loading...';
+            document.getElementById('content').className = 'loading';
+            
+            const url = `https://swsvvoysafsqsgtvpnqg.supabase.co/functions/v1/list_events?zone=${encodeURIComponent(zone)}`;
+            
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('content').textContent = data;
+                    document.getElementById('content').className = '';
+                })
+                .catch(error => {
+                    document.getElementById('content').textContent = 'Error loading data: ' + error.message;
+                    document.getElementById('content').className = '';
+                });
+        }
+
         function copyToClipboard() {
             const content = document.getElementById('content').textContent;
             navigator.clipboard.writeText(content).then(() => {
@@ -65,14 +129,8 @@
             });
         }
 
-        fetch('https://swsvvoysafsqsgtvpnqg.supabase.co/functions/v1/list_events')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('content').textContent = data;
-            })
-            .catch(error => {
-                document.getElementById('content').textContent = 'Error loading data: ' + error.message;
-            });
+        // Load initial data
+        loadEvents(currentZone);
     </script>
 </body>
 </html>

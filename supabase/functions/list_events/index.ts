@@ -10,13 +10,28 @@ Deno.serve(async (req) => {
     return new Response('ok', {
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
       }
     });
   }
 
   try {
+    // Parse request body to get zone parameter
+    let zone = "San Francisco" // default value
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json()
+        zone = body.zone || "San Francisco"
+      } catch (_) {
+        // If body parsing fails, use default zone
+        console.log('Failed to parse request body, using default zone:', zone)
+      }
+    } else if (req.method === 'GET') {
+      const url = new URL(req.url)
+      zone = url.searchParams.get('zone') || "San Francisco"
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
@@ -46,12 +61,14 @@ Deno.serve(async (req) => {
           default_venue_name,
           default_city,
           event_type,
-          default_start_time
+          default_start_time,
+          zone
         )
       `)
       .gte('instance_date', monday.toISOString().split('T')[0])
       .lte('instance_date', sunday.toISOString().split('T')[0])
       .contains('events.event_type', ['Social'])
+      .eq('events.zone', zone)
       .order('instance_date', { ascending: true })
       .order('start_time', { ascending: true })
 
@@ -62,8 +79,8 @@ Deno.serve(async (req) => {
     // Format events into the requested string format
     const formattedEvents = events.map(event => {
       const date = new Date(event.instance_date)
-      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
-      const venueName = event.venue_name || event.events.default_venue_name
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })
+      // const venueName = event.venue_name || event.events.default_venue_name
       const city = event.city || event.events.default_city
       
       // Format time in AM/PM from default_start_time (hh:mm:ss)
@@ -74,13 +91,16 @@ Deno.serve(async (req) => {
         ? `${formattedHours}${ampm}`
         : `${formattedHours}:${minutes.toString().padStart(2, '0')}${ampm}`
       
-      return `${dayName}: ${event.events.name} (${city}) ${formattedTime} - sfdn.cc/${event.short_url_prefix.toLowerCase()}`
+      return `${dayName}: ${event.events.name} ${formattedTime} (${city}) - sfdn.cc/${event.short_url_prefix.toLowerCase()}`
     }).join('\n')
 
     // Format the date range for the header
     const headerDate = `${monday.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })} - ${sunday.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}`
-    
-    const fullResponse = `Socials for week ${headerDate}\n\n${formattedEvents}\n\nVisit https://wheredothey.dance for more info`
+    let url = "https://wheredothey.dance"
+    if (zone !== "San Francisco") {
+      url = `https://dondebailan.com`
+    }
+    const fullResponse = `Socials for week ${headerDate} in ${zone}\n\n${formattedEvents}\n\nVisit ${url} for more info`
 
     return new Response(fullResponse, {
       headers: {
