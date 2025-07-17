@@ -63,6 +63,14 @@ class AppStorage {
   static String get zone => _zone;
   static String get locale => _locale;
 
+  static String get countryCode {
+    if(_zone == 'San Francisco') {
+      return '1';
+    } else {
+      return '52';
+    }
+  }
+
   static Future<void> setZone(String zone) async {
     _zone = zone;
     final prefs = await SharedPreferences.getInstance();

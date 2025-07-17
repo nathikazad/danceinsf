@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 
@@ -179,7 +180,8 @@ String buildFullLink(IconOption option, String input) {
       return 'https://instagram.com/$trimmed';
     case 'WhatsApp':
       final phone = trimmed.replaceAll(RegExp(r'\D'), '');
-      final withCountry = phone.startsWith('52') ? phone : '52$phone';
+      final countryCode = AppStorage.countryCode;
+      final withCountry = phone.startsWith(countryCode) ? phone : '$countryCode$phone';
       return 'https://wa.me/$withCountry';
     default:
       return trimmed;
@@ -193,7 +195,7 @@ MapEntry<IconOption, String> deconstructLink(String link) {
     }
     if (option.label == 'WhatsApp' && link.startsWith('https://wa.me/')) {
       var phone = link.replaceFirst('https://wa.me/', '');
-      if (phone.startsWith('52')) phone = phone.substring(2); // Remove default country code
+      if (phone.startsWith(AppStorage.countryCode)) phone = phone.substring(AppStorage.countryCode.length); // Remove default country code
       return MapEntry(option, phone);
     }
   }

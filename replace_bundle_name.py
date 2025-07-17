@@ -442,8 +442,8 @@ def main():
             print(f"- {file_path}")
     
     # Update verify screen
-    if update_verify_screen(mobile_dir, location):
-        print("\nUpdated verify screen with location-specific phone number format")
+    # if update_verify_screen(mobile_dir, location):
+    #     print("\nUpdated verify screen with location-specific phone number format")
 
     # Update city in web/index.html
     update_city_in_web_index(mobile_dir, location)

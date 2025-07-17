@@ -1,3 +1,4 @@
+import 'package:dance_sf/utils/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +24,7 @@ class VerifyScreen extends ConsumerStatefulWidget {
 
 class _VerifyScreenState extends ConsumerState<VerifyScreen> {
   final TextEditingController _countryCodeController =
-      TextEditingController(text: '+1');
+      TextEditingController(text: '+${AppStorage.countryCode}');
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
 
@@ -173,7 +174,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                       controller: _countryCodeController,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
-                        hintText: '+1',
+                        hintText: '+${AppStorage.countryCode}',
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                         contentPadding: const EdgeInsets.symmetric(
@@ -188,7 +189,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
-                        hintText: '234 5323 212',
+                        hintText: AppStorage.zone == 'San Francisco' ? '234 5323 212' : '55 1234 5678',
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                         contentPadding: const EdgeInsets.symmetric(
