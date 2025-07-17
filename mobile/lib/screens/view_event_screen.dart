@@ -1,4 +1,5 @@
 import 'package:dance_sf/controllers/log_controller.dart';
+import 'package:dance_sf/widgets/add_event_widgets/tickets_section.dart';
 import 'package:dance_sf/widgets/view_event_widgets/ratings_section.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/controllers/event_instance_controller.dart';
@@ -93,24 +94,6 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
         return _buildEventContent(snapshot.data!, l10n);
       },
     );
-  }
-
-  (SvgIcon, String) getIconAndLabel(String link) {
-    final icon = SvgIcon(
-      icon: SvgIconData("assets/icons/line-md_link.svg"),
-      size: 18,
-    );
-    if (link.contains('facebook')) {
-      return (icon, 'Facebook');
-    } else if (link.contains('instagram')) {
-      return (icon, 'Instagram');
-    } else if (link.contains('wa.me')) {
-      return (icon, 'WhatsApp');
-    } else if (link.contains('eventbrite')) {
-      return (icon, 'EventBrite');
-    } else {
-      return (icon, 'Website');
-    }
   }
 
   Widget _buildEventContent(EventInstance eventInstance, AppLocalizations l10n) {
@@ -236,10 +219,10 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
             ...eventInstance.linkToEvents.asMap().entries.map((entry) {
               // final index = entry.key;
               final link = entry.value;
-              final (icon, label) = getIconAndLabel(link);
+              final iconOption = getIconOption(link);
               return EventDetailRow(
-                icon: icon,
-                text: label,
+                icon: iconOption.icon,
+                text: iconOption.label,
                 linkUrl: link,
               );
             }),

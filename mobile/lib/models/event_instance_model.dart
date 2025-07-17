@@ -71,7 +71,6 @@ class EventInstance {
     } else if (ticketLinkData != null) {
       linkToEvents = [ticketLinkData.toString()];
     }
-    
     return EventInstance(
       eventInstanceId: instance['instance_id'],
       event: event,
@@ -79,7 +78,10 @@ class EventInstance {
       venueName: instance['venue_name']?.toString().capitalizeWords ?? event.location.venueName.capitalizeWords,
       city: instance['city']?.toString().capitalizeWords ?? event.location.city.capitalizeWords,
       url: instance['google_maps_link'] ?? event.location.url,
-      linkToEvents: [...(linkToEvents ?? []), ...(event.linkToEvents)],
+      linkToEvents: [
+        ...(linkToEvents ?? []),
+        ...(event.linkToEvents)
+      ].where((e) => e.isNotEmpty).toSet().toList().cast<String>(),
       startTime: parseTimeOfDay(instance['start_time']) ?? event.startTime,
       endTime: parseTimeOfDay(instance['end_time']) ?? event.endTime,
       cost: instance['cost'] ?? event.cost,
@@ -89,6 +91,7 @@ class EventInstance {
       proposals: proposals,
       excitedUsers: toStringList(instance['excited_users']),
       shortUrl: instance['short_url_prefix'],
+      flyerUrl: instance['flyer_url'] ?? event.flyerUrl,
     );
   }
 

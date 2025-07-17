@@ -159,18 +159,22 @@ class _EditEventInstanceScreenState extends ConsumerState<EditEventInstanceScree
             ),
             const SizedBox(height: 20),
             TicketsSection(
-              initialTicketLinks: _eventInstance.linkToEvents,
+              initialTicketLinks: _eventInstance.linkToEvents
+              .toSet()
+              .difference(_eventInstance.event.linkToEvents.toSet())
+              .toList(),
               onTicketLinksChanged: (links) => setState(() {
+                print(links);
                 _eventInstance = _eventInstance.copyWith(linkToEvents: links);
               }),
-              validator: (value) {
-                if (value == null || value.isEmpty) return null;
-                final uri = Uri.tryParse(value);
-                if (uri == null || !uri.isAbsolute) {
-                  return 'Please enter a valid URL';
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == null || value.isEmpty) return null;
+              //   final uri = Uri.tryParse(value);
+              //   if (uri == null || !uri.isAbsolute) {
+              //     return 'Please enter a valid URL';
+              //   }
+              //   return null;
+              // },
             ),
             const SizedBox(height: 20),
             UploadSection(
