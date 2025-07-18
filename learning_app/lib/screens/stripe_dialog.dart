@@ -4,6 +4,8 @@ import 'package:dance_shared/auth/auth_service.dart';
 import 'package:learning_app/screens/login_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter_stripe_web/flutter_stripe_web.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class StripePaymentDialog extends ConsumerStatefulWidget {
   const StripePaymentDialog({super.key});
@@ -18,13 +20,23 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   bool _paymentSuccess = false;
   String _selectedPaymentMethod = 'credit_card';
   Map<String, dynamic>? paymentIntentData;
+  String? _clientSecret;
 
   @override
   void initState() {
     super.initState();
   }
 
-  Future<Map<String, dynamic>> createPaymentIntent(String amount, String currency) async {
+  String getReturnUrl() {
+    if (kIsWeb) {
+      // For web, return the current URL
+      return Uri.base.toString();
+    }
+    // For mobile, return a custom URL scheme
+    return 'mybachatamoves://payment-return';
+  }
+
+  Future<Map<String, dynamic>> createPaymentIntent(int amount, String currency) async {
     try {
       // Get the current user
       final user = Supabase.instance.client.auth.currentUser;
@@ -58,7 +70,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
     }
   }
 
-  Future<void> makePayment(String amount) async {
+  Future<void> makePayment(int amount) async {
     try {
       setState(() {
         _isLoading = true;
@@ -66,28 +78,77 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       });
 
       paymentIntentData = await createPaymentIntent(amount, 'usd');
-      debugPrint("payment data: ${paymentIntentData!['client_secret']}");
+      _clientSecret = paymentIntentData!['client_secret'];
+      debugPrint("payment data: $_clientSecret");
 
+      if (kIsWeb) {
+        // Web platform - use PaymentElement
+        await _handleWebPayment();
+      } else {
+        // Mobile platform - use PaymentSheet
+        await _handleMobilePayment();
+      }
+    } catch (error) {
+      paymentIntentData = null;
+      _clientSecret = null;
+      debugPrint("Error makePayment: $error");
+      setState(() {
+        _error = error.toString();
+        _isLoading = false;
+      });
+      rethrow;
+    }
+  }
+
+  Future<void> _handleWebPayment() async {
+    try {
+      await WebStripe.instance.confirmPaymentElement(
+        ConfirmPaymentElementOptions(
+          confirmParams: ConfirmPaymentParams(return_url: getReturnUrl()),
+        ),
+      );
+      
+      setState(() {
+        _paymentSuccess = true;
+        _isLoading = false;
+      });
+
+      // Close dialog after success
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+    } catch (error) {
+      debugPrint("Error _handleWebPayment: $error");
+      setState(() {
+        _error = error.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleMobilePayment() async {
+    try {
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           customFlow: false,
           merchantDisplayName: 'My Bachata Moves',
-          paymentIntentClientSecret: paymentIntentData!['client_secret'],
+          paymentIntentClientSecret: _clientSecret!,
           style: ThemeMode.system,
         ),
       ).then((value) async {
         await displayPaymentSheet();
         debugPrint("paid successfully: $value");
       }).onError((error, stackTrace) {
-        debugPrint("Error makePayment: $error");
+        debugPrint("Error _handleMobilePayment: $error");
         setState(() {
           _error = error.toString();
           _isLoading = false;
         });
       });
     } catch (error) {
-      paymentIntentData = null;
-      debugPrint("Error makePayment: $error");
+      debugPrint("Error _handleMobilePayment: $error");
       setState(() {
         _error = error.toString();
         _isLoading = false;
@@ -100,6 +161,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
         paymentIntentData = null;
+        _clientSecret = null;
         debugPrint("paid successfully");
         await Stripe.instance.confirmPaymentSheetPayment();
         
@@ -205,7 +267,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: _isLoading ? null : () => makePayment('4900'), // $49.00 in cents
+        onPressed: _isLoading ? null : () => makePayment(4900), // $49.00 in cents (number, not string)
         icon: Icon(buttonIcon, color: white),
         label: Text(buttonText, style: const TextStyle(fontWeight: FontWeight.bold)),
         style: ElevatedButton.styleFrom(
@@ -216,6 +278,24 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
           ),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
+      ),
+    );
+  }
+
+  Widget _buildWebPaymentElement() {
+    if (_clientSecret == null) return const SizedBox.shrink();
+    
+    return Container(
+      height: 450,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: PaymentElement(
+        autofocus: true,
+        enablePostalCode: true,
+        onCardChanged: (_) {},
+        clientSecret: _clientSecret!,
       ),
     );
   }
@@ -331,17 +411,61 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   style: TextStyle(color: brown.withOpacity(0.7)),
                 ),
                 const SizedBox(height: 24),
-                _buildPaymentMethodSelector(),
-                const SizedBox(height: 24),
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Text(_error!, style: TextStyle(color: orange)),
-                  ),
-                if (_isLoading)
-                  const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.orange))
-                else
-                  _buildPaymentButton(),
+                if (kIsWeb) ...[
+                  // Web platform - show PaymentElement
+                  if (_clientSecret != null) ...[
+                    _buildWebPaymentElement(),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : () => _handleWebPayment(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: orange,
+                          foregroundColor: white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: _isLoading 
+                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Text('Pay \$49', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ] else ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : () => makePayment(4900),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: orange,
+                          foregroundColor: white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: _isLoading 
+                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Text('Continue to Payment', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
+                ] else ...[
+                  // Mobile platform - show payment method selector
+                  _buildPaymentMethodSelector(),
+                  const SizedBox(height: 24),
+                  if (_error != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(_error!, style: TextStyle(color: orange)),
+                    ),
+                  if (_isLoading)
+                    const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.orange))
+                  else
+                    _buildPaymentButton(),
+                ],
                 const SizedBox(height: 12),
                 Text(
                   'Secure payment powered by Stripe',
