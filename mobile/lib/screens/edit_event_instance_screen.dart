@@ -1,3 +1,4 @@
+import 'package:dance_sf/widgets/add_event_widgets/description_section.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/controllers/event_instance_controller.dart';
 import 'package:dance_sf/controllers/proposal_controller.dart';
@@ -184,6 +185,14 @@ class _EditEventInstanceScreenState extends ConsumerState<EditEventInstanceScree
               }),
             ),
             const SizedBox(height: 28),
+            DescriptionSection(
+              description: _eventInstance.description,
+              onDescriptionChanged: (Map<String, String>? description) {
+                setState(() {
+                  _eventInstance = _eventInstance.copyWith(description: description);
+                });
+              },
+            ),
             SizedBox(
               width: double.infinity,
               height: 48,

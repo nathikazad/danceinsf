@@ -1,3 +1,5 @@
+import 'package:dance_sf/widgets/add_event_widgets/bank_info_section.dart';
+import 'package:dance_sf/widgets/add_event_widgets/description_section.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/controllers/proposal_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -202,6 +204,20 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
               fileUrl: _event.flyerUrl,
               onFileChanged: (url) => setState(() {
                 _event = _event.copyWith(flyerUrl: url);
+              }),
+            ),
+            DescriptionSection(
+              description: _event.description,
+              onDescriptionChanged: (Map<String, String>? description) {
+                setState(() {
+                  _event = _event.copyWith(description: description);
+                });
+              },
+            ),
+            BankInfoSection(
+              bankInfo: _event.bankInfo,
+              onBankInfoChanged: (bankInfo) => setState(() {
+                _event = _event.copyWith(bankInfo: bankInfo);
               }),
             ),
             const SizedBox(height: 28),

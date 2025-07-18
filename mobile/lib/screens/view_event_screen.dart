@@ -228,18 +228,19 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                 linkUrl: link,
               );
             }),
-            if (eventInstance.flyerUrl != null &&
-                eventInstance.flyerUrl!.isNotEmpty)
-              FlyerViewer(url: eventInstance.flyerUrl!),
+            if (eventInstance.flyerUrl != null ||
+                event.flyerUrl != null)
+              FlyerViewer(url: eventInstance.flyerUrl ?? event.flyerUrl!),
+
+            if (event.description != null || eventInstance.description != null)
+              ...[
+                const SizedBox(height: 16),
+                EventDescription(description: eventInstance.description ?? event.description!),
+              ],
             if (event.bankInfo != null)
               ...[
                 const SizedBox(height: 16),
                 BankInfoWidget(bankInfo: event.bankInfo!),
-              ],
-            if (event.description != null && event.description!.isNotEmpty)
-              ...[
-                const SizedBox(height: 16),
-                EventDescription(description: event.description!),
               ],
             const SizedBox(height: 16),
             if (!eventInstance.hasStarted) ...[ 

@@ -1,3 +1,5 @@
+import 'package:dance_sf/widgets/add_event_widgets/bank_info_section.dart';
+import 'package:dance_sf/widgets/add_event_widgets/description_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -199,6 +201,23 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
                 _event = _event.copyWith(flyerUrl: url);
               }),
             ),
+
+            const SizedBox(height: 20),
+            DescriptionSection(
+              description: _event.description,
+              onDescriptionChanged: (Map<String, String>? description) {
+                setState(() {
+                  _event = _event.copyWith(description: description);
+                });
+              },
+            ),
+            BankInfoSection(
+              bankInfo: _event.bankInfo,
+              onBankInfoChanged: (bankInfo) => setState(() {
+                _event = _event.copyWith(bankInfo: bankInfo);
+              }),
+            ),
+
             // const SizedBox(height: 20),
             // OrganizerSection(
             //   name: _event.name,

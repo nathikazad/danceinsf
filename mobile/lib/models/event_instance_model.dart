@@ -91,7 +91,7 @@ class EventInstance {
       proposals: proposals,
       excitedUsers: toStringList(instance['excited_users']),
       shortUrl: instance['short_url_prefix'],
-      flyerUrl: instance['flyer_url'] ?? event.flyerUrl,
+      flyerUrl: instance['flyer_url'],
     );
   }
 
