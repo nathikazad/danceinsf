@@ -208,7 +208,9 @@ class AuthNotifier extends ChangeNotifier {
         phone: phoneNumber,
       );
       print('OTP sent successfully');
+      // OTP was sent successfully
       _setState(_state.copyWith(isLoading: false));
+      // LogController.logNavigation('OTP sent successfully');
     } catch (e) {
       print('Error sending OTP: $e');
       _setState(_state.copyWith(error: e.toString(), isLoading: false));
@@ -226,8 +228,10 @@ class AuthNotifier extends ChangeNotifier {
       
       final user = response.user;
       if (user == null) throw 'No user returned from Supabase';
-      
-      print('User ${user.phone} signed in');
+      // LogController.signedInCallback().then((value) {
+      //   print('User ${user.phone} signed in');
+      //   LogController.logNavigation('User ${user.phone} signed in');
+      // });
       _setState(_state.copyWith(user: user, isLoading: false));
     } catch (e) {
       print('Error verifying OTP: $e');

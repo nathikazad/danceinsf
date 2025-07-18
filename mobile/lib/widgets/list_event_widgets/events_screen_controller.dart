@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dance_sf/widgets/list_event_widgets/week_navigator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dance_sf/auth.dart';
 import 'package:dance_sf/screens/verify_screen.dart';
+import 'package:dance_shared/dance_shared.dart';
 
 final eventsStateProvider =
     StateNotifierProvider<EventsStateNotifier, AsyncValue<List<EventInstance>>>(
