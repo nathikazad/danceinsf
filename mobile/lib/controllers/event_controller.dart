@@ -1,4 +1,3 @@
-import 'package:dance_sf/utils/string.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event_model.dart';
 import '../utils/app_storage.dart';
@@ -97,53 +96,12 @@ class EventController {
 
   static Future<String?> createEvent(Event event, DateTime? selectedDate) async {
     try {
-      // Convert event type and style to lists for database storage
-      final eventTypes = [event.type == EventType.social ? 'Social' : 'Class'];
-      final eventCategories = event.styles.map((style) => style.name).toList();
-      
-      // Convert frequency to string
-      final recurrenceType = event.frequency.toString().split('.').last.capitalize;
-      
-      // Convert TimeOfDay to string format
-      final startTimeStr = '${event.startTime.hour.toString().padLeft(2, '0')}:${event.startTime.minute.toString().padLeft(2, '0')}';
-      final endTimeStr = '${event.endTime.hour.toString().padLeft(2, '0')}:${event.endTime.minute.toString().padLeft(2, '0')}';
 
-      // Extract weekly days or monthly pattern based on schedule
-      List<String>? weeklyDays;
-      List<String>? monthlyPattern;
-      
-      if (event.schedule.frequency == Frequency.weekly && event.schedule.dayOfWeek != null) {
-        weeklyDays = [event.schedule.shortWeeklyPattern];
-      } else if (event.schedule.frequency == Frequency.monthly && 
-                event.schedule.dayOfWeek != null && 
-                event.schedule.weeksOfMonth != null) {
-        monthlyPattern = [event.schedule.shortMonthlyPattern];
-      }
 
-      final eventData = {
-        'name': event.name.capitalizeWords,
-        'event_type': eventTypes,
-        'event_category': eventCategories,
-        'recurrence_type': recurrenceType,
-        'default_venue_name': event.location.venueName.capitalizeWords,
-        'default_city': event.location.city.capitalizeWords,
-        'default_google_maps_link': event.location.url,
-        'default_ticket_link': event.linkToEvents.isNotEmpty ? event.linkToEvents.join(',') : null,
-        'default_start_time': startTimeStr,
-        'default_end_time': endTimeStr,
-        'default_cost': event.cost,
-        'default_flyer_url': event.flyerUrl,
-        'default_description': event.description,
-        'weekly_days': weeklyDays,
-        'monthly_pattern': monthlyPattern,
-        'is_archived': false,
-        'creator_id': Supabase.instance.client.auth.currentUser!.id,
-        'zone': AppStorage.zone,
-        'gps': event.location.gpsPoint != null ? {
-          'latitude': event.location.gpsPoint!.latitude,
-          'longitude': event.location.gpsPoint!.longitude,
-        } : null,
-      };
+      final eventData = event.toMap();
+      eventData['zone'] = AppStorage.zone;
+      eventData['is_archived'] = false;
+      eventData['creator_id'] = Supabase.instance.client.auth.currentUser!.id;
 
       // Create the event in the database
       final eventResponse = await supabase.from('events').insert(eventData).select().single();
@@ -176,50 +134,7 @@ class EventController {
 
   static Future<void> updateEvent(Event event) async {
     try {
-      // Convert event type and style to lists for database storage
-      final eventTypes = [event.type == EventType.social ? 'Social' : 'Class'];
-      final eventCategories = event.styles.map((style) => style.name).toList();
-      
-      // Convert frequency to string
-      final recurrenceType = event.frequency.toString().split('.').last.capitalize;
-      
-      // Convert TimeOfDay to string format
-      final startTimeStr = '${event.startTime.hour.toString().padLeft(2, '0')}:${event.startTime.minute.toString().padLeft(2, '0')}';
-      final endTimeStr = '${event.endTime.hour.toString().padLeft(2, '0')}:${event.endTime.minute.toString().padLeft(2, '0')}';
-
-      // Extract weekly days or monthly pattern based on schedule
-      List<String>? weeklyDays;
-      List<String>? monthlyPattern;
-      
-      if (event.schedule.frequency == Frequency.weekly && event.schedule.dayOfWeek != null) {
-        weeklyDays = [event.schedule.shortWeeklyPattern];
-      } else if (event.schedule.frequency == Frequency.monthly && 
-                event.schedule.dayOfWeek != null && 
-                event.schedule.weeksOfMonth != null) {
-        monthlyPattern = [event.schedule.shortMonthlyPattern];
-      }
-
-      final eventData = {
-        'name': event.name.capitalizeWords,
-        'event_type': eventTypes,
-        'event_category': eventCategories,
-        'recurrence_type': recurrenceType,
-        'default_venue_name': event.location.venueName.capitalizeWords,
-        'default_city': event.location.city.capitalizeWords,
-        'default_google_maps_link': event.location.url,
-        'default_ticket_link': event.linkToEvents.isNotEmpty ? event.linkToEvents.join(',') : null,
-        'default_start_time': startTimeStr,
-        'default_end_time': endTimeStr,
-        'default_cost': event.cost,
-        'default_flyer_url': event.flyerUrl,
-        'default_description': event.description,
-        'weekly_days': weeklyDays,
-        'monthly_pattern': monthlyPattern,
-        'gps': event.location.gpsPoint != null ? {
-          'latitude': event.location.gpsPoint!.latitude,
-          'longitude': event.location.gpsPoint!.longitude,
-        } : null,
-      };
+      final eventData = event.toMap();
 
       await supabase
           .from('events')

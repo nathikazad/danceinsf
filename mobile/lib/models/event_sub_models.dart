@@ -123,12 +123,38 @@ extension TimeOfDayString on String {
 }
 
  TimeOfDay? parseTimeOfDay(String? timeStr) {
-    if (timeStr == null) return null;
-    
-    final parts = timeStr.split(':');
-    if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
-    
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = int.tryParse(parts[1]) ?? 0;
-    return TimeOfDay(hour: hour, minute: minute);
+  if (timeStr == null) return null;
+  
+  final parts = timeStr.split(':');
+  if (parts.length < 2) return const TimeOfDay(hour: 0, minute: 0);
+  
+  final hour = int.tryParse(parts[0]) ?? 0;
+  final minute = int.tryParse(parts[1]) ?? 0;
+  return TimeOfDay(hour: hour, minute: minute);
+}
+
+class BankInfo {
+  final String bankName;
+  final String name;
+  final String tarjeta;
+  final String clabe;
+  BankInfo({required this.bankName, required this.name, required this.tarjeta, required this.clabe});
+
+  static BankInfo fromMap(Map bankData) {
+    return BankInfo(
+      bankName: bankData['bank_name'] as String,
+      name: bankData['name'] as String,
+      tarjeta: bankData['tarjeta'] as String,
+      clabe: bankData['clabe'] as String,
+    );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'bank_name': bankName,
+      'name': name,
+      'tarjeta': tarjeta,
+      'clabe': clabe,
+    };
+  }
+}

@@ -1,5 +1,6 @@
 import 'package:dance_sf/controllers/log_controller.dart';
 import 'package:dance_sf/widgets/add_event_widgets/tickets_section.dart';
+import 'package:dance_sf/widgets/bank_info_widget.dart';
 import 'package:dance_sf/widgets/view_event_widgets/ratings_section.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/controllers/event_instance_controller.dart';
@@ -229,6 +230,12 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
             if (eventInstance.flyerUrl != null &&
                 eventInstance.flyerUrl!.isNotEmpty)
               FlyerViewer(url: eventInstance.flyerUrl!),
+            if (event.bankInfo != null)
+              ...[
+                const SizedBox(height: 16),
+                BankInfoWidget(bankInfo: event.bankInfo!),
+              ],
+            const SizedBox(height: 16),
             if (!eventInstance.hasStarted) ...[ 
               const SizedBox(height: 16),
               ExcitementWidget(
@@ -237,6 +244,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
                 onExcitementChanged: _loadEventInstance
               ),
             ],
+
             const SizedBox(height: 24),
             if (eventInstance.hasStarted)
               EventRatingSummary(

@@ -145,5 +145,18 @@
     "bachata": "Bachata",
     "downloadBanner": "Para un mejor experiencia",
     "downloadButton": "Descarga App",
-    "downloadingSnackbar": "Descargando app de"
+    "downloadingSnackbar": "Descargando app de",
+    "bankInfoTitle": "Información Bancaria",
+    "bankInfoBank": "Banco",
+    "bankInfoAccountHolder": "Titular de la cuenta",
+    "bankInfoCardNumber": "Número de tarjeta",
+    "bankInfoClabe": "CLABE",
+    "bankInfoCopied": "{field} copiado al portapapeles",
+    "@bankInfoCopied": {
+    "placeholders": {
+        "field": {
+        "type": "String"
+        }
+    }
+    }
 } 

@@ -29,6 +29,7 @@ class Event {
   final String? flyerUrl;
   final String? organizerId;
   final String creatorId;
+  final BankInfo? bankInfo;
 
   Event({
     required this.eventId,
@@ -49,6 +50,7 @@ class Event {
     this.proposals,
     this.flyerUrl,
     this.organizerId,
+    this.bankInfo,
   }) : linkToEvents = linkToEvents ?? [];
 
   // Factory method to create Event from map
@@ -71,6 +73,11 @@ class Event {
       } else {
         linkToEvents = [ticketLinkData.toString()];
       }
+    }
+
+    BankInfo? bankInfo;
+    if(eventData['extras'] != null && eventData['extras']['bank_info'] != null) {
+      bankInfo = BankInfo.fromMap(eventData['extras']['bank_info']);
     }
     
     return Event(
@@ -104,6 +111,7 @@ class Event {
       proposals: proposals,
       organizerId: eventData['organizer_id'],
       creatorId: eventData['creator_id'],
+      bankInfo: bankInfo,
     );
   }
 
@@ -127,6 +135,7 @@ class Event {
     String? organizerId,
     String? flyerUrl,
     String? ticketLink,
+    BankInfo? bankInfo,
   }) {
     return Event(
       eventId: eventId ?? this.eventId,
@@ -147,7 +156,61 @@ class Event {
       creatorId: creatorId ?? this.creatorId,
       organizerId: organizerId ?? this.organizerId,
       flyerUrl: flyerUrl ?? this.flyerUrl,
+      bankInfo: bankInfo ?? this.bankInfo,
     );
+  }
+
+  /// Converts the Event to a Map for database operations
+  Map<String, dynamic> toMap() {
+    final eventTypes = [type == EventType.social ? 'Social' : 'Class'];
+    final eventCategories = styles.map((style) => style.name).toList();
+    
+    // Convert frequency to string
+    final recurrenceType = frequency.toString().split('.').last.capitalize;
+    
+    // Convert TimeOfDay to string format
+    final startTimeStr = '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}';
+    final endTimeStr = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
+
+    // Extract weekly days or monthly pattern based on schedule
+    List<String>? weeklyDays;
+    List<String>? monthlyPattern;
+    
+    if (schedule.frequency == Frequency.weekly && schedule.dayOfWeek != null) {
+      weeklyDays = [schedule.shortWeeklyPattern];
+    } else if (schedule.frequency == Frequency.monthly && 
+              schedule.dayOfWeek != null && 
+              schedule.weeksOfMonth != null) {
+      monthlyPattern = [schedule.shortMonthlyPattern];
+    }
+
+    final extras = {};
+    if (bankInfo != null) {
+      extras['bank_info'] = bankInfo!.toMap();
+    }
+
+    return {
+      'name': name.capitalizeWords,
+      'event_type': eventTypes,
+      'event_category': eventCategories,
+      'recurrence_type': recurrenceType,
+      'default_venue_name': location.venueName.capitalizeWords,
+      'default_city': location.city.capitalizeWords,
+      'default_google_maps_link': location.url,
+      'default_ticket_link': linkToEvents.isNotEmpty ? linkToEvents.join(',') : null,
+      'default_start_time': startTimeStr,
+      'default_end_time': endTimeStr,
+      'default_cost': cost,
+      'default_flyer_url': flyerUrl,
+      'default_description': description,
+      'weekly_days': weeklyDays,
+      'monthly_pattern': monthlyPattern,
+      'gps': location.gpsPoint != null ? {
+        'latitude': location.gpsPoint!.latitude,
+        'longitude': location.gpsPoint!.longitude,
+      } : null,
+      'extras': extras,
+    };
   }
 
   static Map<DateTime, List<EventInstance>> groupEventInstancesByDate(List<EventInstance> eventInstances) {
@@ -208,6 +271,14 @@ class Event {
         'new': event2.linkToEvents,
       };
     }
+    // Compare bankInfo
+    if (event1.bankInfo != event2.bankInfo) {
+      differences['bankInfo'] = {
+        'old': event1.bankInfo,
+        'new': event2.bankInfo,
+      };
+    }
+    
     addIfDifferent('cost', event1.cost, event2.cost);
     addIfDifferent('description', event1.description, event2.description);
     addIfDifferent('rating', event1.rating, event2.rating);
