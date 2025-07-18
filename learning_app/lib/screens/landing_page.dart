@@ -8,7 +8,7 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 600;
+    final isDesktop = screenWidth > 750;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F2),
       appBar: PreferredSize(
@@ -24,24 +24,8 @@ class LandingPage extends StatelessWidget {
                 vertical: isDesktop ? 48 : 24,
                 horizontal: isDesktop ? 64 : 16,
               ),
-              child: isDesktop
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(child: _HeroSection(isDesktop: true)),
-                        const SizedBox(width: 40),
-                        Expanded(child: _VideoPreview()),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        _HeroSection(isDesktop: false),
-                        const SizedBox(height: 24),
-                        _VideoPreview(),
-                      ],
-                    ),
+              child: _VideoPreview(),
             ),
-            // _StatsRow(isDesktop: isDesktop),
             Padding(
               padding: EdgeInsets.symmetric(
                 vertical: isDesktop ? 48 : 32,
@@ -69,6 +53,38 @@ class LandingPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   _FeaturesGrid(isDesktop: isDesktop),
+                  const SizedBox(height: 32),
+                  // Add centered Buy Button
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange[700],
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 48 : 32,
+                        vertical: isDesktop ? 16 : 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'Buy for \$49',
+                      style: TextStyle(
+                        fontSize: isDesktop ? 20 : 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "If you are not satisfied with the course, you can cancel within 48 hours and get a full refund. No questions asked.",
+                    style: TextStyle(
+                      fontSize: isDesktop ? 16 : 12,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
                 ],
               ),
             ),
@@ -98,11 +114,11 @@ class _LandingAppBar extends StatelessWidget {
                 TextSpan(
                   children: [
                     const TextSpan(
-                      text: 'Only For ',
+                      text: 'My Bachata',
                       style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 30),
                     ),
                     TextSpan(
-                      text: 'Bachateros',
+                      text: ' Moves',
                       style: TextStyle(color: Colors.orange[700], fontWeight: FontWeight.bold, fontSize: 30),
                     ),
                   ],
@@ -121,92 +137,6 @@ class _LandingAppBar extends StatelessWidget {
             ],
           ),
         ),
-    );
-  }
-}
-
-class _HeroSection extends StatelessWidget {
-  final bool isDesktop;
-  const _HeroSection({required this.isDesktop});
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final bool isTablet = screenWidth > 600 && screenWidth < 975;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Level up your Bachata',
-          style: TextStyle(
-            fontSize: isDesktop ? 40 : 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.orange[800],
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Learn new bachata moves and take your bachata journey to the next level',
-          style: TextStyle(
-            fontSize: isDesktop ? 20 : 15,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 24),
-        isTablet
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange[700],
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                      textStyle: TextStyle(fontSize: isDesktop ? 18 : 15, fontWeight: FontWeight.bold),
-                    ),
-                    child: const Text('Start Learning Today'),
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Watch Preview'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      side: const BorderSide(color: Colors.black12),
-                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                      textStyle: TextStyle(fontSize: isDesktop ? 16 : 14),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange[700],
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                      textStyle: TextStyle(fontSize: isDesktop ? 18 : 15, fontWeight: FontWeight.bold),
-                    ),
-                    child: const Text('Start Learning Today'),
-                  ),
-                  const SizedBox(width: 16),
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Watch Preview'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      side: const BorderSide(color: Colors.black12),
-                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                      textStyle: TextStyle(fontSize: isDesktop ? 16 : 14),
-                    ),
-                  ),
-                ],
-              ),
-      ],
     );
   }
 }
@@ -239,51 +169,6 @@ class _VideoPreview extends StatelessWidget {
   }
 }
 
-class _StatsRow extends StatelessWidget {
-  final bool isDesktop;
-  const _StatsRow({required this.isDesktop});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: isDesktop ? 24 : 16,
-        horizontal: isDesktop ? 64 : 16,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _StatItem(label: '5+', value: 'Bachata Lessons'),
-          const SizedBox(width: 32),
-          _StatItem(label: '24/7', value: 'Access'),
-          // const SizedBox(width: 32),
-          // _StatItem(label: '', value: 'Lifetime Updates'),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
-  const _StatItem({required this.label, required this.value});
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange),
-        ),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
-        ),
-      ],
-    );
-  }
-}
-
 class _FeaturesGrid extends StatelessWidget {
   final bool isDesktop;
   const _FeaturesGrid({required this.isDesktop});
@@ -292,33 +177,39 @@ class _FeaturesGrid extends StatelessWidget {
     final features = [
       _FeatureCard(
         icon: Icons.music_note,
-        title: 'Authentic Bachata Style',
-        description: 'Learn traditional Dominican bachata and modern fusion styles from certified instructors.',
+        title: 'Only For Socials',
+        description: 'All our content is focused on social dancing not choreographies. That means you will be taught all the subtle details so you can perform these moves with anybody.',
+        isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.groups,
-        title: 'Progressive Learning',
-        description: 'Structured curriculum from basic steps to advanced combinations and partner work.',
+        title: 'Body Language',
+        description: 'Dancing Bachata is a conversation between two bodies. We focus on body language and teach you how to communicate with your partner, how to send signals and how to respond to them.',
+        isDesktop: isDesktop,
+      ),
+      _FeatureCard(
+        icon: Icons.music_note,
+        title: 'No Prizes, Only Fun',
+        description: 'This is not for people who want to win dance competitions, this is for people who just want to dance and enjoy the moment. We will make it easy for you to have fun.',
+        isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.access_time,
-        title: 'Learn at Your Pace',
-        description: "24/7 access to all lessons. Practice when it's convenient for you, anywhere in the world.",
+        title: 'No Basic Steps',
+        description: "This course is for intermediate and advanced dancers. We teach you new moves that you can use to express yourself and connect with your partner even better.",
+        isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.emoji_events,
-        title: 'Expert Instruction',
-        description: 'World-renowned bachata dancers and teachers guide you through every movement.',
+        title: 'Unlimited Replays',
+        description: 'In workshops it is hard to remember everything you learned, but with pre-recorded videos you can watch them over and over again till it becomes second nature.',
+        isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.favorite,
-        title: 'Feel the Passion',
-        description: "Connect with the emotional essence of bachata – it's more than just steps, it's expression.",
-      ),
-      _FeatureCard(
-        icon: Icons.public,
-        title: 'Global Community',
-        description: 'Join thousands of bachata lovers worldwide and share your progress with fellow dancers.',
+        title: 'Easy Review',
+        description: "We have a dedicated section for reviewing the moves you have learned. So when your memory gets fuzzy, you can quickly refresh it. ",
+        isDesktop: isDesktop,
       ),
     ];
     
@@ -340,54 +231,68 @@ class _FeatureCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-  const _FeatureCard({required this.icon, required this.title, required this.description});
+  final bool isDesktop;
+  const _FeatureCard({required this.icon, required this.title, required this.description, required this.isDesktop});
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.orange[700],
-                  shape: BoxShape.circle,
+    if (isDesktop) {
+      return SizedBox(
+        height: 320,
+        child: _card(context),
+      );
+    } else {
+      return _card(context);
+    }
+  }
+
+  Widget _card(BuildContext context) {
+      return Card(
+        elevation: 2,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Center(
+              //   child: Container(
+              //     width: 60,
+              //     height: 60,
+              //     decoration: BoxDecoration(
+              //       color: Colors.orange[700],
+              //       shape: BoxShape.circle,
+              //     ),
+              //     child: Icon(icon, color: Colors.white, size: 32),
+              //   ),
+              // ),
+              // const SizedBox(height: 20),
+              AutoSizeText(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 22,
+                  color: Colors.black,
                 ),
-                child: Icon(icon, color: Colors.white, size: 32),
+                textAlign: TextAlign.center,
+                maxLines: 1,
               ),
-            ),
-            const SizedBox(height: 20),
-            AutoSizeText(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 22,
-                color: Colors.black,
+              const SizedBox(height: 10),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF757575),
+                  fontWeight: FontWeight.w400,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              description,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xFF757575),
-                fontWeight: FontWeight.w400,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    // );
   }
 }
 
@@ -401,7 +306,7 @@ class _Footer extends StatelessWidget {
       child: Column(
         children: [
           const Text(
-            'Only For Bachateros',
+            'My Bachata Moves',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 8),
