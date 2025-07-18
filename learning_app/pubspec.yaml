@@ -37,6 +37,9 @@ dependencies:
   dance_shared:
     path: ../shared_package
 
+  # Supabase
+  supabase_flutter: ^2.3.4
+
   # State management
   flutter_riverpod: ^2.6.1
 
@@ -66,6 +69,11 @@ dependencies:
   
   # Responsive grid
   responsive_grid: ^2.4.4
+
+  # Payment processing
+  flutter_stripe: ^11.5.0
+  flutter_stripe_web: ^6.5.1
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
