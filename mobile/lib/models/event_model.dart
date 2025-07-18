@@ -22,7 +22,7 @@ class Event {
   final TimeOfDay startTime;
   final TimeOfDay endTime;
   final double cost;
-  final String? description;
+  final Map<String, String>? description;
   final double? rating;
   final int? ratingCount;
   List<Proposal>? proposals;
@@ -79,7 +79,15 @@ class Event {
     if(eventData['extras'] != null && eventData['extras']['bank_info'] != null) {
       bankInfo = BankInfo.fromMap(eventData['extras']['bank_info']);
     }
-    
+
+    Map<String, String>? description;
+    if(eventData['default_description'] != null) {
+      final descMap = eventData['default_description'] as Map;
+      description = {};
+      if (descMap['en'] != null) description['en'] = descMap['en'].toString();
+      if (descMap['es'] != null) description['es'] = descMap['es'].toString();
+    }
+
     return Event(
       eventId: eventData['event_id'],
       name: eventData['name'].toString().capitalizeWords,
@@ -105,7 +113,7 @@ class Event {
       startTime: parseTimeOfDay(eventData['default_start_time']) ?? const TimeOfDay(hour: 0, minute: 0),
       endTime: parseTimeOfDay(eventData['default_end_time']) ?? const TimeOfDay(hour: 0, minute: 0),
       cost: eventData['default_cost'],
-      description: eventData['default_description'],
+      description: description,
       rating: ratingCount > 0 ? rating : null,
       ratingCount: ratingCount,
       proposals: proposals,
@@ -127,7 +135,7 @@ class Event {
     TimeOfDay? startTime,
     TimeOfDay? endTime,
     double? cost,
-    String? description,
+    Map<String, String>? description,
     double? rating,
     int? ratingCount,
     List<Proposal>? proposals,

@@ -14,7 +14,7 @@ class EventInstance {
   final TimeOfDay startTime;
   final TimeOfDay endTime;
   final double cost;
-  final String? description;
+  final Map<String, String>? description;
   final List<EventRating> ratings;
   final bool isCancelled;
   final String eventInstanceId;
@@ -36,7 +36,7 @@ class EventInstance {
     TimeOfDay? startTime,
     TimeOfDay? endTime,
     double? cost,
-    String? description,
+    Map<String, String>? description,
     List<EventRating>? ratings,
     bool? isCancelled,
     this.proposals,
@@ -109,7 +109,7 @@ class EventInstance {
     TimeOfDay? startTime,
     TimeOfDay? endTime,
     double? cost,
-    String? description,
+    Map<String, String>? description,
     List<EventRating>? ratings,
     bool? isCancelled,
     List<Proposal>? proposals,

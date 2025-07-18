@@ -178,7 +178,7 @@ class _EditEventInstanceScreenState extends ConsumerState<EditEventInstanceScree
             ),
             const SizedBox(height: 20),
             UploadSection(
-              fileUrl: _eventInstance.description,
+              fileUrl: _eventInstance.flyerUrl,
               onFileChanged: (url) => setState(() {
                 _eventInstance = _eventInstance.copyWith(flyerUrl: url);
               }),

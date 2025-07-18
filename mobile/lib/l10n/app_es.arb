@@ -153,10 +153,11 @@
     "bankInfoClabe": "CLABE",
     "bankInfoCopied": "{field} copiado al portapapeles",
     "@bankInfoCopied": {
-    "placeholders": {
-        "field": {
-        "type": "String"
+        "placeholders": {
+            "field": {
+            "type": "String"
+            }
         }
-    }
-    }
+    },
+    "eventDescriptionTitle": "Descripción"
 } 

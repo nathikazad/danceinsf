@@ -1,6 +1,7 @@
 import 'package:dance_sf/controllers/log_controller.dart';
 import 'package:dance_sf/widgets/add_event_widgets/tickets_section.dart';
-import 'package:dance_sf/widgets/bank_info_widget.dart';
+import 'package:dance_sf/widgets/view_event_widgets/bank_info_widget.dart';
+import 'package:dance_sf/widgets/view_event_widgets/event_description.dart';
 import 'package:dance_sf/widgets/view_event_widgets/ratings_section.dart';
 import 'package:flutter/material.dart';
 import 'package:dance_sf/controllers/event_instance_controller.dart';
@@ -234,6 +235,11 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
               ...[
                 const SizedBox(height: 16),
                 BankInfoWidget(bankInfo: event.bankInfo!),
+              ],
+            if (event.description != null && event.description!.isNotEmpty)
+              ...[
+                const SizedBox(height: 16),
+                EventDescription(description: event.description!),
               ],
             const SizedBox(height: 16),
             if (!eventInstance.hasStarted) ...[ 

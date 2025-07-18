@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/event_sub_models.dart';
+import '../../models/event_sub_models.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BankInfoWidget extends StatefulWidget {
@@ -30,7 +30,7 @@ class _BankInfoWidgetState extends State<BankInfoWidget> {
 
   Widget _buildInfoRow(BuildContext context, String label, String value, String copyLabel, String copyMessage) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
         children: [
           Expanded(
@@ -90,7 +90,7 @@ class _BankInfoWidgetState extends State<BankInfoWidget> {
         children: _expanded
             ? [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
