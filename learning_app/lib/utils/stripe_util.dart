@@ -17,7 +17,6 @@ final userHasPaymentProvider = FutureProvider<bool>((ref) async {
         .select('id')
         .eq('user_id', user.id)
         .limit(1);
-    print('response: $response');
 
     return response.isNotEmpty;
   } catch (error) {

@@ -80,7 +80,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       // Get payment intent ID from the data we created earlier
       final paymentIntentId = paymentIntentData?['payment_intent_id'];
       if (paymentIntentId != null) {
-        await StripeUtil.confirmPayment(paymentIntentId, 4900, 1);
+        await StripeUtil.confirmPayment(paymentIntentId, 990, 1);
       }
       
       setState(() {
@@ -211,7 +211,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
               ] else ...[
                 Text(
-                  'Bachata Course - \$49',
+                  'Bachata Course - \$990',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -248,14 +248,14 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                       ),
                       child: _isLoading 
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('Pay \$49', style: TextStyle(fontWeight: FontWeight.bold)),
+                        : const Text('Pay \$990', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => makePayment(4900),
+                      onPressed: _isLoading ? null : () => makePayment(990),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: orange,
                         foregroundColor: white,

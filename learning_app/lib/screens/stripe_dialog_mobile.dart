@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:dance_shared/auth/auth_service.dart';
 import 'package:learning_app/screens/login_dialog.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -34,7 +35,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         _error = null;
       });
 
-      paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'usd');
+      paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'mxn');
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
 
@@ -69,7 +70,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         // Get payment intent ID from the data we created earlier
         final paymentIntentId = paymentIntentData?['payment_intent_id'];
         if (paymentIntentId != null) {
-          await StripeUtil.confirmPayment(paymentIntentId, 4900, 1);
+          await StripeUtil.confirmPayment(paymentIntentId, 990, 1);
         }
         
         paymentIntentData = null;
@@ -105,6 +106,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final auth = ref.watch(authProvider);
     final user = auth.user;
     final orange = Colors.orange[700]!;
@@ -132,7 +134,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Complete Your Purchase',
+                l10n.completeYourPurchase,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -145,7 +147,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 Icon(Icons.check_circle, color: Colors.green, size: 64),
                 const SizedBox(height: 16),
                 Text(
-                  'Payment Successful!',
+                  l10n.paymentSuccessful,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -154,7 +156,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Thank you for your purchase. You will receive access to the course shortly.',
+                  l10n.paymentSuccessMessage,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: brown),
                 ),
@@ -163,7 +165,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 Icon(Icons.lock, color: orange, size: 64),
                 const SizedBox(height: 16),
                 Text(
-                  'Login Required',
+                  l10n.loginRequired,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -172,7 +174,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Please log in to complete your purchase.',
+                  l10n.loginRequiredMessage,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: brown.withOpacity(0.7)),
                 ),
@@ -195,12 +197,12 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('Login to Continue', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(l10n.loginToContinue, style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ),
               ] else ...[
                 Text(
-                  'Bachata Course - \$49',
+                  l10n.bachataCoursePrice,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -209,7 +211,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Get lifetime access to our comprehensive bachata course with unlimited replays.',
+                  l10n.courseDescription,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: brown.withOpacity(0.7)),
                 ),
@@ -234,11 +236,11 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   StripeUtil.buildPaymentButton(
                     selectedPaymentMethod: _selectedPaymentMethod,
                     isLoading: _isLoading,
-                    onPressed: () => makePayment(4900),
+                    onPressed: () => makePayment(990),
                   ),
                 const SizedBox(height: 12),
                 Text(
-                  'Secure payment powered by Stripe',
+                  l10n.securePaymentMessage,
                   style: TextStyle(
                     fontSize: 12,
                     color: brown.withOpacity(0.5),

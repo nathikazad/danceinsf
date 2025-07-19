@@ -18,7 +18,7 @@
   "unlimitedReplaysDescription": "In workshops it is hard to remember everything you learned, but with pre-recorded videos you can watch them over and over again till it becomes second nature.",
   "easyReview": "Easy Review",
   "easyReviewDescription": "We have a dedicated section for reviewing the moves you have learned. So when your memory gets fuzzy, you can quickly refresh it.",
-  "buyForPrice": "Buy for $49",
+  "buyForPrice": "Buy for $990",
   "refundPolicy": "If you are not satisfied with the course, you can cancel within 48 hours and get a full refund. No questions asked.",
   "footerTagline": "Learn new bachata sensual moves from the comfort of your home.",
   "copyright": "© 2024 Only For Bachateros. All rights reserved.",
@@ -31,5 +31,14 @@
   "signInWithGoogle": "Sign in with Google",
   "enterOtp": "Enter OTP",
   "verifyOtp": "Verify OTP",
-  "backToPhoneInput": "Back to phone input"
+  "backToPhoneInput": "Back to phone input",
+  "completeYourPurchase": "Complete Your Purchase",
+  "paymentSuccessful": "Payment Successful!",
+  "paymentSuccessMessage": "Thank you for your purchase. You will receive access to the course shortly.",
+  "loginRequired": "Login Required",
+  "loginRequiredMessage": "Please log in to complete your purchase.",
+  "loginToContinue": "Login to Continue",
+  "bachataCoursePrice": "Bachata Course - $49",
+  "courseDescription": "Get lifetime access to our comprehensive bachata course with unlimited replays.",
+  "securePaymentMessage": "Secure payment powered by Stripe"
 } 
