@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:dance_shared/auth/auth_service.dart';
 class LoginDialog extends ConsumerStatefulWidget {
   const LoginDialog({super.key});
@@ -24,6 +25,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final auth = ref.watch(authProvider);
     final authNotifier = ref.read(authProvider.notifier);
 
@@ -58,7 +60,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Sign in to My Bachata Moves',
+                l10n.signIn,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -77,8 +79,8 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    labelText: 'Phone Number',
-                    hintText: '+1 555 123 4567',
+                    labelText: l10n.phoneNumber,
+                    hintText: l10n.phoneNumberHint,
                     labelStyle: TextStyle(color: brown),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: orange),
@@ -118,7 +120,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                     ),
                     child: isLoading
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('Send OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(l10n.sendOtp, style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -128,7 +130,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     icon: Icon(Icons.apple, color: brown),
-                    label: const Text('Sign in with Apple'),
+                    label: Text(l10n.signInWithApple),
                     onPressed: isLoading
                         ? null
                         : () async {
@@ -158,7 +160,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     icon: Icon(Icons.g_mobiledata, color: orange),
-                    label: const Text('Sign in with Google'),
+                    label: Text(l10n.signInWithGoogle),
                     onPressed: isLoading
                         ? null
                         : () async {
@@ -180,7 +182,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                   controller: _otpController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Enter OTP',
+                    labelText: l10n.enterOtp,
                     labelStyle: TextStyle(color: brown),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: orange),
@@ -219,7 +221,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                     ),
                     child: isLoading
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('Verify OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(l10n.verifyOtp, style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -234,7 +236,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                             });
                           }
                         },
-                  child: Text('Back to phone input', style: TextStyle(color: brown)),
+                  child: Text(l10n.backToPhoneInput, style: TextStyle(color: brown)),
                 ),
               ],
             ],

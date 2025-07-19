@@ -22,5 +22,14 @@
   "refundPolicy": "Si no estás satisfecho con el curso, puedes cancelar dentro de las 48 horas y obtener un reembolso completo. Sin preguntas.",
   "footerTagline": "Aprende nuevos movimientos de bachata sensual desde la comodidad de tu hogar.",
   "copyright": "© 2024 Solo Para Bachateros. Todos los derechos reservados.",
-  "madeWithLove": "Hecho con ♥ para amantes de la bachata en todo el mundo"
+  "madeWithLove": "Hecho con ♥ para amantes de la bachata en todo el mundo",
+  "signIn": "Iniciar sesión",
+  "phoneNumber": "Número de teléfono",
+  "phoneNumberHint": "+1 555 123 4567",
+  "sendOtp": "Enviar OTP",
+  "signInWithApple": "Iniciar sesión con Apple",
+  "signInWithGoogle": "Iniciar sesión con Google",
+  "enterOtp": "Ingresar OTP",
+  "verifyOtp": "Verificar OTP",
+  "backToPhoneInput": "Volver al ingreso de teléfono"
 } 

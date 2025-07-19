@@ -46,12 +46,14 @@ class MyApp extends ConsumerWidget {
     return GoRouter(
       initialLocation: '/',
       redirect: (context, state) {
-        print('redirect: state.matchedLocation: ${state.matchedLocation}');
         // Only check for redirect on the landing page
         if (state.matchedLocation == '/') {
           String? result = _checkAuthAndRedirect(context, ref);
-          print('result: $result');
           return result;
+        } else {
+          if (ref.read(authProvider).user == null) {
+            return '/';
+          }
         }
         return null;
       },

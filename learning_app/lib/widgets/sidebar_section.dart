@@ -1,8 +1,12 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:dance_shared/auth/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/storage_service.dart';
 import 'sidebar_toggle_button.dart';
 
-class SidebarSection extends StatefulWidget {
+class SidebarSection extends ConsumerStatefulWidget {
   final List<String> sections;
   final int selectedIndex;
   final ValueChanged<int> onSectionSelected;
@@ -15,10 +19,10 @@ class SidebarSection extends StatefulWidget {
   });
 
   @override
-  State<SidebarSection> createState() => _SidebarSectionState();
+  ConsumerState<SidebarSection> createState() => _SidebarSectionState();
 }
 
-class _SidebarSectionState extends State<SidebarSection> {
+class _SidebarSectionState extends ConsumerState<SidebarSection> {
   bool _isSidebarVisible = true;
 
   @override
@@ -44,6 +48,7 @@ class _SidebarSectionState extends State<SidebarSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: _isSidebarVisible ? 220 : 30,
       color: const Color(0xFF231404),
@@ -59,11 +64,16 @@ class _SidebarSectionState extends State<SidebarSection> {
                 children: [
                   // Logo
                   Padding(
-                    padding: const EdgeInsets.only(top: 16, bottom: 32),
-                    child: Image.asset(
-                      'assets/logo.png',
-                      // height: 68,
-                      width: 136,
+                    padding: const EdgeInsets.only(top: 75, bottom: 75, left: 25, right: 25),
+                    child: AutoSizeText(
+                      'My Bachata Moves',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22,
+                        color: Colors.orange[700],
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
                     ),
                   ),
                   // Section buttons
@@ -117,7 +127,9 @@ class _SidebarSectionState extends State<SidebarSection> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(8),
-                        onTap: () {/* TODO: Implement logout */},
+                        onTap: () {
+                          ref.read(authProvider.notifier).signOut();
+                        },
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
@@ -125,9 +137,9 @@ class _SidebarSectionState extends State<SidebarSection> {
                             children: [
                               const Icon(Icons.logout, color: Colors.white),
                               const SizedBox(width: 12),
-                              const Text(
-                                'Logout',
-                                style: TextStyle(
+                              Text(
+                                l10n.logout,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 15,

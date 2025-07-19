@@ -38,17 +38,9 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Image.asset(
-                'assets/logo.png',
-                height: 32,
-              ),
-              const SizedBox(width: 12),
-              const Text('Only Bachateros'),
-            ],
-          ),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: LandingAppBar(isDesktop: false),
         ),
         body: Center(
           child: CircularProgressIndicator(),
