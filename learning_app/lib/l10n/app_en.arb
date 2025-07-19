@@ -1,0 +1,95 @@
+{
+  "@@locale": "en",
+  "appTitle": "My Bachata Moves",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login button text"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button text"
+  },
+  "watchFreePreview": "Watch Free Preview",
+  "@watchFreePreview": {
+    "description": "Video preview section title"
+  },
+  "introLesson": "3 minute intro lesson",
+  "@introLesson": {
+    "description": "Video preview subtitle"
+  },
+  "whyChooseCourse": "Why Choose Our Bachata Course?",
+  "@whyChooseCourse": {
+    "description": "Main section title"
+  },
+  "onlyForSocials": "Only For Socials",
+  "@onlyForSocials": {
+    "description": "Feature card title"
+  },
+  "onlyForSocialsDescription": "All our content is focused on social dancing not choreographies. That means you will be taught all the subtle details so you can perform these moves with anybody.",
+  "@onlyForSocialsDescription": {
+    "description": "Feature card description"
+  },
+  "bodyLanguage": "Body Language",
+  "@bodyLanguage": {
+    "description": "Feature card title"
+  },
+  "bodyLanguageDescription": "Dancing Bachata is a conversation between two bodies. We focus on body language and teach you how to communicate with your partner, how to send signals and how to respond to them.",
+  "@bodyLanguageDescription": {
+    "description": "Feature card description"
+  },
+  "noPrizesOnlyFun": "No Prizes, Only Fun",
+  "@noPrizesOnlyFun": {
+    "description": "Feature card title"
+  },
+  "noPrizesOnlyFunDescription": "This is not for people who want to win dance competitions, this is for people who just want to dance and enjoy the moment. We will make it easy for you to have fun.",
+  "@noPrizesOnlyFunDescription": {
+    "description": "Feature card description"
+  },
+  "noBasics": "No Basics",
+  "@noBasics": {
+    "description": "Feature card title"
+  },
+  "noBasicsDescription": "This course is for intermediate and advanced dancers. We teach you new moves that you can use to express yourself and connect with your partner even better.",
+  "@noBasicsDescription": {
+    "description": "Feature card description"
+  },
+  "unlimitedReplays": "Unlimited Replays",
+  "@unlimitedReplays": {
+    "description": "Feature card title"
+  },
+  "unlimitedReplaysDescription": "In workshops it is hard to remember everything you learned, but with pre-recorded videos you can watch them over and over again till it becomes second nature.",
+  "@unlimitedReplaysDescription": {
+    "description": "Feature card description"
+  },
+  "easyReview": "Easy Review",
+  "@easyReview": {
+    "description": "Feature card title"
+  },
+  "easyReviewDescription": "We have a dedicated section for reviewing the moves you have learned. So when your memory gets fuzzy, you can quickly refresh it.",
+  "@easyReviewDescription": {
+    "description": "Feature card description"
+  },
+  "buyForPrice": "Buy for $49",
+  "@buyForPrice": {
+    "description": "Purchase button text"
+  },
+  "refundPolicy": "If you are not satisfied with the course, you can cancel within 48 hours and get a full refund. No questions asked.",
+  "@refundPolicy": {
+    "description": "Refund policy text"
+  },
+  "footerTagline": "Learn new bachata sensual moves from the comfort of your home.",
+  "@footerTagline": {
+    "description": "Footer tagline"
+  },
+  "copyright": "© 2024 Only For Bachateros. All rights reserved.",
+  "@copyright": {
+    "description": "Copyright text"
+  },
+  "madeWithLove": "Made with ♥ for bachata lovers worldwide",
+  "@madeWithLove": {
+    "description": "Footer love message"
+  }
+} 

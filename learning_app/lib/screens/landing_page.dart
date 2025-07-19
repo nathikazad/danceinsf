@@ -5,6 +5,7 @@ import 'package:learning_app/screens/stripe_dialog.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 import 'package:dance_shared/auth/auth_service.dart';
 import 'package:learning_app/screens/login_dialog.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LandingPage extends ConsumerWidget {
   const LandingPage({super.key});
@@ -13,6 +14,7 @@ class LandingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 750;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F2),
       appBar: PreferredSize(
@@ -39,7 +41,7 @@ class LandingPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Why Choose Our Bachata Course?',
+                    l10n.whyChooseCourse,
                     style: TextStyle(
                       fontSize: isDesktop ? 32 : 22,
                       fontWeight: FontWeight.bold,
@@ -78,7 +80,7 @@ class LandingPage extends ConsumerWidget {
                       ),
                     ),
                     child: Text(
-                      'Buy for \$49',
+                      l10n.buyForPrice,
                       style: TextStyle(
                         fontSize: isDesktop ? 20 : 18,
                         fontWeight: FontWeight.bold,
@@ -87,7 +89,7 @@ class LandingPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "If you are not satisfied with the course, you can cancel within 48 hours and get a full refund. No questions asked.",
+                    l10n.refundPolicy,
                     style: TextStyle(
                       fontSize: isDesktop ? 16 : 12,
                       color: Colors.black87,
@@ -111,6 +113,7 @@ class _LandingAppBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).state.user;
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -136,6 +139,50 @@ class _LandingAppBar extends ConsumerWidget {
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
+              // Language selector
+              // PopupMenuButton<String>(
+              //   onSelected: (String value) {
+              //     if (value == 'en') {
+              //       ref.read(localeProvider.notifier).state = const Locale('en');
+              //     } else if (value == 'es') {
+              //       ref.read(localeProvider.notifier).state = const Locale('es');
+              //     }
+              //   },
+              //   itemBuilder: (BuildContext context) => [
+              //     PopupMenuItem<String>(
+              //       value: 'en',
+              //       child: Row(
+              //         children: [
+              //           const Text('🇺🇸 '),
+              //           const SizedBox(width: 8),
+              //           const Text('English'),
+              //         ],
+              //       ),
+              //     ),
+              //     PopupMenuItem<String>(
+              //       value: 'es',
+              //       child: Row(
+              //         children: [
+              //           const Text('🇪🇸 '),
+              //           const SizedBox(width: 8),
+              //           const Text('Español'),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              //   child: const Padding(
+              //     padding: EdgeInsets.symmetric(horizontal: 8.0),
+              //     child: Row(
+              //       mainAxisSize: MainAxisSize.min,
+              //       children: [
+              //         Icon(Icons.language, color: Colors.black),
+              //         SizedBox(width: 4),
+              //         Icon(Icons.arrow_drop_down, color: Colors.black),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(width: 8),
               if (user == null)
                 OutlinedButton(
                   onPressed: () {
@@ -148,7 +195,7 @@ class _LandingAppBar extends ConsumerWidget {
                     foregroundColor: Colors.black,
                     side: const BorderSide(color: Colors.black12),
                   ),
-                  child: const Text('Login'),
+                  child: Text(l10n.login),
                 )
               else
                 OutlinedButton(
@@ -159,7 +206,7 @@ class _LandingAppBar extends ConsumerWidget {
                     foregroundColor: Colors.black,
                     side: const BorderSide(color: Colors.black12),
                   ),
-                  child: const Text('Logout'),
+                  child: Text(l10n.logout),
                 ),
             ],
           ),
@@ -172,6 +219,7 @@ class _VideoPreview extends StatelessWidget {
   const _VideoPreview();
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Container(
@@ -182,12 +230,12 @@ class _VideoPreview extends StatelessWidget {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.play_circle_fill, size: 64, color: Colors.black38),
-              SizedBox(height: 8),
-              Text('Watch Free Preview\n3 minute intro lesson',
+            children: [
+              const Icon(Icons.play_circle_fill, size: 64, color: Colors.black38),
+              const SizedBox(height: 8),
+              Text('${l10n.watchFreePreview}\n${l10n.introLesson}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.black54)),
+                  style: const TextStyle(fontSize: 16, color: Colors.black54)),
             ],
           ),
         ),
@@ -201,41 +249,42 @@ class _FeaturesGrid extends StatelessWidget {
   const _FeaturesGrid({required this.isDesktop});
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final features = [
       _FeatureCard(
         icon: Icons.music_note,
-        title: 'Only For Socials',
-        description: 'All our content is focused on social dancing not choreographies. That means you will be taught all the subtle details so you can perform these moves with anybody.',
+        title: l10n.onlyForSocials,
+        description: l10n.onlyForSocialsDescription,
         isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.groups,
-        title: 'Body Language',
-        description: 'Dancing Bachata is a conversation between two bodies. We focus on body language and teach you how to communicate with your partner, how to send signals and how to respond to them.',
+        title: l10n.bodyLanguage,
+        description: l10n.bodyLanguageDescription,
         isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.music_note,
-        title: 'No Prizes, Only Fun',
-        description: 'This is not for people who want to win dance competitions, this is for people who just want to dance and enjoy the moment. We will make it easy for you to have fun.',
+        title: l10n.noPrizesOnlyFun,
+        description: l10n.noPrizesOnlyFunDescription,
         isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.access_time,
-        title: 'No Basic Steps',
-        description: "This course is for intermediate and advanced dancers. We teach you new moves that you can use to express yourself and connect with your partner even better.",
+        title: l10n.noBasics,
+        description: l10n.noBasicsDescription,
         isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.emoji_events,
-        title: 'Unlimited Replays',
-        description: 'In workshops it is hard to remember everything you learned, but with pre-recorded videos you can watch them over and over again till it becomes second nature.',
+        title: l10n.unlimitedReplays,
+        description: l10n.unlimitedReplaysDescription,
         isDesktop: isDesktop,
       ),
       _FeatureCard(
         icon: Icons.favorite,
-        title: 'Easy Review',
-        description: "We have a dedicated section for reviewing the moves you have learned. So when your memory gets fuzzy, you can quickly refresh it. ",
+        title: l10n.easyReview,
+        description: l10n.easyReviewDescription,
         isDesktop: isDesktop,
       ),
     ];
@@ -327,19 +376,20 @@ class _Footer extends StatelessWidget {
   const _Footer();
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       color: Colors.black,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
       child: Column(
         children: [
-          const Text(
-            'My Bachata Moves',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          Text(
+            l10n.appTitle,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Learn new bachata sensual moves from the comfort of your home.',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+          Text(
+            l10n.footerTagline,
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -361,14 +411,14 @@ class _Footer extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            '© 2024 Only For Bachateros. All rights reserved.',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
+          Text(
+            l10n.copyright,
+            style: const TextStyle(color: Colors.white38, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Made with ♥ for bachata lovers worldwide',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
+          Text(
+            l10n.madeWithLove,
+            style: const TextStyle(color: Colors.white38, fontSize: 12),
           ),
         ],
       ),
