@@ -61,6 +61,7 @@ Deno.serve(async (req) => {
       amount: Math.round(amount), // Ensure amount is an integer (cents)
       currency: currency,
       payment_method_types: payment_method_types,
+      linkAuthenticationElement: false,
       metadata: {
         ...metadata,
         source: 'bachata_course',
