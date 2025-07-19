@@ -36,6 +36,22 @@ class StripeUtil {
     }
   }
 
+  static Future<void> confirmPayment(String paymentIntentId, num amount, int courseId) async {
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'confirm_payment',
+        body: {
+          'payment_intent_id': paymentIntentId,
+          'amount': amount,
+          'course_id': courseId,
+        },
+      );
+    } catch (error) {
+      debugPrint("Error confirmPayment: $error");
+      rethrow;
+    }
+  }
+
   static String getReturnUrl() {
     // For web, return the current URL
     return Uri.base.toString();

@@ -77,6 +77,12 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         ),
       );
       
+      // Get payment intent ID from the data we created earlier
+      final paymentIntentId = paymentIntentData?['payment_intent_id'];
+      if (paymentIntentId != null) {
+        await StripeUtil.confirmPayment(paymentIntentId, 4900, 1);
+      }
+      
       setState(() {
         _paymentSuccess = true;
         _isLoading = false;

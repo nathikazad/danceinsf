@@ -64,17 +64,16 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   Future<void> displayPaymentSheet() async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
-        paymentIntentData = null;
-        _clientSecret = null;
         debugPrint("paid successfully");
 
-        // Send payment confirmation to supabase
-        // await Supabase.instance.client.functions.invoke(
-        //   'confirm_payment',
-        //   body: {
-        //     'payment_intent_id': value.paymentIntentId,
-        //   },
-        // );
+        // Get payment intent ID from the data we created earlier
+        final paymentIntentId = paymentIntentData?['payment_intent_id'];
+        if (paymentIntentId != null) {
+          await StripeUtil.confirmPayment(paymentIntentId, 4900, 1);
+        }
+        
+        paymentIntentData = null;
+        _clientSecret = null;
         
         setState(() {
           _paymentSuccess = true;
