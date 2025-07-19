@@ -60,7 +60,7 @@ class StripeUtil {
     }
   }
 
-  static Future<void> confirmPayment(String paymentIntentId, num amount, int courseId) async {
+  static Future<void> confirmPayment(String paymentIntentId, num amount, String currency, int courseId) async {
     try {
       await Supabase.instance.client.functions.invoke(
         'confirm_payment',
@@ -68,6 +68,7 @@ class StripeUtil {
           'payment_intent_id': paymentIntentId,
           'amount': amount,
           'course_id': courseId,
+          'currency': currency,
         },
       );
     } catch (error) {

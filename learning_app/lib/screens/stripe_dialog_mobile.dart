@@ -71,8 +71,14 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         // Get payment intent ID from the data we created earlier
         final paymentIntentId = paymentIntentData?['payment_intent_id'];
         if (paymentIntentId != null) {
-          await StripeUtil.confirmPayment(paymentIntentId, 990, 1);
+          await StripeUtil.confirmPayment(paymentIntentId, 990, "mxn", 1);
         }
+
+              // Invalidate the userHasPaymentProvider to refresh the payment status
+        ref.invalidate(userHasPaymentProvider);
+        
+        // Wait for the provider to refetch and confirm payment status
+        await ref.read(userHasPaymentProvider.future);
         
         paymentIntentData = null;
         _clientSecret = null;
@@ -115,7 +121,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final auth = ref.watch(authProvider);
+    final auth = ref.read(authProvider);
     final user = auth.user;
     final orange = Colors.orange[700]!;
     final brown = const Color(0xFF6D4C41);

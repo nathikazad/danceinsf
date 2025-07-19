@@ -76,6 +76,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       await WebStripe.instance.confirmPaymentElement(
         ConfirmPaymentElementOptions(
           confirmParams: ConfirmPaymentParams(return_url: StripeUtil.getReturnUrl()),
+          redirect: PaymentConfirmationRedirect.ifRequired,
         ),
       );
       debugPrint("payment confirmed");
@@ -83,8 +84,14 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       final paymentIntentId = paymentIntentData?['payment_intent_id'];
       if (paymentIntentId != null) {
         debugPrint("confirming payment with id: $paymentIntentId");
-        await StripeUtil.confirmPayment(paymentIntentId, 990, 1);
+        await StripeUtil.confirmPayment(paymentIntentId, 990, "mxn", 1);
       }
+      
+      // Invalidate the userHasPaymentProvider to refresh the payment status
+      ref.invalidate(userHasPaymentProvider);
+      
+      // Wait for the provider to refetch and confirm payment status
+      await ref.read(userHasPaymentProvider.future);
       
       setState(() {
         _paymentSuccess = true;
@@ -126,7 +133,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authProvider);
+    final auth = ref.read(authProvider);
     final user = auth.user;
     final l10n = AppLocalizations.of(context)!;
     final orange = Colors.orange[700]!;
