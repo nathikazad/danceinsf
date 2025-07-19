@@ -12,6 +12,8 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
   bool _otpSent = false;
+  bool isLoading = false;
+  final error = null;
 
   @override
   void dispose() {
@@ -24,12 +26,9 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
     final authNotifier = ref.read(authProvider.notifier);
-    final isLoading = auth.state.isLoading;
-    final error = auth.state.error;
-    final user = auth.state.user;
 
-    if (user != null) {
-      // If already logged in, close the dialog
+    // Close dialog if user is already logged in (but only if mounted)
+    if (auth.user != null && mounted) {
       Future.microtask(() => Navigator.of(context).pop());
     }
 
@@ -98,10 +97,16 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                     onPressed: isLoading
                         ? null
                         : () async {
-                            await authNotifier.signInWithPhone(_phoneController.text.trim());
                             setState(() {
-                              _otpSent = true;
+                              isLoading = true;
                             });
+                            await authNotifier.signInWithPhone(_phoneController.text.trim());
+                            if (mounted) {
+                              setState(() {
+                                _otpSent = true;
+                                isLoading = false;
+                              });
+                            }
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: orange,
@@ -127,7 +132,15 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                     onPressed: isLoading
                         ? null
                         : () async {
+                            setState(() {
+                              isLoading = true;
+                            });
                             await authNotifier.signInWithApple(context);
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: white,
@@ -186,7 +199,15 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                     onPressed: isLoading
                         ? null
                         : () async {
+                            setState(() {
+                              isLoading = true;
+                            });
                             await authNotifier.verifyOTP(_phoneController.text.trim(), _otpController.text.trim());
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: orange,
@@ -206,10 +227,12 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                   onPressed: isLoading
                       ? null
                       : () {
-                          setState(() {
-                            _otpSent = false;
-                            _otpController.clear();
-                          });
+                          if (mounted) {
+                            setState(() {
+                              _otpSent = false;
+                              _otpController.clear();
+                            });
+                          }
                         },
                   child: Text('Back to phone input', style: TextStyle(color: brown)),
                 ),

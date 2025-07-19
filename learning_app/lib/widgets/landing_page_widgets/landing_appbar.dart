@@ -9,7 +9,7 @@ class LandingAppBar extends ConsumerWidget {
   const LandingAppBar({required this.isDesktop});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider).state.user;
+    final user = ref.watch(authProvider).user;
     final l10n = AppLocalizations.of(context)!;
     return AppBar(
       backgroundColor: Colors.transparent,

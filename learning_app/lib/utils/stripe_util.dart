@@ -7,7 +7,7 @@ import 'package:dance_shared/auth/auth_service.dart';
 final userHasPaymentProvider = FutureProvider<bool>((ref) async {
   // Watch the auth provider to react to login/logout changes
   final authNotifier = ref.watch(authProvider);
-  final user = authNotifier.state.user;
+  final user = authNotifier.user;
   print('user: ${user?.id}');
   if (user == null) return false;
 

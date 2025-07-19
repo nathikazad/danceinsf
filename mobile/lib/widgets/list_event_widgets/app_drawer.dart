@@ -112,7 +112,7 @@ class AppDrawer extends ConsumerWidget {
               ),
               const SizedBox(height: 25),
               const Divider(),
-              if (ref.watch(authProvider).state.user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
+              if (ref.watch(authProvider).user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
                 ListTile(
                   leading: Icon(
                     Icons.admin_panel_settings,
@@ -125,11 +125,11 @@ class AppDrawer extends ConsumerWidget {
                     GoRouter.of(context).push('/activity');
                   },
                 ),
-              if (ref.watch(authProvider).state.user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
+              if (ref.watch(authProvider).user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
                 const SizedBox(height: 25),
-              if (ref.watch(authProvider).state.user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
+              if (ref.watch(authProvider).user?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6')
                 const Divider(),
-              if (ref.watch(authProvider).state.user != null)
+              if (ref.watch(authProvider).user != null)
                 ListTile(
                   leading: Icon(
                     Icons.logout,
@@ -141,7 +141,7 @@ class AppDrawer extends ConsumerWidget {
                     ref.read(authProvider.notifier).signOut();
                   },
                 ),
-              if (ref.watch(authProvider).state.user == null)
+              if (ref.watch(authProvider).user == null)
                 ListTile(
                   leading: Icon(
                     Icons.login,

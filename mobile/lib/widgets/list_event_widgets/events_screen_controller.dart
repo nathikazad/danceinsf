@@ -247,7 +247,7 @@ class EventsScreenController extends StateNotifier<EventsScreenState> {
   }
 
   Future<void> onAddPressed(BuildContext context, WidgetRef ref) async {
-    if (ref.read(authProvider).state.user != null) {
+    if (ref.read(authProvider).user != null) {
       await GoRouter.of(context).push('/add-event');
     } else {
       await GoRouter.of(context).push('/verify',

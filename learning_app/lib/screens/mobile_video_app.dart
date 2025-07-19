@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:learning_app/controller.dart';
+import 'package:learning_app/widgets/landing_page_widgets/landing_appbar.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../models/video_links.dart';
 import '../services/storage_service.dart';
@@ -135,17 +136,9 @@ class _MobileScaffoldState extends State<_MobileScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/logo.png',
-              height: 32,
-            ),
-            const SizedBox(width: 12),
-            const Text('Only Bachateros'),
-          ],
-        ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: LandingAppBar(isDesktop: false),
       ),
       body: ScrollablePositionedList.builder(
         itemCount: widget.accordionData.length,

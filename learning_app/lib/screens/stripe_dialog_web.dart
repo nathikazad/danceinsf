@@ -117,7 +117,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
-    final user = auth.state.user;
+    final user = auth.user;
     final orange = Colors.orange[700]!;
     final brown = const Color(0xFF6D4C41);
     final white = Colors.white;
