@@ -38,7 +38,10 @@
   "loginRequired": "Login Required",
   "loginRequiredMessage": "Please log in to complete your purchase.",
   "loginToContinue": "Login to Continue",
-  "bachataCoursePrice": "Bachata Course - $49",
+  "bachataCoursePrice": "Bachata Course - $990",
   "courseDescription": "Get lifetime access to our comprehensive bachata course with unlimited replays.",
-  "securePaymentMessage": "Secure payment powered by Stripe"
+  "securePaymentMessage": "Secure payment powered by Stripe",
+  "continueToPayment": "Continue to Payment",
+  "payAmount": "Pay $990",
+  "errorOccurred": "An error occurred. Please try again."
 } 

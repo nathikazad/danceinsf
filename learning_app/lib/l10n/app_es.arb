@@ -38,7 +38,10 @@
   "loginRequired": "Inicio de Sesión Requerido",
   "loginRequiredMessage": "Por favor inicia sesión para completar tu compra.",
   "loginToContinue": "Iniciar Sesión para Continuar",
-  "bachataCoursePrice": "Curso de Bachata - $49",
+  "bachataCoursePrice": "Curso de Bachata - $990",
   "courseDescription": "Obtén acceso de por vida a nuestro curso completo de bachata con reproducciones ilimitadas.",
-  "securePaymentMessage": "Pago seguro impulsado por Stripe"
+  "securePaymentMessage": "Pago seguro impulsado por Stripe",
+  "continueToPayment": "Continuar al Pago",
+  "payAmount": "Pagar $990",
+  "errorOccurred": "Ocurrió un error. Por favor inténtalo de nuevo."
 } 

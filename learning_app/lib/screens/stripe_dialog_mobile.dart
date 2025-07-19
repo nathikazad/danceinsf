@@ -5,6 +5,7 @@ import 'package:dance_shared/auth/auth_service.dart';
 import 'package:learning_app/screens/login_dialog.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:learning_app/utils/stripe_util.dart';
+import 'package:go_router/go_router.dart';
 
 class StripePaymentDialog extends ConsumerStatefulWidget {
   const StripePaymentDialog({super.key});
@@ -86,6 +87,13 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
           if (mounted) {
             debugPrint("closing dialog");
             Navigator.of(context).pop();
+            final screenWidth = MediaQuery.of(context).size.width;
+            final isDesktop = screenWidth > 600; // Using 600px threshold as in landing page
+            if (isDesktop) {
+              context.go('/desktop-video');
+            } else {
+              context.go('/mobile-video');
+            }
           }
         });
       }).onError((error, stackTrace) {
