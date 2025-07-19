@@ -36,60 +36,34 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return MaterialApp(
-        title: 'Only Bachateros',
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: AppBar(
-            title: Row(
-              children: [
-                Image.asset(
-                  'assets/logo.png',
-                  height: 32,
-                ),
-                const SizedBox(width: 12),
-                const Text('Only Bachateros'),
-              ],
-            ),
+      return Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Image.asset(
+                'assets/logo.png',
+                height: 32,
+              ),
+              const SizedBox(width: 12),
+              const Text('Only Bachateros'),
+            ],
           ),
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
       );
     }
 
     if (accordionData == null) {
-      return MaterialApp(
-        title: 'Only Bachateros',
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(
-            child: Text('Error loading videos'),
-          ),
+      return Scaffold(
+        body: Center(
+          child: Text('Error loading videos'),
         ),
       );
     }
 
-    return MaterialApp(
-      title: 'Only Bachateros',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Color(0xFF231404),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Color(0xFF231404),
-          foregroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.white),
-          titleTextStyle: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        scaffoldBackgroundColor: Color(0xFFF8F8F8),
-      ),
-      home: _MobileScaffold(accordionData: accordionData!),
-    );
+    return _MobileScaffold(accordionData: accordionData!);
   }
 }
 

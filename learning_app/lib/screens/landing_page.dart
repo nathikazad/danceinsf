@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:learning_app/screens/stripe_dialog.dart';
-import 'package:responsive_grid/responsive_grid.dart';
-import 'package:dance_shared/auth/auth_service.dart';
-import 'package:learning_app/screens/login_dialog.dart';
+
+import 'package:learning_app/utils/stripe_util.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/widgets/landing_page_widgets/features_widget.dart';
+import 'package:learning_app/widgets/landing_page_widgets/landing_appbar.dart';
+import 'package:learning_app/widgets/landing_page_widgets/landing_footer.dart';
+import 'package:go_router/go_router.dart';
 
 class LandingPage extends ConsumerWidget {
   const LandingPage({super.key});
@@ -19,7 +21,7 @@ class LandingPage extends ConsumerWidget {
       backgroundColor: const Color(0xFFF8F6F2),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
-        child: _LandingAppBar(isDesktop: isDesktop),
+        child: LandingAppBar(isDesktop: isDesktop),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -58,48 +60,26 @@ class LandingPage extends ConsumerWidget {
                   //   textAlign: TextAlign.center,
                   // ),
                   const SizedBox(height: 32),
-                  _FeaturesGrid(isDesktop: isDesktop),
+                  FeaturesGrid(isDesktop: isDesktop),
                   const SizedBox(height: 32),
-                  // Add centered Buy Button
-                  ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const StripePaymentDialog(),
+                  // Conditionally show buy or course access widgets
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final hasPayment = ref.watch(userHasPaymentProvider);
+                      
+                      return hasPayment.when(
+                        data: (hasPayment) => hasPayment 
+                          ? _CourseAccessWidget(isDesktop: isDesktop)
+                          : _BuyButtonWidget(isDesktop: isDesktop, l10n: l10n),
+                        loading: () => _LoadingWidget(isDesktop: isDesktop),
+                        error: (error, stack) => _BuyButtonWidget(isDesktop: isDesktop, l10n: l10n),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange[700],
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 48 : 32,
-                        vertical: isDesktop ? 16 : 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.buyForPrice,
-                      style: TextStyle(
-                        fontSize: isDesktop ? 20 : 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.refundPolicy,
-                    style: TextStyle(
-                      fontSize: isDesktop ? 16 : 12,
-                      color: Colors.black87,
-                    ),
-                    textAlign: TextAlign.center,
-                  )
                 ],
               ),
             ),
-            const _Footer(),
+            const LandingFooter(),
           ],
         ),
       ),
@@ -107,113 +87,6 @@ class LandingPage extends ConsumerWidget {
   }
 }
 
-class _LandingAppBar extends ConsumerWidget {
-  final bool isDesktop;
-  const _LandingAppBar({required this.isDesktop});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider).state.user;
-    final l10n = AppLocalizations.of(context)!;
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      title: 
-      Padding(
-        padding: const EdgeInsets.only(left: 16.0),
-        child:
-          Row(
-            children: [
-              Text.rich(
-                TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: 'My Bachata',
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 30),
-                    ),
-                    TextSpan(
-                      text: ' Moves',
-                      style: TextStyle(color: Colors.orange[700], fontWeight: FontWeight.bold, fontSize: 30),
-                    ),
-                  ],
-                ),
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const Spacer(),
-              // Language selector
-              // PopupMenuButton<String>(
-              //   onSelected: (String value) {
-              //     if (value == 'en') {
-              //       ref.read(localeProvider.notifier).state = const Locale('en');
-              //     } else if (value == 'es') {
-              //       ref.read(localeProvider.notifier).state = const Locale('es');
-              //     }
-              //   },
-              //   itemBuilder: (BuildContext context) => [
-              //     PopupMenuItem<String>(
-              //       value: 'en',
-              //       child: Row(
-              //         children: [
-              //           const Text('🇺🇸 '),
-              //           const SizedBox(width: 8),
-              //           const Text('English'),
-              //         ],
-              //       ),
-              //     ),
-              //     PopupMenuItem<String>(
-              //       value: 'es',
-              //       child: Row(
-              //         children: [
-              //           const Text('🇪🇸 '),
-              //           const SizedBox(width: 8),
-              //           const Text('Español'),
-              //         ],
-              //       ),
-              //     ),
-              //   ],
-              //   child: const Padding(
-              //     padding: EdgeInsets.symmetric(horizontal: 8.0),
-              //     child: Row(
-              //       mainAxisSize: MainAxisSize.min,
-              //       children: [
-              //         Icon(Icons.language, color: Colors.black),
-              //         SizedBox(width: 4),
-              //         Icon(Icons.arrow_drop_down, color: Colors.black),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(width: 8),
-              if (user == null)
-                OutlinedButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const LoginDialog(),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(color: Colors.black12),
-                  ),
-                  child: Text(l10n.login),
-                )
-              else
-                OutlinedButton(
-                  onPressed: () {
-                    ref.read(authProvider.notifier).signOut();
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(color: Colors.black12),
-                  ),
-                  child: Text(l10n.logout),
-                ),
-            ],
-          ),
-        ),
-    );
-  }
-}
 
 class _VideoPreview extends StatelessWidget {
   const _VideoPreview();
@@ -244,184 +117,125 @@ class _VideoPreview extends StatelessWidget {
   }
 }
 
-class _FeaturesGrid extends StatelessWidget {
+class _BuyButtonWidget extends StatelessWidget {
   final bool isDesktop;
-  const _FeaturesGrid({required this.isDesktop});
+  final AppLocalizations l10n;
+
+  const _BuyButtonWidget({
+    required this.isDesktop,
+    required this.l10n,
+  });
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final features = [
-      _FeatureCard(
-        icon: Icons.music_note,
-        title: l10n.onlyForSocials,
-        description: l10n.onlyForSocialsDescription,
-        isDesktop: isDesktop,
-      ),
-      _FeatureCard(
-        icon: Icons.groups,
-        title: l10n.bodyLanguage,
-        description: l10n.bodyLanguageDescription,
-        isDesktop: isDesktop,
-      ),
-      _FeatureCard(
-        icon: Icons.music_note,
-        title: l10n.noPrizesOnlyFun,
-        description: l10n.noPrizesOnlyFunDescription,
-        isDesktop: isDesktop,
-      ),
-      _FeatureCard(
-        icon: Icons.access_time,
-        title: l10n.noBasics,
-        description: l10n.noBasicsDescription,
-        isDesktop: isDesktop,
-      ),
-      _FeatureCard(
-        icon: Icons.emoji_events,
-        title: l10n.unlimitedReplays,
-        description: l10n.unlimitedReplaysDescription,
-        isDesktop: isDesktop,
-      ),
-      _FeatureCard(
-        icon: Icons.favorite,
-        title: l10n.easyReview,
-        description: l10n.easyReviewDescription,
-        isDesktop: isDesktop,
-      ),
-    ];
-    
-    return ResponsiveGridRow(
-      children: features.map((feature) => ResponsiveGridCol(
-        xs: 12, // 1 column on mobile
-        md: 6,  // 2 columns on tablet
-        lg: 4,  // 3 columns on desktop
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: feature,
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => const StripePaymentDialog(),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange[700],
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(
+              horizontal: isDesktop ? 48 : 32,
+              vertical: isDesktop ? 16 : 12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            l10n.buyForPrice,
+            style: TextStyle(
+              fontSize: isDesktop ? 20 : 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
-      )).toList(),
+        const SizedBox(height: 16),
+        Text(
+          l10n.refundPolicy,
+          style: TextStyle(
+            fontSize: isDesktop ? 16 : 12,
+            color: Colors.black87,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
 
-class _FeatureCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
+class _CourseAccessWidget extends StatelessWidget {
   final bool isDesktop;
-  const _FeatureCard({required this.icon, required this.title, required this.description, required this.isDesktop});
+
+  const _CourseAccessWidget({
+    required this.isDesktop,
+  });
+
   @override
   Widget build(BuildContext context) {
-    if (isDesktop) {
-      return SizedBox(
-        height: 320,
-        child: _card(context),
-      );
-    } else {
-      return _card(context);
-    }
-  }
-
-  Widget _card(BuildContext context) {
-      return Card(
-        elevation: 2,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Center(
-              //   child: Container(
-              //     width: 60,
-              //     height: 60,
-              //     decoration: BoxDecoration(
-              //       color: Colors.orange[700],
-              //       shape: BoxShape.circle,
-              //     ),
-              //     child: Icon(icon, color: Colors.white, size: 32),
-              //   ),
-              // ),
-              // const SizedBox(height: 20),
-              AutoSizeText(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 22,
-                  color: Colors.black,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF757575),
-                  fontWeight: FontWeight.w400,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+    return ElevatedButton(
+      onPressed: () {
+        // Navigate to appropriate video app based on screen width
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isDesktop = screenWidth > 600; // Using 600px threshold as in main.dart
+        
+        if (isDesktop) {
+          context.go('/desktop-video');
+        } else {
+          context.go('/mobile-video');
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange[700],
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 48 : 32,
+          vertical: isDesktop ? 16 : 12,
         ),
-      );
-    // );
-  }
-}
-
-class _Footer extends StatelessWidget {
-  const _Footer();
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      color: Colors.black,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-      child: Column(
-        children: [
-          Text(
-            l10n.appTitle,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.footerTagline,
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.orange),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.facebook, color: Colors.orange),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.mail, color: Colors.orange),
-                onPressed: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.copyright,
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.madeWithLove,
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
-          ),
-        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: Text(
+        'Go to Course',
+        style: TextStyle(
+          fontSize: isDesktop ? 20 : 18,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
-} 
+}
+
+class _LoadingWidget extends StatelessWidget {
+  final bool isDesktop;
+
+  const _LoadingWidget({
+    required this.isDesktop,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.grey[400],
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 48 : 32,
+          vertical: isDesktop ? 16 : 12,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: const Text('Loading...'),
+    );
+  }
+}

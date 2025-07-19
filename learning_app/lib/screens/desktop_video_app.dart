@@ -36,34 +36,22 @@ class _DesktopVideoAppState extends State<DesktopVideoApp> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return MaterialApp(
-        title: 'Only Bachateros',
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
       );
     }
 
     if (accordionData == null) {
-      return MaterialApp(
-        title: 'Only Bachateros',
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(
-            child: Text('Error loading videos'),
-          ),
+      return Scaffold(
+        body: Center(
+          child: Text('Error loading videos'),
         ),
       );
     }
 
-    return MaterialApp(
-      title: 'Only Bachateros',
-      debugShowCheckedModeBanner: false,
-      home: _DesktopScaffold(accordionData: accordionData!),
-    );
+    return _DesktopScaffold(accordionData: accordionData!);
   }
 }
 

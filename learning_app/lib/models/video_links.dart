@@ -8,8 +8,6 @@ class VideoLinks {
   VideoLinks({required this.playbackId, required this.title, this.signed = false, required this.streamUrl, required this.thumbnailUrl});
 }
 
-
-
 class AccordionData {
   final String title;
   final List<VideoLinks> videoUrls;
