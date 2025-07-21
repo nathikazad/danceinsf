@@ -48,7 +48,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         _error = null;
       });
 
-      paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'usd');
+      paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'mxn');
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
 
@@ -273,7 +273,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => makePayment(990),
+                      onPressed: _isLoading ? null : () => makePayment(99000),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: orange,
                         foregroundColor: white,

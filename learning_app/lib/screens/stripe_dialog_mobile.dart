@@ -250,7 +250,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   StripeUtil.buildPaymentButton(
                     selectedPaymentMethod: _selectedPaymentMethod,
                     isLoading: _isLoading,
-                    onPressed: () => makePayment(990),
+                    onPressed: () => makePayment(99000),
                   ),
                 const SizedBox(height: 12),
                 Text(
