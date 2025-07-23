@@ -39,7 +39,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'mxn');
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
-
+      Stripe.stripeAccountId = 'acct_1Ro1fcQ3gDiXwojs';
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           customFlow: false,

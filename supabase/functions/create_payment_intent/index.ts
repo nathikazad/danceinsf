@@ -66,7 +66,11 @@ Deno.serve(async (req) => {
         source: 'bachata_course',
         created_at: new Date().toISOString(),
       },
+    }, {
+      stripeAccount: 'acct_1Ro1fcQ3gDiXwojs',
     });
+
+
 
     // Return the client secret
     return new Response(JSON.stringify({

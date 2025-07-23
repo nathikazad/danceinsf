@@ -33,10 +33,11 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       try {
         await WebStripe.instance.initialise(
           publishableKey: 'pk_test_51RgHPYQ3gDIZndwWrWx1aNclnFjsh6E3v01vBdNZAfqMEw1ZEAshkauhbtObKB7F3U9OVp7RNpgMhJy7uT2NcV6U00KQIWykjt',
+          stripeAccountId: 'acct_1Ro1fcQ3gDiXwojs',
         );
         _webStripeInitialized = true;
       } catch (e) {
-        print('WebStripe initialization failed: $e');
+        print('WebStripe initialization failed: ${(e as StripeConfigException).message}');
       }
     }
   }
@@ -47,7 +48,6 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         _isLoading = true;
         _error = null;
       });
-
       paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'mxn');
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
@@ -59,6 +59,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       paymentIntentData = null;
       _clientSecret = null;
       debugPrint("Error makePayment: $error");
+      debugPrint("Error makePayment: ${(error as StripeConfigException).message}");
       setState(() {
         _error = error.toString();
         _isLoading = false;
@@ -112,7 +113,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         }
       });
     } catch (error) {
-      debugPrint("Error _handleWebPayment: $error");
+      debugPrint("Error _handleWebPayment: ${error.toString()}");
       setState(() {
         _error = error.toString();
         _isLoading = false;
@@ -122,7 +123,6 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
 
   Widget _buildWebPaymentElement() {
     if (_clientSecret == null) return const SizedBox.shrink();
-    
     return PaymentElement(
       autofocus: true,
       enablePostalCode: true,
