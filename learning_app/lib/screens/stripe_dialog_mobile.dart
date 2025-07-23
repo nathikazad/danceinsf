@@ -8,7 +8,23 @@ import 'package:learning_app/utils/stripe_util.dart';
 import 'package:go_router/go_router.dart';
 
 class StripePaymentDialog extends ConsumerStatefulWidget {
-  const StripePaymentDialog({super.key});
+  final Future<void> Function(WidgetRef ref) onPaymentStatusRefresh;
+  final String publishableKey;
+  final String stripeAccountId;
+  final int amount;
+  final String currency;
+  final String itemTitle;
+  final String itemDescription;
+  const StripePaymentDialog({
+    super.key,
+    required this.onPaymentStatusRefresh,
+    required this.publishableKey,
+    required this.stripeAccountId,
+    required this.amount,
+    required this.currency,
+    required this.itemTitle,
+    required this.itemDescription,
+  });
 
   @override
   ConsumerState<StripePaymentDialog> createState() => _StripePaymentDialogState();
@@ -25,7 +41,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   @override
   void initState() {
     super.initState();
-    Stripe.publishableKey = 'pk_test_51RgHPYQ3gDIZndwWrWx1aNclnFjsh6E3v01vBdNZAfqMEw1ZEAshkauhbtObKB7F3U9OVp7RNpgMhJy7uT2NcV6U00KQIWykjt';
+    Stripe.publishableKey = widget.publishableKey;
     Stripe.instance.applySettings();
   }
 
@@ -36,10 +52,10 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         _error = null;
       });
 
-      paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'mxn');
+      paymentIntentData = await StripeUtil.createPaymentIntent(amount, widget.currency, widget.stripeAccountId);
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
-      Stripe.stripeAccountId = 'acct_1Ro1fcQ3gDiXwojs';
+      Stripe.stripeAccountId = widget.stripeAccountId;
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           customFlow: false,
@@ -71,14 +87,11 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         // Get payment intent ID from the data we created earlier
         final paymentIntentId = paymentIntentData?['payment_intent_id'];
         if (paymentIntentId != null) {
-          await StripeUtil.confirmPayment(paymentIntentId, 990, "mxn", 1);
+          await StripeUtil.confirmPayment(paymentIntentId, widget.amount, widget.currency, 1);
         }
 
-              // Invalidate the userHasPaymentProvider to refresh the payment status
-        ref.invalidate(userHasPaymentProvider);
-        
-        // Wait for the provider to refetch and confirm payment status
-        await ref.read(userHasPaymentProvider.future);
+        // Call the callback to refresh payment status
+        await widget.onPaymentStatusRefresh(ref);
         
         paymentIntentData = null;
         _clientSecret = null;
@@ -216,7 +229,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
               ] else ...[
                 Text(
-                  l10n.bachataCoursePrice,
+                  widget.itemTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -225,7 +238,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.courseDescription,
+                  widget.itemDescription,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: brown.withOpacity(0.7)),
                 ),
@@ -250,7 +263,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   StripeUtil.buildPaymentButton(
                     selectedPaymentMethod: _selectedPaymentMethod,
                     isLoading: _isLoading,
-                    onPressed: () => makePayment(99000),
+                    onPressed: () => makePayment(widget.amount),
                   ),
                 const SizedBox(height: 12),
                 Text(

@@ -7,7 +7,7 @@ import 'package:learning_app/screens/mobile_video_app.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dance_shared/dance_shared.dart';
-import 'package:learning_app/utils/stripe_util.dart';
+import 'package:learning_app/utils/user_payments.dart';
 
 // Provider for managing the current locale
 final localeProvider = StateProvider<Locale>((ref) => const Locale('es'));

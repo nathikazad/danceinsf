@@ -18,7 +18,14 @@
   "unlimitedReplaysDescription": "En talleres es difícil recordar todo lo que aprendiste, pero con videos pregrabados puedes verlos una y otra vez hasta que se conviertan en algo natural.",
   "easyReview": "Revisión Fácil",
   "easyReviewDescription": "Tenemos una sección dedicada para revisar los movimientos que has aprendido. Así que cuando tu memoria se nuble, puedes refrescarla rápidamente.",
-  "buyForPrice": "Comprar por $990",
+  "buyForPrice": "Comprar por ${price}",
+  "@buyForPrice": {
+    "placeholders": {
+        "price": {
+            "type": "int"
+        }
+    }
+  },
   "refundPolicy": "Si no estás satisfecho con el curso, puedes cancelar dentro de las 48 horas y obtener un reembolso completo. Sin preguntas.",
   "footerTagline": "Aprende nuevos movimientos de bachata sensual desde la comodidad de tu hogar.",
   "copyright": "© 2024 Solo Para Bachateros. Todos los derechos reservados.",
@@ -38,10 +45,24 @@
   "loginRequired": "Inicio de Sesión Requerido",
   "loginRequiredMessage": "Por favor inicia sesión para completar tu compra.",
   "loginToContinue": "Iniciar Sesión para Continuar",
-  "bachataCoursePrice": "Curso de Bachata - $990",
+  "bachataCoursePrice": "Curso de Bachata - ${price}",
+  "@bachataCoursePrice": {
+    "placeholders": {
+        "price": {
+            "type": "int"
+        }
+    }
+  },
   "courseDescription": "Obtén acceso de por vida a nuestro curso completo de bachata con reproducciones ilimitadas.",
   "securePaymentMessage": "Pago seguro impulsado por Stripe",
   "continueToPayment": "Continuar al Pago",
-  "payAmount": "Pagar $990",
+  "payAmount": "Pagar ${price}",
+  "@payAmount": {
+    "placeholders": {
+        "price": {
+            "type": "int"
+        }
+    }
+  },
   "errorOccurred": "Ocurrió un error. Por favor inténtalo de nuevo."
 } 

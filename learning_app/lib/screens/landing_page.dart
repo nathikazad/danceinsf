@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_app/screens/stripe_dialog.dart';
 
-import 'package:learning_app/utils/stripe_util.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/utils/user_payments.dart';
 import 'package:learning_app/widgets/landing_page_widgets/features_widget.dart';
 import 'package:learning_app/widgets/landing_page_widgets/landing_appbar.dart';
 import 'package:learning_app/widgets/landing_page_widgets/landing_footer.dart';
@@ -117,7 +117,7 @@ class _VideoPreview extends StatelessWidget {
   }
 }
 
-class _BuyButtonWidget extends StatelessWidget {
+class _BuyButtonWidget extends ConsumerWidget {
   final bool isDesktop;
   final AppLocalizations l10n;
 
@@ -127,14 +127,25 @@ class _BuyButtonWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         ElevatedButton(
           onPressed: () {
             showDialog(
               context: context,
-              builder: (context) => const StripePaymentDialog(),
+              builder: (context) => StripePaymentDialog(
+                onPaymentStatusRefresh: (ref) async {
+                  ref.invalidate(userHasPaymentProvider);
+                  await ref.read(userHasPaymentProvider.future);
+                },
+                publishableKey: 'pk_test_51RgHPYQ3gDIZndwWrWx1aNclnFjsh6E3v01vBdNZAfqMEw1ZEAshkauhbtObKB7F3U9OVp7RNpgMhJy7uT2NcV6U00KQIWykjt',
+                stripeAccountId: 'acct_1Ro1fcQ3gDiXwojs',
+                amount: 99900,
+                currency: 'mxn',
+                itemTitle: l10n.bachataCoursePrice(999),
+                itemDescription: l10n.courseDescription,
+              ),
             );
           },
           style: ElevatedButton.styleFrom(
@@ -149,7 +160,7 @@ class _BuyButtonWidget extends StatelessWidget {
             ),
           ),
           child: Text(
-            l10n.buyForPrice,
+            l10n.buyForPrice(999),
             style: TextStyle(
               fontSize: isDesktop ? 20 : 18,
               fontWeight: FontWeight.bold,

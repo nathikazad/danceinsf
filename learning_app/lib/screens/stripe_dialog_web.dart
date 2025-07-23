@@ -8,7 +8,23 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class StripePaymentDialog extends ConsumerStatefulWidget {
-  const StripePaymentDialog({super.key});
+  final Future<void> Function(WidgetRef ref) onPaymentStatusRefresh;
+  final String publishableKey;
+  final String stripeAccountId;
+  final int amount;
+  final String currency;
+  final String itemTitle;
+  final String itemDescription;
+  const StripePaymentDialog({
+    super.key,
+    required this.onPaymentStatusRefresh,
+    required this.publishableKey,
+    required this.stripeAccountId,
+    required this.amount,
+    required this.currency,
+    required this.itemTitle,
+    required this.itemDescription,
+  });
 
   @override
   ConsumerState<StripePaymentDialog> createState() => _StripePaymentDialogState();
@@ -32,8 +48,8 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
     if (!_webStripeInitialized) {
       try {
         await WebStripe.instance.initialise(
-          publishableKey: 'pk_test_51RgHPYQ3gDIZndwWrWx1aNclnFjsh6E3v01vBdNZAfqMEw1ZEAshkauhbtObKB7F3U9OVp7RNpgMhJy7uT2NcV6U00KQIWykjt',
-          stripeAccountId: 'acct_1Ro1fcQ3gDiXwojs',
+          publishableKey: widget.publishableKey,
+          stripeAccountId: widget.stripeAccountId,
         );
         _webStripeInitialized = true;
       } catch (e) {
@@ -48,7 +64,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         _isLoading = true;
         _error = null;
       });
-      paymentIntentData = await StripeUtil.createPaymentIntent(amount, 'mxn');
+      paymentIntentData = await StripeUtil.createPaymentIntent(amount, widget.currency, widget.stripeAccountId);
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
 
@@ -85,20 +101,14 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       final paymentIntentId = paymentIntentData?['payment_intent_id'];
       if (paymentIntentId != null) {
         debugPrint("confirming payment with id: $paymentIntentId");
-        await StripeUtil.confirmPayment(paymentIntentId, 990, "mxn", 1);
+        await StripeUtil.confirmPayment(paymentIntentId, widget.amount, widget.currency, 1);
       }
-      
-      // Invalidate the userHasPaymentProvider to refresh the payment status
-      ref.invalidate(userHasPaymentProvider);
-      
-      // Wait for the provider to refetch and confirm payment status
-      await ref.read(userHasPaymentProvider.future);
-      
+      // Call the callback to refresh payment status
+      await widget.onPaymentStatusRefresh(ref);
       setState(() {
         _paymentSuccess = true;
         _isLoading = false;
       });
-
       // Close dialog after success
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
@@ -229,7 +239,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
               ] else ...[
                 Text(
-                  l10n.bachataCoursePrice,
+                  widget.itemTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -238,7 +248,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.courseDescription,
+                  widget.itemDescription,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: brown.withOpacity(0.7)),
                 ),
@@ -266,14 +276,14 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                       ),
                       child: _isLoading 
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(l10n.payAmount, style: TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(l10n.payAmount(widget.amount ~/ 100), style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => makePayment(99000),
+                      onPressed: _isLoading ? null : () => makePayment(widget.amount),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: orange,
                         foregroundColor: white,
