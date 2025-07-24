@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
   try {
     // Parse request body
     const body = await req.json()
-    const { amount, currency = 'usd', payment_method_types = ['card'], metadata = {} } = body
+    const { amount, currency = 'usd', payment_method_types = ['card'], metadata = {}, stripe_account_id } = body
 
     // Validate required fields
     if (!amount || typeof amount !== 'number') {
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
         created_at: new Date().toISOString(),
       },
     }, {
-      stripeAccount: 'acct_1Ro1fcQ3gDiXwojs',
+      stripeAccount: stripe_account_id,
     });
 
 
