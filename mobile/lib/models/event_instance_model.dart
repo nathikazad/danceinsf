@@ -13,7 +13,7 @@ class EventInstance {
   final List<String> linkToEvents;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
-  double cost;
+  double? cost;
   final Map<String, String>? description;
   final List<EventRating> ratings;
   final bool isCancelled;
@@ -23,6 +23,7 @@ class EventInstance {
   final String shortUrl;
   final List<String> excitedUsers;
   final Map<DateTime, double>? ticketPrices;
+  final bool canBuyTickets;
 
   EventInstance({
     required this.eventInstanceId,
@@ -44,6 +45,7 @@ class EventInstance {
     String? flyerUrl,
     this.excitedUsers = const [],
     this.ticketPrices, 
+    bool? canBuyTickets,
   }) : venueName = venueName ?? event.location.venueName,
        city = city ?? event.location.city,
        url = url ?? event.location.url,
@@ -54,7 +56,8 @@ class EventInstance {
        description = description ?? event.description,
        ratings = ratings ?? [],
        flyerUrl = flyerUrl ?? event.flyerUrl,
-       isCancelled = isCancelled ?? false;
+       isCancelled = isCancelled ?? false,
+       canBuyTickets = canBuyTickets ?? false;
 
   // Helper method to get just the date part (without time)
   DateTime get dateOnly => DateTime(date.year, date.month, date.day);
@@ -74,7 +77,8 @@ class EventInstance {
     }
 
     final extras = instance['extras'];
-    var cost;
+    double? cost;
+    bool? canBuyTickets;
     Map<DateTime, double>? ticketPrices;
     if (extras != null) {
       print('extras: $extras');
@@ -92,6 +96,9 @@ class EventInstance {
           print('cost: ${firstDateAfterNow.value}');
           cost = firstDateAfterNow.value;
         }
+      }
+      if (extras['can_buy_tickets'] == true) {
+        canBuyTickets = true;
       }
     }
     return EventInstance(
@@ -116,10 +123,16 @@ class EventInstance {
       shortUrl: instance['short_url_prefix'],
       flyerUrl: instance['flyer_url'],
       ticketPrices: ticketPrices,
+      canBuyTickets: canBuyTickets ?? false,
     );
   }
 
   bool get hasStarted => DateTime.now().isAfter(DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute));
+
+  String getCost() {
+    double cost = this.cost ?? event.cost;
+    return cost.toStringAsFixed(0) == "0" ? "Free" : '\$${cost.toStringAsFixed(0)}';
+  }
 
   EventInstance copyWith({
     String? eventInstanceId,

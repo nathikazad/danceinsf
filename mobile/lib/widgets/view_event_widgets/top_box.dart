@@ -36,9 +36,7 @@ class TopBox extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    eventInstance.cost.toStringAsFixed(0) == "0"
-                        ? "Free"
-                        : '\$${eventInstance.cost.toStringAsFixed(0)}',
+                    eventInstance.getCost(),
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontSize: 20),

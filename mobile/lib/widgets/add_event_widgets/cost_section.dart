@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CostSection extends StatefulWidget {
-  final double initialCost;
+  final double? initialCost;
   final Function(double) onCostChanged;
   final String? Function(String?)? validator;
 
@@ -22,7 +22,7 @@ class _CostSectionState extends State<CostSection> {
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.initialCost.toString());
+    controller = TextEditingController(text: widget.initialCost?.toString() ?? "");
     controller.addListener(() {
       final value = double.tryParse(controller.text) ?? 0.0;
       widget.onCostChanged(value);

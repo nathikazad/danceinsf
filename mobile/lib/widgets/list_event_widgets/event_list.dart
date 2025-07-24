@@ -206,7 +206,7 @@ class EventInstanceCard extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    // final l10n = AppLocalizations.of(context)!;
     final start = eventInstance.startTime;
     final end = eventInstance.endTime;
     final rating = eventInstance.event.rating;
@@ -364,9 +364,7 @@ class EventInstanceCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          eventInstance.cost == 0.0
-                              ? l10n.free
-                              : '\$${eventInstance.cost.toStringAsFixed(0)}',
+                          eventInstance.getCost(),
                           style: TextStyle(
                             fontFamily: "Inter",
                             fontWeight: FontWeight.w600,
