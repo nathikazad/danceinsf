@@ -13,7 +13,7 @@ class EventInstance {
   final List<String> linkToEvents;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
-  final double cost;
+  double cost;
   final Map<String, String>? description;
   final List<EventRating> ratings;
   final bool isCancelled;
@@ -22,6 +22,7 @@ class EventInstance {
   final String? flyerUrl;
   final String shortUrl;
   final List<String> excitedUsers;
+  final Map<DateTime, double>? ticketPrices;
 
   EventInstance({
     required this.eventInstanceId,
@@ -42,6 +43,7 @@ class EventInstance {
     this.proposals,
     String? flyerUrl,
     this.excitedUsers = const [],
+    this.ticketPrices, 
   }) : venueName = venueName ?? event.location.venueName,
        city = city ?? event.location.city,
        url = url ?? event.location.url,
@@ -62,7 +64,6 @@ class EventInstance {
     // Handle linkToEvents - convert to List<String>
     List<String>? linkToEvents;
     final ticketLinkData = instance['ticket_link'];
- 
     if (ticketLinkData is List) {
       linkToEvents = ticketLinkData.cast<String>();
     } else if (ticketLinkData is String && ticketLinkData.contains(',')) {
@@ -70,6 +71,28 @@ class EventInstance {
       linkToEvents = ticketLinkData.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
     } else if (ticketLinkData != null) {
       linkToEvents = [ticketLinkData.toString()];
+    }
+
+    final extras = instance['extras'];
+    var cost;
+    Map<DateTime, double>? ticketPrices;
+    if (extras != null) {
+      print('extras: $extras');
+      if (extras['ticket_costs'] is Map<String, dynamic>) {
+        ticketPrices = extras['ticket_costs'].map<DateTime, double>((key, value) => MapEntry(DateTime.parse(key), value as double));
+        if (ticketPrices?.entries.isNotEmpty ?? false) {
+        // update cost based on current time, sort the ticket prices by date time, then find the first date that is after current time
+          // final now = DateTime.now();
+          final now = DateTime.parse("2025-08-01T02:00:00-08:00");
+          final sortedTicketPrices = ticketPrices!.entries.toList()
+            ..sort((a, b) => a.key.compareTo(b.key));
+          final firstDateAfterNow = sortedTicketPrices.firstWhere((entry) => entry.key.isAfter(now));
+          print('firstDateAfterNow: $firstDateAfterNow');
+          print('ticketPrices: $ticketPrices');
+          print('cost: ${firstDateAfterNow.value}');
+          cost = firstDateAfterNow.value;
+        }
+      }
     }
     return EventInstance(
       eventInstanceId: instance['instance_id'],
@@ -84,7 +107,7 @@ class EventInstance {
       ].where((e) => e.isNotEmpty).toSet().toList().cast<String>(),
       startTime: parseTimeOfDay(instance['start_time']) ?? event.startTime,
       endTime: parseTimeOfDay(instance['end_time']) ?? event.endTime,
-      cost: instance['cost'] ?? event.cost,
+      cost: cost ?? instance['cost'] ?? event.cost,
       description: instance['description'],
       ratings: ratings,
       isCancelled: instance['is_cancelled'] == true,
@@ -92,6 +115,7 @@ class EventInstance {
       excitedUsers: toStringList(instance['excited_users']),
       shortUrl: instance['short_url_prefix'],
       flyerUrl: instance['flyer_url'],
+      ticketPrices: ticketPrices,
     );
   }
 

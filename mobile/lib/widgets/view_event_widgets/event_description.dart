@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class EventDescription extends StatefulWidget {
   final Map<String, String> description;
+  final Map<DateTime, double>? ticketPrices;
 
   const EventDescription({
     Key? key,
     required this.description,
+    this.ticketPrices,
   }) : super(key: key);
 
   @override
@@ -14,7 +17,49 @@ class EventDescription extends StatefulWidget {
 }
 
 class _EventDescriptionState extends State<EventDescription> {
-  bool _expanded = false;
+  bool _expanded = true;
+
+  String _formatTicketPriceDate(DateTime date) {
+    // Example: Till 11pm Friday Aug 2nd
+    final hour = date.hour == 0 || date.hour == 12
+        ? 12
+        : date.hour % 12;
+    final ampm = date.hour < 12 ? 'am' : 'pm';
+    final weekday = DateFormat('EEEE').format(date); // Friday
+    final month = DateFormat('MMM').format(date); // Aug
+    final day = date.day;
+    // Suffix for day
+    String suffix;
+    if (day >= 11 && day <= 13) {
+      suffix = 'th';
+    } else {
+      switch (day % 10) {
+        case 1:
+          suffix = 'st';
+          break;
+        case 2:
+          suffix = 'nd';
+          break;
+        case 3:
+          suffix = 'rd';
+          break;
+        default:
+          suffix = 'th';
+      }
+    }
+    // Show hour with am/pm (e.g., 11pm, 12pm, 1am)
+    return 'Till $hour$ampm $weekday $month $day$suffix';
+  }
+
+  String getTicketPrices() {
+    if (widget.ticketPrices == null) {
+      return "";
+    }
+    String ticketPrices = widget.ticketPrices!.entries
+        .map((entry) => "${_formatTicketPriceDate(entry.key.toLocal())}: \$${entry.value.toStringAsFixed(2)}")
+        .join("\n");
+    return "Ticket Prices:\n$ticketPrices";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +77,7 @@ class _EventDescriptionState extends State<EventDescription> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ExpansionTile(
-        initiallyExpanded: false,
+        initiallyExpanded: true,
         onExpansionChanged: (expanded) => setState(() => _expanded = expanded),
         title: Row(
           children: [
@@ -57,7 +102,7 @@ class _EventDescriptionState extends State<EventDescription> {
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      descriptionText,
+                      "$descriptionText\n\n${getTicketPrices()}",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),

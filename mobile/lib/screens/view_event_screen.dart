@@ -235,7 +235,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
             if (event.description != null || eventInstance.description != null)
               ...[
                 const SizedBox(height: 16),
-                EventDescription(description: eventInstance.description ?? event.description!),
+                EventDescription(description: eventInstance.description ?? event.description!, ticketPrices: eventInstance.ticketPrices),
               ],
             if (event.bankInfo != null)
               ...[
