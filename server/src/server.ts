@@ -29,7 +29,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         'http://localhost:57555',
 
     ];
-    
+    // print endpoint
+    console.log('endpoint', req.url);
     const origin = req.headers.origin;
     if (origin && allowedOrigins.includes(origin)) {
         res.header('Access-Control-Allow-Origin', origin);
@@ -62,11 +63,62 @@ const reserved = [
     'video-links',
     'api',
     'alan',
-    'ping'
+    'ping'   
 ];
+
+app.get('/alan', async (req: Request, res: Response) => {
+    console.log('alan');
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    // Hardcoded values
+    const account = 'acct_1Ro29RQ8EbUEgwcO';
+    const refresh_url = 'https://dancesf-c42af040bc0e.herokuapp.com/alan';
+    const return_url = 'https://example.com/return';
+
+    if (!stripeSecretKey) {
+        return res.status(500).json({ error: 'Stripe secret key not configured' });
+    }
+
+    try {
+        const params = new URLSearchParams();
+        params.append('account', account);
+        params.append('refresh_url', refresh_url);
+        params.append('return_url', return_url);
+        params.append('type', 'account_onboarding');
+
+        const response = await fetch('https://api.stripe.com/v1/account_links', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${stripeSecretKey}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params.toString(),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            return res.status(500).json({ error: 'Stripe API error', details: errorText });
+        }
+
+        const data = await response.json();
+        if (data.url) {
+            return res.redirect(302, data.url);
+        } else {
+            return res.status(500).json({ error: 'No url returned from Stripe', details: data });
+        }
+    } catch (error) {
+        console.error('Stripe account link error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/ping2', (req, res) => {
+    res.send('pong');
+});
+
 
 // Catch-all redirect for short URLs
 app.get('/:shortUrl', async (req: Request, res: Response, next: NextFunction) => {
+    console.log('shortUrl', req.params.shortUrl);
     const supabaseUrl = 'https://swsvvoysafsqsgtvpnqg.supabase.co';
     const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3c3Z2b3lzYWZzcXNndHZwbnFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5Mzk1NzgsImV4cCI6MjA2MjUxNTU3OH0.Z3J3KaWt3zd55GSx2fvAZBzd0WRYDWxFzL-eA4X0l54';
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -98,17 +150,16 @@ app.get('/:shortUrl', async (req: Request, res: Response, next: NextFunction) =>
     // Otherwise, continue to 404 or other handlers
     return next();
 });
-
+app.get('/ping', (req, res) => {
+    res.send('pong');
+});
 app.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    console.log('root');
     return res.redirect(301, `https://wheredothey.dance/`);
 });
 
 app.get('/video-links', (req: Request, res: Response) => {
     res.json(videoLinksWithTokens());
-});
-
-app.get('/ping', (req, res) => {
-    res.send('pong');
 });
 
 // Google Places API proxy endpoints
@@ -182,50 +233,6 @@ app.options('/api/places/details', (req: Request, res: Response) => {
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     res.sendStatus(200);
-});
-
-app.get('/alan', async (req: Request, res: Response) => {
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-    // Hardcoded values
-    const account = 'acct_1Ro29RQ8EbUEgwcO';
-    const refresh_url = 'https://example.com/reauth';
-    const return_url = 'https://example.com/return';
-
-    if (!stripeSecretKey) {
-        return res.status(500).json({ error: 'Stripe secret key not configured' });
-    }
-
-    try {
-        const params = new URLSearchParams();
-        params.append('account', account);
-        params.append('refresh_url', refresh_url);
-        params.append('return_url', return_url);
-        params.append('type', 'account_onboarding');
-
-        const response = await fetch('https://api.stripe.com/v1/account_links', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${stripeSecretKey}`,
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: params.toString(),
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            return res.status(500).json({ error: 'Stripe API error', details: errorText });
-        }
-
-        const data = await response.json();
-        if (data.url) {
-            return res.redirect(302, data.url);
-        } else {
-            return res.status(500).json({ error: 'No url returned from Stripe', details: data });
-        }
-    } catch (error) {
-        console.error('Stripe account link error:', error);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
 });
 
 const PORT = process.env.PORT || 3000;
