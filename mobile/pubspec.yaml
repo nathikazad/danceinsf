@@ -60,6 +60,7 @@ dependencies:
   path: ^1.8.3
   flutter_svg_icons: ^0.0.1+4
   web: ^1.1.1
+  receive_sharing_intent: ^1.8.1
 
   # Shared package for common functionality
   dance_shared:

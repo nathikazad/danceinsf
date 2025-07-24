@@ -83,7 +83,7 @@ class EventInstance {
     if (extras != null) {
       print('extras: $extras');
       if (extras['ticket_costs'] is Map<String, dynamic>) {
-        ticketPrices = extras['ticket_costs'].map<DateTime, double>((key, value) => MapEntry(DateTime.parse(key), value as double));
+        ticketPrices = extras['ticket_costs'].map<DateTime, double>((key, value) => MapEntry(DateTime.parse(key), (value as num).toDouble()));
         if (ticketPrices?.entries.isNotEmpty ?? false) {
         // update cost based on current time, sort the ticket prices by date time, then find the first date that is after current time
           // final now = DateTime.now();

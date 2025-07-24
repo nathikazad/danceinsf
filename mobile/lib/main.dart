@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'router.dart';
 import 'package:dance_sf/utils/app_storage.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,16 +39,42 @@ class DanceApp extends ConsumerStatefulWidget {
 }
 
 class _DanceAppState extends ConsumerState<DanceApp> with WidgetsBindingObserver {
-
+  late StreamSubscription _intentSub;
+  final _sharedFiles = <SharedMediaFile>[];
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initUniLinks();
+
+        // Listen to media sharing coming from outside the app while the app is in the memory.
+    _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((value) {
+      setState(() {
+        _sharedFiles.clear();
+        _sharedFiles.addAll(value);
+
+        print(_sharedFiles.map((f) => f.toMap()));
+      });
+    }, onError: (err) {
+      print("getIntentDataStream error: $err");
+    });
+
+    // Get the media sharing coming from outside the app while the app is closed.
+    ReceiveSharingIntent.instance.getInitialMedia().then((value) {
+      setState(() {
+        _sharedFiles.clear();
+        _sharedFiles.addAll(value);
+        print(_sharedFiles.map((f) => f.toMap()));
+
+        // Tell the library that we are done processing the intent.
+        ReceiveSharingIntent.instance.reset();
+      });
+    });
   }
 
   @override
   void dispose() {
+    _intentSub.cancel();
     UniLinksHandler.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
