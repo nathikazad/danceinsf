@@ -11,7 +11,6 @@ import 'package:learning_app/utils/user_payments.dart';
 
 // Provider for managing the current locale
 final localeProvider = StateProvider<Locale>((ref) => const Locale('es'));
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseConfig.initialize();
@@ -21,6 +20,8 @@ void main() async {
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
+  
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,6 +1,8 @@
+import 'package:dance_shared/auth/auth_service.dart';
+import 'package:dance_shared/login_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:learning_app/screens/stripe_dialog.dart';
+import 'package:dance_shared/stripe/stripe_dialog.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:learning_app/utils/user_payments.dart';
@@ -131,27 +133,55 @@ class _BuyButtonWidget extends ConsumerWidget {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: () {
-            showDialog(
+          onPressed: () async {
+            await showDialog(
               context: context,
-              builder: (context) => StripePaymentDialog(
-                onPaymentStatusRefresh: (ref) async {
-                  ref.invalidate(userHasPaymentProvider);
-                  await ref.read(userHasPaymentProvider.future);
-                },
-                publishableKey: 'pk_test_51RgHPYQ3gDIZndwWrWx1aNclnFjsh6E3v01vBdNZAfqMEw1ZEAshkauhbtObKB7F3U9OVp7RNpgMhJy7uT2NcV6U00KQIWykjt',
-                stripeAccountId: 'acct_1Ro1fcQ3gDiXwojs',
-                amount: 99900,
-                currency: 'mxn',
-                itemTitle: l10n.bachataCoursePrice(999),
-                itemDescription: l10n.courseDescription,
-                metadata: {
-                  'course_name': 'Bachata Course',
-                  'course_id': 1,
-                  'payment_type': 'course',
-                },
-              ),
+              builder: (context) => LoginDialog(l10n: l10n, notify: false),
             );
+            if (ref.read(authProvider).user == null) {
+              if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(l10n.loginRequired),
+                  ),
+                );
+              }
+              return;
+            }
+            if (context.mounted) {
+              await showDialog(
+                context: context,
+                builder: (context) => StripePaymentDialog(
+                  postPaymentCallback: (ref) async {
+                    ref.invalidate(userHasPaymentProvider);
+                    await ref.read(userHasPaymentProvider.future);
+                    final screenWidth = MediaQuery.of(context).size.width;
+                    final isDesktop = screenWidth > 600; // Using 600px threshold as in landing page
+                    if (isDesktop) {
+                      if (context.mounted) {
+                        context.go('/desktop-video');
+                      }
+                    } else {
+                      if (context.mounted)  {
+                        context.go('/mobile-video');
+                      }
+                    }
+                  },
+                  publishableKey: 'pk_test_51RgHPYQ3gDIZndwWrWx1aNclnFjsh6E3v01vBdNZAfqMEw1ZEAshkauhbtObKB7F3U9OVp7RNpgMhJy7uT2NcV6U00KQIWykjt',
+                  stripeAccountId: 'acct_1Ro1fcQ3gDiXwojs',
+                  amount: 99900,
+                  currency: 'mxn',
+                  itemTitle: l10n.bachataCoursePrice(999),
+                  itemDescription: l10n.courseDescription,
+                  metadata: {
+                    'course_name': 'Bachata Course',
+                    'course_id': 1,
+                    'payment_type': 'course',
+                  },
+                  l10n: l10n,
+                ),
+              );
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.orange[700],

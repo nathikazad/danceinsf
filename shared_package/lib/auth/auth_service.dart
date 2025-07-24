@@ -25,9 +25,11 @@ class AuthNotifier extends ChangeNotifier {
 
   User? get user => _state;
 
-  void _setUser(User? newUser) {
+  void _setUser(User? newUser, {bool notify = true}) {
     _state = newUser;
-    notifyListeners();
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   Future<void> signIn(String email, String password) async {
@@ -149,8 +151,10 @@ class AuthNotifier extends ChangeNotifier {
   Future<void> checkAuthStatus() async {
     try {
       final currentUser = _supabase.auth.currentUser;
+      print('currentUser: ${currentUser?.id}');
       _setUser(currentUser);
     } catch (e) {
+      print('error: $e');
       _setUser(null);
     }
   }
@@ -162,7 +166,7 @@ class AuthNotifier extends ChangeNotifier {
     print('OTP sent successfully');
   }
 
-  Future<void> verifyOTP(String phoneNumber, String otp) async {
+  Future<void> verifyOTP(String phoneNumber, String otp, {bool notify = true}) async {
     final response = await _supabase.auth.verifyOTP(
       phone: phoneNumber,
       token: otp,
@@ -175,6 +179,6 @@ class AuthNotifier extends ChangeNotifier {
     //   print('User ${user.phone} signed in');
     //   LogController.logNavigation('User ${user.phone} signed in');
     // });
-    _setUser(user);
+    _setUser(user, notify: notify);
   }
 } 

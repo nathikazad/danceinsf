@@ -98,6 +98,18 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "flutter_stripe",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/flutter_stripe-11.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "flutter_stripe_web",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/flutter_stripe_web-6.5.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///Users/nathikazad/Projects/FlutterSDK/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -108,6 +120,12 @@
       "rootUri": "file:///Users/nathikazad/Projects/FlutterSDK/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.7"
+    },
+    {
+      "name": "freezed_annotation",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/freezed_annotation-2.4.4",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "functions_client",
@@ -178,6 +196,12 @@
     {
       "name": "intl",
       "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/intl-0.19.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "json_annotation",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -428,6 +452,30 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "stripe_android",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/stripe_android-11.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "stripe_ios",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/stripe_ios-11.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "stripe_js",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/stripe_js-6.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "stripe_platform_interface",
+      "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/stripe_platform_interface-11.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "supabase",
       "rootUri": "file:///Users/nathikazad/.pub-cache/hosted/pub.dev/supabase-2.8.0",
       "packageUri": "lib/",
@@ -554,7 +602,7 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2025-07-23T15:08:43.257179Z",
+  "generated": "2025-07-24T04:11:57.640802Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///Users/nathikazad/Projects/FlutterSDK/flutter",

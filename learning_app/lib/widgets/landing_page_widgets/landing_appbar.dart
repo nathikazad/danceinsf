@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dance_shared/auth/auth_service.dart';
-import 'package:learning_app/screens/login_dialog.dart';
+import 'package:dance_shared/login_dialog.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LandingAppBar extends ConsumerWidget {
@@ -85,7 +85,7 @@ class LandingAppBar extends ConsumerWidget {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (context) => const LoginDialog(),
+                      builder: (context) => LoginDialog(l10n: l10n),
                     );
                   },
                   style: OutlinedButton.styleFrom(

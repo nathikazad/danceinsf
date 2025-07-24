@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dance_shared/auth/auth_service.dart';
-import 'package:learning_app/screens/login_dialog.dart';
 import 'package:flutter_stripe_web/flutter_stripe_web.dart';
-import 'package:learning_app/utils/stripe_util.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
+import 'package:dance_shared/stripe/stripe_util.dart';
+// import 'package:go_router/go_router.dart';
 
 class StripePaymentDialog extends ConsumerStatefulWidget {
-  final Future<void> Function(WidgetRef ref) onPaymentStatusRefresh;
+  final Future<void> Function(WidgetRef ref) postPaymentCallback;
   final String publishableKey;
   final String stripeAccountId;
   final int amount;
@@ -16,9 +13,10 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
   final String itemTitle;
   final String itemDescription;
   final Map<String, dynamic> metadata;
+  final dynamic l10n;
   const StripePaymentDialog({
     super.key,
-    required this.onPaymentStatusRefresh,
+    required this.postPaymentCallback,
     required this.publishableKey,
     required this.stripeAccountId,
     required this.amount,
@@ -26,6 +24,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
     required this.itemTitle,
     required this.itemDescription,
     required this.metadata,
+    required this.l10n,
   });
 
   @override
@@ -106,22 +105,16 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         await StripeUtil.confirmPayment(paymentIntentId, widget.amount, widget.currency, widget.metadata);
       }
       // Call the callback to refresh payment status
-      await widget.onPaymentStatusRefresh(ref);
+      
       setState(() {
         _paymentSuccess = true;
         _isLoading = false;
       });
       // Close dialog after success
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 2), () async {
         if (mounted) {
           Navigator.of(context).pop();
-          final screenWidth = MediaQuery.of(context).size.width;
-          final isDesktop = screenWidth > 600; // Using 600px threshold as in landing page
-          if (isDesktop) {
-            context.go('/desktop-video');
-          } else {
-            context.go('/mobile-video');
-          }
+          await widget.postPaymentCallback(ref);
         }
       });
     } catch (error) {
@@ -145,9 +138,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.read(authProvider);
-    final user = auth.user;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = widget.l10n;
     final orange = Colors.orange[700]!;
     final brown = const Color(0xFF6D4C41);
     final white = Colors.white;
@@ -198,46 +189,6 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   l10n.paymentSuccessMessage,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: brown),
-                ),
-              ] else if (user == null) ...[
-                // Show login required message
-                Icon(Icons.lock, color: orange, size: 64),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.loginRequired,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: brown,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.loginRequiredMessage,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: brown.withOpacity(0.7)),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close payment dialog
-                      showDialog(
-                        context: context,
-                        builder: (context) => const LoginDialog(),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: orange,
-                      foregroundColor: white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: Text(l10n.loginToContinue, style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
                 ),
               ] else ...[
                 Text(

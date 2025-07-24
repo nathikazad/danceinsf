@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:dance_shared/auth/auth_service.dart';
 class LoginDialog extends ConsumerStatefulWidget {
-  const LoginDialog({super.key});
+  final dynamic l10n;
+  final bool notify;
+  const LoginDialog({super.key, required this.l10n, this.notify = true});
 
   @override
   ConsumerState<LoginDialog> createState() => _LoginDialogState();
@@ -25,9 +26,10 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = widget.l10n;
     final auth = ref.watch(authProvider);
     final authNotifier = ref.read(authProvider.notifier);
+    final notify = widget.notify;
 
     // Close dialog if user is already logged in (but only if mounted)
     if (auth.user != null && mounted) {
@@ -204,7 +206,7 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                             setState(() {
                               isLoading = true;
                             });
-                            await authNotifier.verifyOTP(_phoneController.text.trim(), _otpController.text.trim());
+                            await authNotifier.verifyOTP(_phoneController.text.trim(), _otpController.text.trim(), notify: notify);
                             if (mounted) {
                               setState(() {
                                 isLoading = false;
