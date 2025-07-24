@@ -61,6 +61,8 @@ const reserved = [
     'notifyParticipants',
     'video-links',
     'api',
+    'alan',
+    'ping'
 ];
 
 // Catch-all redirect for short URLs
