@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StripeUtil {
-  static Future<Map<String, dynamic>> createPaymentIntent(int amount, String currency, String? stripeAccountId) async {
+  static Future<Map<String, dynamic>> createPaymentIntent(int amount, String currency, Map<String, dynamic> metadata, String? stripeAccountId) async {
     try {
       // Get the current user
       final user = Supabase.instance.client.auth.currentUser;
@@ -18,7 +18,7 @@ class StripeUtil {
           'currency': currency,
           'payment_method_types': ['card'],
           'metadata': {
-            'course_name': 'Bachata Course',
+            ...metadata,
             'user_id': user.id,
           },
           'stripe_account_id': stripeAccountId,
@@ -37,14 +37,14 @@ class StripeUtil {
     }
   }
 
-  static Future<void> confirmPayment(String paymentIntentId, num amount, String currency, int courseId) async {
+  static Future<void> confirmPayment(String paymentIntentId, num amount, String currency, Map<String, dynamic> metadata) async {
     try {
       await Supabase.instance.client.functions.invoke(
         'confirm_payment',
         body: {
           'payment_intent_id': paymentIntentId,
           'amount': amount,
-          'course_id': courseId,
+          'metadata': metadata,
           'currency': currency,
         },
       );

@@ -145,6 +145,11 @@ class _BuyButtonWidget extends ConsumerWidget {
                 currency: 'mxn',
                 itemTitle: l10n.bachataCoursePrice(999),
                 itemDescription: l10n.courseDescription,
+                metadata: {
+                  'course_name': 'Bachata Course',
+                  'course_id': 1,
+                  'payment_type': 'course',
+                },
               ),
             );
           },

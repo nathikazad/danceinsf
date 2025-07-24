@@ -15,6 +15,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
   final String currency;
   final String itemTitle;
   final String itemDescription;
+  final Map<String, dynamic> metadata;
   const StripePaymentDialog({
     super.key,
     required this.onPaymentStatusRefresh,
@@ -24,6 +25,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
     required this.currency,
     required this.itemTitle,
     required this.itemDescription,
+    required this.metadata,
   });
 
   @override
@@ -52,7 +54,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         _error = null;
       });
 
-      paymentIntentData = await StripeUtil.createPaymentIntent(amount, widget.currency, widget.stripeAccountId);
+      paymentIntentData = await StripeUtil.createPaymentIntent(amount, widget.currency, widget.metadata, widget.stripeAccountId);
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
       Stripe.stripeAccountId = widget.stripeAccountId;
@@ -87,7 +89,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         // Get payment intent ID from the data we created earlier
         final paymentIntentId = paymentIntentData?['payment_intent_id'];
         if (paymentIntentId != null) {
-          await StripeUtil.confirmPayment(paymentIntentId, widget.amount, widget.currency, 1);
+          await StripeUtil.confirmPayment(paymentIntentId, widget.amount, widget.currency, widget.metadata);
         }
 
         // Call the callback to refresh payment status
