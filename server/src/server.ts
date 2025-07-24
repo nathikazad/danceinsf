@@ -182,6 +182,50 @@ app.options('/api/places/details', (req: Request, res: Response) => {
     res.sendStatus(200);
 });
 
+app.get('/alan', async (req: Request, res: Response) => {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    // Hardcoded values
+    const account = 'acct_1Ro29RQ8EbUEgwcO';
+    const refresh_url = 'https://example.com/reauth';
+    const return_url = 'https://example.com/return';
+
+    if (!stripeSecretKey) {
+        return res.status(500).json({ error: 'Stripe secret key not configured' });
+    }
+
+    try {
+        const params = new URLSearchParams();
+        params.append('account', account);
+        params.append('refresh_url', refresh_url);
+        params.append('return_url', return_url);
+        params.append('type', 'account_onboarding');
+
+        const response = await fetch('https://api.stripe.com/v1/account_links', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${stripeSecretKey}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params.toString(),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            return res.status(500).json({ error: 'Stripe API error', details: errorText });
+        }
+
+        const data = await response.json();
+        if (data.url) {
+            return res.redirect(302, data.url);
+        } else {
+            return res.status(500).json({ error: 'No url returned from Stripe', details: data });
+        }
+    } catch (error) {
+        console.error('Stripe account link error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     return console.log(`[server]: Server is running on ${PORT}`);
