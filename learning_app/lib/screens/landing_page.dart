@@ -6,9 +6,12 @@ import 'package:dance_shared/stripe/stripe_dialog.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:learning_app/utils/user_payments.dart';
+import 'package:learning_app/utils/browser_detection.dart';
 import 'package:learning_app/widgets/landing_page_widgets/features_widget.dart';
 import 'package:learning_app/widgets/landing_page_widgets/landing_appbar.dart';
 import 'package:learning_app/widgets/landing_page_widgets/landing_footer.dart';
+import 'package:learning_app/widgets/safari_video_player.dart';
+import 'package:learning_app/widgets/chewie_video_player.dart';
 import 'package:go_router/go_router.dart';
 
 class LandingPage extends ConsumerWidget {
@@ -90,32 +93,83 @@ class LandingPage extends ConsumerWidget {
 }
 
 
-class _VideoPreview extends StatelessWidget {
+class _VideoPreview extends StatefulWidget {
   const _VideoPreview();
+
+  @override
+  State<_VideoPreview> createState() => _VideoPreviewState();
+}
+
+class _VideoPreviewState extends State<_VideoPreview> {
+  bool _isPlaying = false;
+  final String _videoUrl = 'https://stream.mux.com/KU3YwYdm015GdVuFIwgz00VV3tS01EVUOzOymBlVdAOh02U.m3u8';
+
+  void _onPlayButtonPressed() {
+    setState(() {
+      _isPlaying = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.play_circle_fill, size: 64, color: Colors.black38),
-              const SizedBox(height: 8),
-              Text('${l10n.watchFreePreview}\n${l10n.introLesson}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.black54)),
-            ],
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 400),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: _isPlaying
+                ? _buildVideoPlayer()
+                : GestureDetector(
+                    onTap: _onPlayButtonPressed,
+                    child: Container(
+                      color: Colors.grey[300],
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.play_circle_fill,
+                              size: 64,
+                              color: Colors.black38,
+                            ),
+                            // const SizedBox(height: 8),
+                            // Text(
+                            //   '${l10n.watchFreePreview}\n${l10n.introLesson}',
+                            //   textAlign: TextAlign.center,
+                            //   style: const TextStyle(fontSize: 16, color: Colors.black54),
+                            // ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildVideoPlayer() {
+    // Use Safari video player for Safari on Mac, Chewie for everything else
+    // if (BrowserDetection.isSafariOnMac()) {
+      return SafariVideoPlayer(
+        videoUrl: _videoUrl,
+        aspectRatio: 16 / 9,
+        maxHeight: 400,
+      );
+    // } else {
+    //   return ChewieVideoPlayer(
+    //     videoUrl: _videoUrl,
+    //     aspectRatio: 16 / 9,
+    //     maxHeight: 400,
+    //   );
+    // }
   }
 }
 

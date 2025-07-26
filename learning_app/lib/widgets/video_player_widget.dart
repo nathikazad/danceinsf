@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../models/video_links.dart';
 import 'thumbnail_list_widget.dart';
+import '../utils/browser_detection.dart';
+import 'safari_video_player.dart';
 
 // Custom fullscreen widget that preserves video state
 class CustomFullscreenWidget extends StatefulWidget {
@@ -332,67 +334,87 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               // borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(8),
-            child: Stack(
-              children: [
-                Center(
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : (_chewieController == null || !widget.isExpanded)
-                          ? const Text('Video not loaded')
-                          : Transform(
-                              alignment: Alignment.center,
-                              transform: Matrix4.rotationY(_isFlipped ? 3.14159 : 0),
-                              child: Chewie(controller: _chewieController!),
-                            ),
-                ),
-                if (_chewieController != null && widget.isExpanded && !_isLoading)
-                  Positioned(
-                    top: 16,
-                    right: 16,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Flip button
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.flip,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            onPressed: _toggleFlip,
-                            tooltip: 'Flip Video',
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Fullscreen button
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.fullscreen,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            onPressed: _openFullscreen,
-                            tooltip: 'Fullscreen',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
+            child: _buildVideoPlayer(),
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildVideoPlayer() {
+    if (!widget.isExpanded) {
+      return const Center(child: Text('Video not loaded'));
+    }
+
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Use Safari video player for Safari on Mac, Chewie for everything else
+    if (BrowserDetection.isSafariOnMac()) {
+      return SafariVideoPlayer(
+        videoUrl: widget.videoUrls[_currentVideoIndex].streamUrl,
+        aspectRatio: 16 / 9,
+        maxHeight: double.infinity,
+      );
+    } else {
+      // Use Chewie for all other browsers/platforms
+      return Stack(
+        children: [
+          Center(
+            child: _chewieController != null
+                ? Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(_isFlipped ? 3.14159 : 0),
+                    child: Chewie(controller: _chewieController!),
+                  )
+                : const Text('Video not loaded'),
+          ),
+          if (_chewieController != null && !_isLoading)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Flip button
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.flip,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      onPressed: _toggleFlip,
+                      tooltip: 'Flip Video',
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Fullscreen button
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.fullscreen,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      onPressed: _openFullscreen,
+                      tooltip: 'Fullscreen',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      );
+    }
   }
 } 

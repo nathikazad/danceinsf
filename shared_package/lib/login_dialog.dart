@@ -126,59 +126,59 @@ class _LoginDialogState extends ConsumerState<LoginDialog> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: Icon(Icons.apple, color: brown),
-                    label: Text(l10n.signInWithApple),
-                    onPressed: isLoading
-                        ? null
-                        : () async {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            await authNotifier.signInWithApple(context);
-                            if (mounted) {
-                              setState(() {
-                                isLoading = false;
-                              });
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: white,
-                      foregroundColor: brown,
-                      side: BorderSide(color: brown.withOpacity(0.2)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: Icon(Icons.g_mobiledata, color: orange),
-                    label: Text(l10n.signInWithGoogle),
-                    onPressed: isLoading
-                        ? null
-                        : () async {
-                            await authNotifier.signInWithGoogle(context);
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: white,
-                      foregroundColor: orange,
-                      side: BorderSide(color: orange.withOpacity(0.2)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
+                // const Divider(),
+                // const SizedBox(height: 24),
+                // SizedBox(
+                //   width: double.infinity,
+                //   child: ElevatedButton.icon(
+                //     icon: Icon(Icons.apple, color: brown),
+                //     label: Text(l10n.signInWithApple),
+                //     onPressed: isLoading
+                //         ? null
+                //         : () async {
+                //             setState(() {
+                //               isLoading = true;
+                //             });
+                //             await authNotifier.signInWithApple(context);
+                //             if (mounted) {
+                //               setState(() {
+                //                 isLoading = false;
+                //               });
+                //             }
+                //           },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: white,
+                //       foregroundColor: brown,
+                //       side: BorderSide(color: brown.withOpacity(0.2)),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(vertical: 14),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 12),
+                // SizedBox(
+                //   width: double.infinity,
+                //   child: ElevatedButton.icon(
+                //     icon: Icon(Icons.g_mobiledata, color: orange),
+                //     label: Text(l10n.signInWithGoogle),
+                //     onPressed: isLoading
+                //         ? null
+                //         : () async {
+                //             await authNotifier.signInWithGoogle(context);
+                //           },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: white,
+                //       foregroundColor: orange,
+                //       side: BorderSide(color: orange.withOpacity(0.2)),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(vertical: 14),
+                //     ),
+                //   ),
+                // ),
               ] else ...[
                 TextField(
                   controller: _otpController,
