@@ -6,15 +6,17 @@ import '../models/video_links.dart';
 import '../services/storage_service.dart';
 import '../widgets/accordion_widget.dart';
 import '../widgets/video_player_widget.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class MobileVideoApp extends StatefulWidget {
+class MobileVideoApp extends ConsumerStatefulWidget {
   const MobileVideoApp({super.key});
 
   @override
-  State<MobileVideoApp> createState() => _MobileVideoAppState();
+  ConsumerState<MobileVideoApp> createState() => _MobileVideoAppState();
 }
 
-class _MobileVideoAppState extends State<MobileVideoApp> {
+class _MobileVideoAppState extends ConsumerState<MobileVideoApp> {
   List<AccordionData>? accordionData;
   bool isLoading = true;
 
@@ -36,12 +38,15 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (isLoading) {
       return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: LandingAppBar(isDesktop: false),
         ),
+        endDrawer: MobileDrawer(l10n: l10n),
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -50,6 +55,11 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
 
     if (accordionData == null) {
       return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: LandingAppBar(isDesktop: false),
+        ),
+        endDrawer: MobileDrawer(l10n: l10n),
         body: Center(
           child: Text('Error loading videos'),
         ),
@@ -60,16 +70,16 @@ class _MobileVideoAppState extends State<MobileVideoApp> {
   }
 }
 
-class _MobileScaffold extends StatefulWidget {
+class _MobileScaffold extends ConsumerStatefulWidget {
   final List<AccordionData> accordionData;
 
   const _MobileScaffold({required this.accordionData});
 
   @override
-  State<_MobileScaffold> createState() => _MobileScaffoldState();
+  ConsumerState<_MobileScaffold> createState() => _MobileScaffoldState();
 }
 
-class _MobileScaffoldState extends State<_MobileScaffold> {
+class _MobileScaffoldState extends ConsumerState<_MobileScaffold> {
   int _openAccordionIndex = 0;
   final ItemScrollController itemScrollController = ItemScrollController();
   final ScrollOffsetController scrollOffsetController = ScrollOffsetController();
@@ -127,11 +137,14 @@ class _MobileScaffoldState extends State<_MobileScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: LandingAppBar(isDesktop: false),
       ),
+      endDrawer: MobileDrawer(l10n: l10n),
       body: ScrollablePositionedList.builder(
         itemCount: widget.accordionData.length,
         itemScrollController: itemScrollController,

@@ -18,12 +18,15 @@
   "unlimitedReplaysDescription": "En talleres es difícil recordar todo lo que aprendiste, pero con videos pregrabados puedes verlos una y otra vez hasta que se conviertan en algo natural.",
   "easyReview": "Revisión Fácil",
   "easyReviewDescription": "Tenemos una sección dedicada para revisar los movimientos que has aprendido. Así que cuando tu memoria se nuble, puedes refrescarla rápidamente.",
-  "buyForPrice": "Comprar por ${price}",
+  "buyForPrice": "Comprar por ${price} {currency}",
   "@buyForPrice": {
     "placeholders": {
         "price": {
             "type": "int"
-        }
+        },
+        "currency": {
+           "type": "String"
+       }
     }
   },
   "refundPolicy": "Si no estás satisfecho con el curso, puedes cancelar dentro de las 48 horas y obtener un reembolso completo. Sin preguntas.",
@@ -45,7 +48,7 @@
   "loginRequired": "Inicio de Sesión Requerido",
   "loginRequiredMessage": "Por favor inicia sesión para completar tu compra.",
   "loginToContinue": "Iniciar Sesión para Continuar",
-  "bachataCoursePrice": "Curso de Bachata - ${price}",
+  "bachataCoursePrice": "Curso de Bachata - MXN ${price}",
   "@bachataCoursePrice": {
     "placeholders": {
         "price": {
@@ -56,7 +59,7 @@
   "courseDescription": "Obtén acceso de por vida a nuestro curso completo de bachata con reproducciones ilimitadas.",
   "securePaymentMessage": "Pago seguro impulsado por Stripe",
   "continueToPayment": "Continuar al Pago",
-  "payAmount": "Pagar ${price}",
+  "payAmount": "Pagar MXN ${price}",
   "@payAmount": {
     "placeholders": {
         "price": {

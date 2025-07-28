@@ -18,12 +18,15 @@
   "unlimitedReplaysDescription": "In workshops it is hard to remember everything you learned, but with pre-recorded videos you can watch them over and over again till it becomes second nature.",
   "easyReview": "Easy Review",
   "easyReviewDescription": "We have a dedicated section for reviewing the moves you have learned. So when your memory gets fuzzy, you can quickly refresh it.",
-  "buyForPrice": "Buy for ${price}",
+  "buyForPrice": "Buy for ${price} {currency}",
   "@buyForPrice": {
     "placeholders": {
         "price": {
             "type": "int"
-        }
+        },
+          "currency": {
+             "type": "String"
+         }
     }
   },
   "refundPolicy": "If you are not satisfied with the course, you can cancel within 48 hours and get a full refund. No questions asked.",
@@ -45,7 +48,7 @@
   "loginRequired": "Login Required",
   "loginRequiredMessage": "Please log in to complete your purchase.",
   "loginToContinue": "Login to Continue",
-  "bachataCoursePrice": "Bachata Course - ${price}",
+  "bachataCoursePrice": "Bachata Course - MXN ${price}",
   "@bachataCoursePrice": {
     "placeholders": {
         "price": {
@@ -56,7 +59,7 @@
   "courseDescription": "Get lifetime access to our comprehensive bachata course with unlimited replays.",
   "securePaymentMessage": "Secure payment powered by Stripe",
   "continueToPayment": "Continue to Payment",
-  "payAmount": "Pay ${price}",
+  "payAmount": "Pay MXN ${price}",
   "@payAmount": {
     "placeholders": {
         "price": {

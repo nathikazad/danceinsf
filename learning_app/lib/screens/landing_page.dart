@@ -20,7 +20,7 @@ class LandingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 750;
+    final isDesktop = screenWidth > 600;
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F2),
@@ -28,6 +28,7 @@ class LandingPage extends ConsumerWidget {
         preferredSize: const Size.fromHeight(60),
         child: LandingAppBar(isDesktop: isDesktop),
       ),
+      endDrawer: isDesktop ? null : MobileDrawer(l10n: l10n),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -157,19 +158,19 @@ class _VideoPreviewState extends State<_VideoPreview> {
 
   Widget _buildVideoPlayer() {
     // Use Safari video player for Safari on Mac, Chewie for everything else
-    // if (BrowserDetection.isSafariOnMac()) {
+    if (BrowserDetection.isSafariOnMac()) {
       return SafariVideoPlayer(
         videoUrl: _videoUrl,
         aspectRatio: 16 / 9,
         maxHeight: 400,
       );
-    // } else {
-    //   return ChewieVideoPlayer(
-    //     videoUrl: _videoUrl,
-    //     aspectRatio: 16 / 9,
-    //     maxHeight: 400,
-    //   );
-    // }
+    } else {
+      return ChewieVideoPlayer(
+        videoUrl: _videoUrl,
+        aspectRatio: 16 / 9,
+        maxHeight: 400,
+      );
+    }
   }
 }
 
@@ -249,7 +250,7 @@ class _BuyButtonWidget extends ConsumerWidget {
             ),
           ),
           child: Text(
-            l10n.buyForPrice(999),
+            l10n.buyForPrice(999, 'MXN'),
             style: TextStyle(
               fontSize: isDesktop ? 20 : 18,
               fontWeight: FontWeight.bold,
