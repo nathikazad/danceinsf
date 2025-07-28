@@ -48,22 +48,28 @@
   "loginRequired": "Inicio de Sesión Requerido",
   "loginRequiredMessage": "Por favor inicia sesión para completar tu compra.",
   "loginToContinue": "Iniciar Sesión para Continuar",
-  "bachataCoursePrice": "Curso de Bachata - MXN ${price}",
+  "bachataCoursePrice": "Curso de Bachata - ${price} {currency}",
   "@bachataCoursePrice": {
     "placeholders": {
         "price": {
             "type": "int"
+        },
+        "currency": {
+            "type": "String"
         }
     }
   },
   "courseDescription": "Obtén acceso de por vida a nuestro curso completo de bachata con reproducciones ilimitadas.",
   "securePaymentMessage": "Pago seguro impulsado por Stripe",
   "continueToPayment": "Continuar al Pago",
-  "payAmount": "Pagar MXN ${price}",
+  "payAmount": "Pagar ${price} {currency}",
   "@payAmount": {
     "placeholders": {
         "price": {
             "type": "int"
+        },
+        "currency": {
+            "type": "String"
         }
     }
   },

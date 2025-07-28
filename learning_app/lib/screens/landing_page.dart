@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dance_shared/stripe/stripe_dialog.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/constants.dart';
 import 'package:learning_app/utils/user_payments.dart';
 import 'package:learning_app/utils/browser_detection.dart';
 import 'package:learning_app/widgets/landing_page_widgets/features_widget.dart';
@@ -20,7 +21,7 @@ class LandingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 600;
+    final isDesktop = screenWidth > mobileWidth;
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F2),
@@ -183,6 +184,34 @@ class _BuyButtonWidget extends ConsumerWidget {
     required this.l10n,
   });
 
+  Future<bool> _redirectBasedOnUserPaymentStatus(BuildContext context, WidgetRef ref) async {
+    ref.invalidate(userHasPaymentProvider);
+    await ref.read(userHasPaymentProvider.future);
+    // Check if user has payment
+    final hasPayment = await ref.read(userHasPaymentProvider.future);
+    if (!hasPayment) {
+      print("User does not have payment");
+      return false;
+    }
+    print("User has payment, navigating to video app");
+    // If user doesn't have payment, show payment dialog
+    if (context.mounted) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      final isDesktop = screenWidth > mobileWidth; // Using mobileWidthpx threshold as in landing page
+      if (isDesktop) {
+        if (context.mounted) {
+          context.go('/desktop-video');
+        }
+      } else {
+        if (context.mounted)  {
+          context.go('/mobile-video');
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
@@ -204,35 +233,28 @@ class _BuyButtonWidget extends ConsumerWidget {
               return;
             }
             if (context.mounted) {
+              print("Checking if user has payment");
+              final hasPayment = await _redirectBasedOnUserPaymentStatus(context, ref);
+              if (hasPayment) {
+                print("User has payment");
+                return;
+              }
+            }
+            print("User does not have payment, showing payment dialog");
+            if (context.mounted) {
               await showDialog(
                 context: context,
                 builder: (context) => StripePaymentDialog(
                   postPaymentCallback: (ref) async {
-                    ref.invalidate(userHasPaymentProvider);
-                    await ref.read(userHasPaymentProvider.future);
-                    final screenWidth = MediaQuery.of(context).size.width;
-                    final isDesktop = screenWidth > 600; // Using 600px threshold as in landing page
-                    if (isDesktop) {
-                      if (context.mounted) {
-                        context.go('/desktop-video');
-                      }
-                    } else {
-                      if (context.mounted)  {
-                        context.go('/mobile-video');
-                      }
-                    }
+                    _redirectBasedOnUserPaymentStatus(context, ref);
                   },
-                  publishableKey: 'pk_test_51RgHPYQ3gDIZndwWrWx1aNclnFjsh6E3v01vBdNZAfqMEw1ZEAshkauhbtObKB7F3U9OVp7RNpgMhJy7uT2NcV6U00KQIWykjt',
-                  stripeAccountId: 'acct_1Ro1fcQ3gDiXwojs',
-                  amount: 99900,
-                  currency: 'mxn',
-                  itemTitle: l10n.bachataCoursePrice(999),
+                  publishableKey: publishableKey,
+                  stripeAccountId: stripeAccountId,
+                  amount: coursePrice * 100,
+                  currency: currency.toLowerCase(),
+                  itemTitle: l10n.bachataCoursePrice(coursePrice, currency),
                   itemDescription: l10n.courseDescription,
-                  metadata: {
-                    'course_name': 'Bachata Course',
-                    'course_id': 1,
-                    'payment_type': 'course',
-                  },
+                  metadata: courseMetadata,
                   l10n: l10n,
                 ),
               );
@@ -250,7 +272,7 @@ class _BuyButtonWidget extends ConsumerWidget {
             ),
           ),
           child: Text(
-            l10n.buyForPrice(999, 'MXN'),
+            l10n.buyForPrice(coursePrice, currency),
             style: TextStyle(
               fontSize: isDesktop ? 20 : 18,
               fontWeight: FontWeight.bold,
@@ -284,7 +306,7 @@ class _CourseAccessWidget extends StatelessWidget {
       onPressed: () {
         // Navigate to appropriate video app based on screen width
         final screenWidth = MediaQuery.of(context).size.width;
-        final isDesktop = screenWidth > 600; // Using 600px threshold as in main.dart
+        final isDesktop = screenWidth > mobileWidth; // Using mobileWidthpx threshold as in main.dart
         
         if (isDesktop) {
           context.go('/desktop-video');

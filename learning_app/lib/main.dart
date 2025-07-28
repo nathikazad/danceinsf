@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/constants.dart';
 import 'package:learning_app/screens/landing_page.dart';
 import 'package:learning_app/screens/desktop_video_app.dart';
 import 'package:learning_app/screens/mobile_video_app.dart';
@@ -108,7 +109,7 @@ class MyApp extends ConsumerWidget {
     // If user has payment, redirect to appropriate video app
     if (hasPaymentAsync.hasValue && hasPaymentAsync.value == true) {
       final screenWidth = MediaQuery.of(context).size.width;
-      final isDesktop = screenWidth > 600; // Using 600px threshold as in landing page
+      final isDesktop = screenWidth > mobileWidth; // Using mobileWidthpx threshold as in landing page
       
       final redirectPath = isDesktop ? '/desktop-video' : '/mobile-video';
       print('result: $redirectPath (has payment)');

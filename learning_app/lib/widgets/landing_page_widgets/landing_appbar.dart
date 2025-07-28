@@ -47,7 +47,7 @@ class LandingAppBar extends ConsumerWidget {
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
-              // Show buttons directly on desktop (width > 600px)
+              // Show buttons directly on desktop (width > mobileWidthpx)
               if (isDesktop) ...[
                 // Language selector
                 Consumer(
