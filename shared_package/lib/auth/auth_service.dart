@@ -160,15 +160,21 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   Future<void> signInWithPhone(String phoneNumber) async {
+    // Clean the phone number by keeping only numbers and plus sign
+    print('unclean phone number: $phoneNumber');
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
+    print('signInWithPhone: $cleanPhoneNumber');
     await _supabase.auth.signInWithOtp(
-      phone: phoneNumber,
+      phone: cleanPhoneNumber,
     );
     print('OTP sent successfully');
   }
 
   Future<void> verifyOTP(String phoneNumber, String otp, {bool notify = true}) async {
+    // Clean the phone number by keeping only numbers and plus sign
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
     final response = await _supabase.auth.verifyOTP(
-      phone: phoneNumber,
+      phone: cleanPhoneNumber,
       token: otp,
       type: OtpType.sms,
     );

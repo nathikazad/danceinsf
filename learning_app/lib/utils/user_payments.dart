@@ -12,6 +12,7 @@ final userHasPaymentProvider = FutureProvider<bool>((ref) async {
 
   try {
     final response = await Supabase.instance.client
+        .schema('money')
         .from('payments')
         .select('id')
         .eq('user_id', user.id)
