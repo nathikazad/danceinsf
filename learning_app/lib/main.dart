@@ -28,6 +28,9 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     
+    // Listen to auth changes and update payment service
+    ref.listen(authProvider, (previous, next) => UserPaymentService.instance.fetch());
+    
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: _createRouter(ref),
@@ -47,21 +50,23 @@ class MyApp extends ConsumerWidget {
   GoRouter _createRouter(WidgetRef ref) {
     return GoRouter(
       initialLocation: '/',
-      redirect: (context, state) {
+      redirect: (context, state) async {
         print('state: ${state.matchedLocation}');
         // Only check for redirect on the landing page
         if (state.matchedLocation == '/') {
-          String? result = _checkAuthAndRedirect(context, ref);
+          String? result = await _checkAuthAndRedirect(context, ref);
           print('result: $result');
           return result;
         } else {
           if (ref.read(authProvider).user == null) {
+            print('result: / (no user)');
             return '/';
           }
           if (state.matchedLocation == '/desktop-video' || state.matchedLocation == '/mobile-video') {
-            if (ref.read(userHasPaymentProvider).hasValue && ref.read(userHasPaymentProvider).value == true) {
+            if (UserPaymentService.instance.currentValue == true) {
               return null;
             }
+            print('result: / (no payment)');
             return '/';
           }
         }
@@ -84,30 +89,24 @@ class MyApp extends ConsumerWidget {
     );
   }
 
-  String? _checkAuthAndRedirect(BuildContext context, WidgetRef ref) {
+  Future<String?> _checkAuthAndRedirect(BuildContext context, WidgetRef ref) async {
     // Watch auth state
     final authNotifier = ref.watch(authProvider);
     final user = authNotifier.user;
     
-    print('user: ${user?.id}');
+    print('router: user: ${user?.id}');
     
     // If user is not logged in, stay on landing page
     if (user == null) {
-      print('result: null (no user)');
+      print('router: result: null (no user)');
       return null;
     }
-    
-    // Only watch payment status if user is logged in
-    final hasPaymentAsync = ref.watch(userHasPaymentProvider);
-    
-    // If still loading payment status, stay on landing page
-    if (hasPaymentAsync.isLoading) {
-      print('result: null (loading payment)');
-      return null;
-    }
+
+
+    final hasPayment = await UserPaymentService.instance.fetch();
     
     // If user has payment, redirect to appropriate video app
-    if (hasPaymentAsync.hasValue && hasPaymentAsync.value == true) {
+    if (hasPayment) {
       final screenWidth = MediaQuery.of(context).size.width;
       final isDesktop = screenWidth > mobileWidth; // Using mobileWidthpx threshold as in landing page
       
@@ -117,7 +116,7 @@ class MyApp extends ConsumerWidget {
     }
     
     // If user is logged in but doesn't have payment, stay on landing page
-    print('result: null (no payment)');
+    print('router: result: null (no payment)');
     return null;
   }
 }

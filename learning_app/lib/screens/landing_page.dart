@@ -70,17 +70,19 @@ class LandingPage extends ConsumerWidget {
                   FeaturesGrid(isDesktop: isDesktop),
                   const SizedBox(height: 32),
                   // Conditionally show buy or course access widgets
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final hasPayment = ref.watch(userHasPaymentProvider);
+                  StreamBuilder<bool>(
+                    stream: UserPaymentService.instance.stream,
+                    builder: (context, snapshot) {
+                      print('landing_page: snapshot: ${snapshot.data}');
+
+                      final hasPayment = snapshot.data ?? UserPaymentService.instance.currentValue ?? false;
+                      print('landing_page: hasPayment: $hasPayment');
                       
-                      return hasPayment.when(
-                        data: (hasPayment) => hasPayment 
-                          ? _CourseAccessWidget(isDesktop: isDesktop)
-                          : _BuyButtonWidget(isDesktop: isDesktop, l10n: l10n),
-                        loading: () => _LoadingWidget(isDesktop: isDesktop),
-                        error: (error, stack) => _BuyButtonWidget(isDesktop: isDesktop, l10n: l10n),
-                      );
+                      if (hasPayment) {
+                        return _CourseAccessWidget(isDesktop: isDesktop);
+                      } else {
+                        return _BuyButtonWidget(isDesktop: isDesktop, l10n: l10n);
+                      }
                     },
                   ),
                 ],
@@ -185,31 +187,40 @@ class _BuyButtonWidget extends ConsumerWidget {
   });
 
   Future<bool> _redirectBasedOnUserPaymentStatus(BuildContext context, WidgetRef ref) async {
-    ref.invalidate(userHasPaymentProvider);
-    await ref.read(userHasPaymentProvider.future);
-    // Check if user has payment
-    final hasPayment = await ref.read(userHasPaymentProvider.future);
-    if (!hasPayment) {
-      print("User does not have payment");
+    // Check if context is still mounted before using ref
+    if (!context.mounted) {
+      print("Context not mounted, skipping redirect");
       return false;
     }
-    print("User has payment, navigating to video app");
-    // If user doesn't have payment, show payment dialog
-    if (context.mounted) {
-      final screenWidth = MediaQuery.of(context).size.width;
-      final isDesktop = screenWidth > mobileWidth; // Using mobileWidthpx threshold as in landing page
-      if (isDesktop) {
-        if (context.mounted) {
+    
+    try {
+      // Check if user has payment
+      final hasPayment = await UserPaymentService.instance.fetch();
+      if (!hasPayment) {
+        print("User does not have payment");
+        return false;
+      }
+      print("User has payment, navigating to video app");
+      // If user doesn't have payment, show payment dialog
+      if (context.mounted) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isDesktop = screenWidth > mobileWidth; // Using mobileWidthpx threshold as in landing page
+        if (isDesktop) {
+          print("Redirecting to desktop video");
           context.go('/desktop-video');
-        }
-      } else {
-        if (context.mounted)  {
+        } else {
+          print("Redirecting to mobile video");
           context.go('/mobile-video');
         }
+        return true;
+      } else {
+        print("Context not mounted, skipping redirect");
       }
-      return true;
+      return false;
+    } catch (e) {
+      print("Error in _redirectBasedOnUserPaymentStatus: $e");
+      return false;
     }
-    return false;
   }
 
   @override
@@ -232,24 +243,29 @@ class _BuyButtonWidget extends ConsumerWidget {
               }
               return;
             }
-            if (context.mounted) {
-              print("Checking if user has payment");
-              final hasPayment = await _redirectBasedOnUserPaymentStatus(context, ref);
-              if (hasPayment) {
-                print("User has payment");
-                return;
-              }
+            print("Checking if user has payment");
+            final hasPayment = await UserPaymentService.instance.fetch();
+            if (hasPayment) {
+              print("User has payment");
+              return;
             }
             print("User does not have payment, showing payment dialog");
             if (context.mounted) {
+              // Capture the ref before showing the dialog
+              final currentRef = ref;
               await showDialog(
                 context: context,
                 builder: (context) => StripePaymentDialog(
-                  postPaymentCallback: (ref) async {
-                    _redirectBasedOnUserPaymentStatus(context, ref);
+                  postPaymentCallback: (dialogRef) async {
+                    // Use the captured ref instead of the dialog's ref
+                    if (context.mounted) {
+                      await _redirectBasedOnUserPaymentStatus(context, currentRef);
+                    } else {
+                      print("Context not mounted after payment, cannot redirect");
+                    }
                   },
                   publishableKey: publishableKey,
-                  stripeAccountId: stripeAccountId,
+                  // stripeAccountId: stripeAccountId,
                   amount: coursePrice * 100,
                   currency: currency.toLowerCase(),
                   itemTitle: l10n.bachataCoursePrice(coursePrice, currency),
@@ -332,33 +348,6 @@ class _CourseAccessWidget extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-    );
-  }
-}
-
-class _LoadingWidget extends StatelessWidget {
-  final bool isDesktop;
-
-  const _LoadingWidget({
-    required this.isDesktop,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[400],
-        foregroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 48 : 32,
-          vertical: isDesktop ? 16 : 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: const Text('Loading...'),
     );
   }
 }
