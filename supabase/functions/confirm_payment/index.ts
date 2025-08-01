@@ -83,7 +83,9 @@ Deno.serve(async (req) => {
 
     // Insert payment record into payments table
     const { data: paymentData, error: insertError } = await supabase
+      .schema('money')  
       .from('payments')
+      
       .insert({
         stripe_id: payment_intent_id,
         amount: amount,

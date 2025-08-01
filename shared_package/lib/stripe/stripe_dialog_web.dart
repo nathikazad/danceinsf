@@ -7,7 +7,7 @@ import 'package:dance_shared/stripe/stripe_util.dart';
 class StripePaymentDialog extends ConsumerStatefulWidget {
   final Future<void> Function(WidgetRef ref) postPaymentCallback;
   final String publishableKey;
-  final String stripeAccountId;
+  final String? stripeAccountId;
   final int amount;
   final String currency;
   final String itemTitle;
@@ -18,7 +18,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
     super.key,
     required this.postPaymentCallback,
     required this.publishableKey,
-    required this.stripeAccountId,
+    this.stripeAccountId,
     required this.amount,
     required this.currency,
     required this.itemTitle,
@@ -48,10 +48,16 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   Future<void> _initializeWebStripe() async {
     if (!_webStripeInitialized) {
       try {
-        await WebStripe.instance.initialise(
-          publishableKey: widget.publishableKey,
-          stripeAccountId: widget.stripeAccountId,
-        );
+        if (widget.stripeAccountId != null) {
+          await WebStripe.instance.initialise(
+            publishableKey: widget.publishableKey,
+            stripeAccountId: widget.stripeAccountId!,
+          );
+        } else {
+          await WebStripe.instance.initialise(
+            publishableKey: widget.publishableKey,
+          );
+        }
         _webStripeInitialized = true;
       } catch (e) {
         print('WebStripe initialization failed: ${(e as StripeConfigException).message}');
@@ -229,7 +235,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                       ),
                       child: _isLoading 
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(l10n.payAmount(widget.amount ~/ 100), style: TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(l10n.payAmount(widget.amount ~/ 100, widget.currency.toUpperCase()), style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[

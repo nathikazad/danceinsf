@@ -6,7 +6,7 @@ import 'package:dance_shared/stripe/stripe_util.dart';
 class StripePaymentDialog extends ConsumerStatefulWidget {
   final Future<void> Function(WidgetRef ref) postPaymentCallback;
   final String publishableKey;
-  final String stripeAccountId;
+  final String? stripeAccountId;
   final int amount;
   final String currency;
   final String itemTitle;
@@ -17,7 +17,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
     super.key,
     required this.postPaymentCallback,
     required this.publishableKey,
-    required this.stripeAccountId,
+    this.stripeAccountId,
     required this.amount,
     required this.currency,
     required this.itemTitle,
@@ -55,7 +55,9 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       paymentIntentData = await StripeUtil.createPaymentIntent(amount, widget.currency, widget.metadata, widget.stripeAccountId);
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
-      Stripe.stripeAccountId = widget.stripeAccountId;
+      if (widget.stripeAccountId != null) {
+        Stripe.stripeAccountId = widget.stripeAccountId;
+      }
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           customFlow: false,
