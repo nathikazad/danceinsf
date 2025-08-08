@@ -446,7 +446,7 @@ function generateThumbnailUrl(playbackId: string, signed: boolean) {
 }
 
 export function videoLinksWithTokens() {
-    const result: any = {};
+    const result: any = {"es": {}, "en": {}};
     
     for (const key in videoLinksDataInEs) {
         result["es"][key] = {
