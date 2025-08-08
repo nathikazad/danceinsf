@@ -41,7 +41,7 @@ export function generateToken(
   }
 }
 
-const videoLinksData = [
+const videoLinksDataInEs = [
     {
         title: "Intro Videos",
         videos: [
@@ -234,6 +234,199 @@ const videoLinksData = [
     }
 ];
 
+const videoLinksDataInEn = [
+    {
+        title: "Intro Videos",
+        videos: [
+            {
+                playbackId: "O5trriahYhJmamV1xEIHbiv01bpErvesx584SqO7bP8s",
+                title: "Intro",
+                signed: true
+            },
+            {
+                playbackId: "AQ55vZPsJJnzWziqMmrufpoGyRr5WOL8RGI1PgAGphY",
+                title: "Step 1",
+                signed: false
+            },
+            {
+                playbackId: "Qu86eMOGBCXYaPlmGLFoM6AEbmJ3Ia27BNjV99rtzmQ",
+                title: "Step 2",
+                signed: true
+            },
+            {
+                playbackId: "wD6vFBH6Zxt4tqsuuPPVozvraS00Mc99DEW412yqtELA",
+                title: "Step 3",
+                signed: true
+            },
+            {
+                playbackId: "vFdGM02DUdZPPR8FZ1ta8NBteLlyM2ZKQ1Jx01OvbKnpU",
+                title: "Step 4",
+                signed: true
+            },
+            {
+                playbackId: "FL7KL5Km00kpcm901lFVTnCsEOxYf3sOxhp7mYkBqGm7o",
+                title: "Step 5",
+                signed: true
+            },
+            {
+                playbackId: "IbUSlYa7fVr702h4814awwkVKmU7zOGJ502W3UFeZaZEs",
+                title: "Step 6",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Step One",
+        videos: [
+            {
+                playbackId: "AQ55vZPsJJnzWziqMmrufpoGyRr5WOL8RGI1PgAGphY",
+                title: "Music",
+                signed: false
+            },
+            {
+                playbackId: "ZPnuFoZGQ01EFRuJwhq6qjWUdIcXxi00015i101aXWQluW8",
+                title: "Counts",
+                signed: false
+            },
+            {
+                playbackId: "5bZ8PTMpNctjSrLYti2MXQsSwNFMiQmzeyKZuCl5TCY",
+                title: "Leads",
+                signed: true
+            },
+            {
+                playbackId: "1vZH2HW024hZ2MX6UmYoHe01HeHJF3DW4Cqd19arE8ptM",
+                title: "Follows",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Step Two",
+        videos: [
+            {
+                playbackId: "Qu86eMOGBCXYaPlmGLFoM6AEbmJ3Ia27BNjV99rtzmQ",
+                title: "Music",
+                signed: true
+            },
+            {
+                playbackId: "35Lw4d3vY01bBPY9ZAu8uhLxs3kDLvAI6RlqzjPbMWps",
+                title: "Counts",
+                signed: true
+            },
+            {
+                playbackId: "01IyXQuljRPd3kwi6e2O93aBl1IE15qRkA6SbqRmzJy4",
+                title: "Leads",
+                signed: true
+            },
+            {
+                playbackId: "004xG6AXNRh7l98Jm00Sk4lq1hr00Q3tk02Ekpy5EJH12sQ",
+                title: "Follows",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Step Three",
+        videos: [
+            {
+                playbackId: "wD6vFBH6Zxt4tqsuuPPVozvraS00Mc99DEW412yqtELA",
+                title: "Music",
+                signed: true
+            },
+            {
+                playbackId: "7yE02oLqKxyVVvGbWQr200ds7bCu8cRn2sdaPy601Bxlng",
+                title: "Counts",
+                signed: true
+            },
+            {
+                playbackId: "sF00zNfjfO1H3Pt2y686iJqVD1GxrEzaMnCpownA6Bf8",
+                title: "Leads",
+                signed: true
+            },
+            {
+                playbackId: "sI500X6a4VeAhjRe7LfTfDSz3WXPq9i5pwqtNL2XkkhA",
+                title: "Follows",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Step Four",
+        videos: [
+            {
+                playbackId: "vFdGM02DUdZPPR8FZ1ta8NBteLlyM2ZKQ1Jx01OvbKnpU",
+                title: "Music",
+                signed: true    
+            },
+            {
+                playbackId: "Y02QDctg5WXYjLf601tpY8CC6AizdlJYEleSBXTHmpNyM",
+                title: "Counts",
+                signed: true
+            },
+            {
+                playbackId: "8DQpCs008I8go2xVGhuMz2VA6VWBDB5Eg1axefyg9uB4",
+                title: "Leads",
+                signed: true
+            },
+            {   
+                playbackId: "ABLpteTmdh2R5DQruzYK022kKz5PPyOghUtEz02eBQivM",
+                title: "Follows",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Step Five",
+        videos: [
+            {
+                playbackId: "FL7KL5Km00kpcm901lFVTnCsEOxYf3sOxhp7mYkBqGm7o",
+                title: "Music",
+                signed: true
+            },
+            {
+                playbackId: "j92Qsr00iL63eh4JqXIN00pclHGMaKOtS4Un4QEz31H24",
+                title: "Counts",
+                signed: true
+            },
+            {
+                playbackId: "Bb35v2X02dzwEJPo2SDrtmkfYeBYhuSPyVm5Twz4aEfY",
+                title: "Leads",
+                signed: true
+            },
+            {
+                playbackId: "uVHjJFSXKE8Wfr6SMrOuPGJazAINvngqg3cD4itanZQ",
+                title: "Follows",
+                signed: true
+            }
+        ]
+    },
+    {
+        title: "Step Six",
+        videos: [
+            {
+                playbackId: "IbUSlYa7fVr702h4814awwkVKmU7zOGJ502W3UFeZaZEs",
+                title: "Music",
+                signed: true
+            },
+            {
+                playbackId: "2aBSFVsCouGm5zABKv22kyjlUtarAKrVr00hN3NwLWJI",
+                title: "Counts",
+                signed: true
+            },
+            {
+                playbackId: "Zz00G02lfiJyCgBATDJfZ6V8V02H3caIOfrRgKZO6yYQe00",
+                title: "Leads",
+                signed: true
+            },
+            {
+                playbackId: "XUfd7VfTWapeEOnFMbyP9sX02Zaz7ndCxUUS2qUXCFBU",
+                title: "Follows",
+                signed: true
+            }
+        ]
+    }
+];
+
 function generateStreamUrl(playbackId: string, signed: boolean) {
     if (signed) {
         const token = generateToken(playbackId, false, 3600);
@@ -255,10 +448,24 @@ function generateThumbnailUrl(playbackId: string, signed: boolean) {
 export function videoLinksWithTokens() {
     const result: any = {};
     
-    for (const key in videoLinksData) {
-        result[key] = {
-            title: (videoLinksData as any)[key].title,
-            videos: (videoLinksData as any)[key].videos.map((video: any) => {
+    for (const key in videoLinksDataInEs) {
+        result["es"][key] = {
+            title: (videoLinksDataInEs as any)[key].title,
+            videos: (videoLinksDataInEs as any)[key].videos.map((video: any) => {
+                return {
+                    ...video,
+                    signed: true,
+                    streamUrl: generateStreamUrl(video.playbackId, video.signed),
+                    thumbnailUrl: generateThumbnailUrl(video.playbackId, video.signed)
+                };
+            })
+        };
+    }
+
+    for (const key in videoLinksDataInEn) {
+        result["en"][key] = {
+            title: (videoLinksDataInEn as any)[key].title,
+            videos: (videoLinksDataInEn as any)[key].videos.map((video: any) => {
                 return {
                     ...video,
                     signed: true,

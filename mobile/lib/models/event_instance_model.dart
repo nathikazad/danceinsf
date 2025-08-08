@@ -81,7 +81,6 @@ class EventInstance {
     bool? canBuyTickets;
     Map<DateTime, double>? ticketPrices;
     if (extras != null) {
-      print('extras: $extras');
       if (extras['ticket_costs'] is Map<String, dynamic>) {
         ticketPrices = extras['ticket_costs'].map<DateTime, double>((key, value) => MapEntry(DateTime.parse(key), (value as num).toDouble()));
         if (ticketPrices?.entries.isNotEmpty ?? false) {
@@ -91,9 +90,6 @@ class EventInstance {
           final sortedTicketPrices = ticketPrices!.entries.toList()
             ..sort((a, b) => a.key.compareTo(b.key));
           final firstDateAfterNow = sortedTicketPrices.firstWhere((entry) => entry.key.isAfter(now));
-          print('firstDateAfterNow: $firstDateAfterNow');
-          print('ticketPrices: $ticketPrices');
-          print('cost: ${firstDateAfterNow.value}');
           cost = firstDateAfterNow.value;
         }
       }
