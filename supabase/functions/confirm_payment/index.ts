@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
   try {
     // Parse request body
     const body = await req.json()
-    const { payment_intent_id, amount, course_id, currency  } = body
+    const { payment_intent_id, amount, course_id, currency, promoter } = body
     console.log('course_id', course_id)
 
     // Validate required fields
@@ -90,7 +90,8 @@ Deno.serve(async (req) => {
         stripe_id: payment_intent_id,
         amount: amount,
         user_id: user.id,
-        currency: currency
+        currency: currency,
+        promoter: promoter
       })
       .select()
       .single()

@@ -1,10 +1,5 @@
 import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
 
-// Initialize Stripe with your secret key
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_51RgHPYQ3gDIZndwWfmRQlTW8cJCqFYjjnbA2gBmWJ02PwB808QKT5zAOpfjGwL7xc5fpmNSNej3AMKtwwCO7hwUu00Jaf23GZp', {
-  apiVersion: '2024-12-18.acacia',
-})
-
 // Edge function handler
 Deno.serve(async (req) => {
   // Handle CORS
@@ -32,7 +27,19 @@ Deno.serve(async (req) => {
   try {
     // Parse request body
     const body = await req.json()
-    const { amount, currency = 'usd', payment_method_types = ['card'], metadata = {}, stripe_account_id } = body
+    const { amount, currency = 'usd', payment_method_types = ['card'], metadata = {}, stripe_account_id, production } = body
+
+    let stripeSecretKey;
+    // Initialize Stripe with your secret key
+    if (production == true) {
+      stripeSecretKey = Deno.env.get('STRIPE_SECRET_PROD_KEY');
+    } else {
+      stripeSecretKey = Deno.env.get('STRIPE_SECRET_TEST_KEY');
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2024-12-18.acacia',
+    })
 
     // Validate required fields
     if (!amount || typeof amount !== 'number') {

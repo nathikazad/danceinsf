@@ -9,7 +9,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
   final String? stripeAccountId;
   final int amount;
   final String currency;
-  final String itemTitle;
+  final Function(int, String) itemTitle;
   final String itemDescription;
   final Map<String, dynamic> metadata;
   final dynamic l10n; 
@@ -40,12 +40,49 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   Map<String, dynamic>? paymentIntentData;
   String? _clientSecret;
 
+    
+  // Promo code
+  final TextEditingController _promoController = TextEditingController();
+  bool _promoApplied = false;
+  int _discountedAmount = 0;
+  String? _promoCode;
+  String? _promoError;
+
   @override
   void initState() {
     super.initState();
     Stripe.publishableKey = widget.publishableKey;
     Stripe.instance.applySettings();
+    _discountedAmount = widget.amount;
   }
+
+  @override
+  void dispose() {
+    _promoController.dispose();
+    super.dispose();
+  }
+  
+  void _applyPromoCode() {
+    final code = _promoController.text.trim().toLowerCase();
+    if (code.isEmpty) return;
+    
+    if (code == 'leti5' || code == 'byron5') {
+      setState(() {
+        _discountedAmount = (widget.amount/100 * 0.95).floor() * 100; 
+        print('discounted amount: $_discountedAmount from ${widget.amount}');// 5% discount
+        _promoApplied = true;
+        _promoError = null;
+        _promoCode = code;
+      });
+    } else {
+      setState(() {
+        _promoError = widget.l10n.invalidPromoCode;
+        _promoApplied = false;
+        _discountedAmount = widget.amount;
+      });
+    }
+  }
+
 
   Future<void> makePayment(int amount) async {
     try {
@@ -75,7 +112,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       );
       
       // Only proceed to display after successful initialization
-      await displayPaymentSheet();
+      await displayPaymentSheet(amount);
     } catch (error) {
       paymentIntentData = null;
       _clientSecret = null;
@@ -88,7 +125,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
     }
   }
 
-  Future<void> displayPaymentSheet() async {
+  Future<void> displayPaymentSheet(int finalAmount) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
         debugPrint("paid successfully");
@@ -96,7 +133,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         // Get payment intent ID from the data we created earlier
         final paymentIntentId = paymentIntentData?['payment_intent_id'];
         if (paymentIntentId != null) {
-          await StripeUtil.confirmPayment(paymentIntentId, widget.amount, widget.currency, widget.metadata);
+          await StripeUtil.confirmPayment(paymentIntentId, finalAmount, widget.currency, widget.metadata, promoter: _promoCode);
         }
 
         // Call the callback to refresh payment status
@@ -190,7 +227,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
               ] else ...[
                 Text(
-                  widget.itemTitle,
+                  widget.itemTitle((_discountedAmount~/100), widget.currency.toUpperCase()),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -212,6 +249,34 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                     });
                   },
                 ),
+                // Promo code field
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _promoController,
+                        decoration: InputDecoration(
+                          hintText: l10n.promoCodeHint,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          errorText: _promoError,
+                        ),
+                        enabled: !_promoApplied,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _promoApplied ? null : _applyPromoCode,
+                      child: Text(_promoApplied ? l10n.promoCodeApplied : l10n.applyPromoCode),
+                    ),
+                  ],
+                ),
+                if (_promoApplied) 
+                  Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Text(l10n.discountApplied, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                  ),
+                SizedBox(height: 16),
                 const SizedBox(height: 24),
                 if (_error != null)
                   Padding(
@@ -224,7 +289,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   StripeUtil.buildPaymentButton(
                     selectedPaymentMethod: _selectedPaymentMethod,
                     isLoading: _isLoading,
-                    onPressed: () => makePayment(widget.amount),
+                    onPressed: () => makePayment(_discountedAmount),
                   ),
                 const SizedBox(height: 12),
                 Text(

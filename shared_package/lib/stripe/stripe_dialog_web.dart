@@ -10,7 +10,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
   final String? stripeAccountId;
   final int amount;
   final String currency;
-  final String itemTitle;
+  final Function(int, String) itemTitle;
   final String itemDescription;
   final Map<String, dynamic> metadata;
   final dynamic l10n;
@@ -40,11 +40,46 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
   Map<String, dynamic>? paymentIntentData;
   String? _clientSecret;
   bool _webStripeInitialized = false;
+  
+  // Promo code
+  final TextEditingController _promoController = TextEditingController();
+  bool _promoApplied = false;
+  int _discountedAmount = 0;
+  String? _promoCode;
+  String? _promoError;
 
   @override
   void initState() {
     super.initState();
+    _discountedAmount = widget.amount;
     _initializeWebStripe();
+  }
+
+  @override
+  void dispose() {
+    _promoController.dispose();
+    super.dispose();
+  }
+  
+  void _applyPromoCode() {
+    final code = _promoController.text.trim().toLowerCase();
+    if (code.isEmpty) return;
+    
+    if (code == 'leti5' || code == 'byron5') {
+      setState(() {
+        _discountedAmount = (widget.amount/100 * 0.95).floor() * 100; 
+        print('discounted amount: $_discountedAmount from ${widget.amount}');// 5% discount
+        _promoApplied = true;
+        _promoError = null;
+        _promoCode = code;
+      });
+    } else {
+      setState(() {
+        _promoError = widget.l10n.invalidPromoCode;
+        _promoApplied = false;
+        _discountedAmount = widget.amount;
+      });
+    }
   }
 
   Future<void> _initializeWebStripe() async {
@@ -98,7 +133,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
     }
   }
 
-  Future<void> _handleWebPayment() async {
+  Future<void> _handleWebPayment(int finalAmount) async {
     try {
       setState(() {
         _isLoading = true;
@@ -115,7 +150,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
       final paymentIntentId = paymentIntentData?['payment_intent_id'];
       if (paymentIntentId != null) {
         debugPrint("confirming payment with id: $paymentIntentId");
-        await StripeUtil.confirmPayment(paymentIntentId, widget.amount, widget.currency, widget.metadata);
+        await StripeUtil.confirmPayment(paymentIntentId, finalAmount, widget.currency, widget.metadata, promoter: _promoCode);
       }
       // Call the callback to refresh payment status
       
@@ -205,7 +240,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                 ),
               ] else ...[
                 Text(
-                  widget.itemTitle,
+                  widget.itemTitle((_discountedAmount~/100), widget.currency.toUpperCase()),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -231,7 +266,7 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => _handleWebPayment(),
+                      onPressed: _isLoading ? null : () => _handleWebPayment(_discountedAmount),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: orange,
                         foregroundColor: white,
@@ -242,14 +277,42 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                       ),
                       child: _isLoading 
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(l10n.payAmount(widget.amount ~/ 100, widget.currency.toUpperCase()), style: TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(l10n.payAmount((_discountedAmount~/100), widget.currency.toUpperCase()), style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[
+                  // Promo code field
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _promoController,
+                          decoration: InputDecoration(
+                            hintText: l10n.promoCodeHint,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            errorText: _promoError,
+                          ),
+                          enabled: !_promoApplied,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _promoApplied ? null : _applyPromoCode,
+                        child: Text(_promoApplied ? l10n.promoCodeApplied : l10n.applyPromoCode),
+                      ),
+                    ],
+                  ),
+                  if (_promoApplied) 
+                    Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text(l10n.discountApplied, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                    ),
+                  SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => makePayment(widget.amount),
+                      onPressed: _isLoading ? null : () => makePayment(_discountedAmount),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: orange,
                         foregroundColor: white,
@@ -260,7 +323,12 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
                       ),
                       child: _isLoading 
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(l10n.continueToPayment, style: TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(
+                            _promoApplied 
+                              ? 'Continue to Payment - \$${(_discountedAmount / 100).toStringAsFixed(2)}'
+                              : l10n.continueToPayment, 
+                            style: TextStyle(fontWeight: FontWeight.bold)
+                          ),
                     ),
                   ),
                 ],

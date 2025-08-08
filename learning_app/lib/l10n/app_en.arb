@@ -73,5 +73,10 @@
         }
     }
   },
-  "errorOccurred": "An error occurred. Please try again."
+  "errorOccurred": "An error occurred. Please try again.",
+  "promoCodeHint": "Promotional code",
+  "applyPromoCode": "Apply",
+  "promoCodeApplied": "Applied",
+  "invalidPromoCode": "Invalid code",
+  "discountApplied": "5% discount applied!"
 } 

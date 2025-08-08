@@ -43,7 +43,7 @@ class StripeUtil {
     }
   }
 
-  static Future<void> confirmPayment(String paymentIntentId, num amount, String currency, Map<String, dynamic> metadata) async {
+  static Future<void> confirmPayment(String paymentIntentId, num amount, String currency, Map<String, dynamic> metadata, {String? promoter}) async {
     try {
       await Supabase.instance.client.functions.invoke(
         'confirm_payment',
@@ -52,6 +52,7 @@ class StripeUtil {
           'amount': amount,
           'metadata': metadata,
           'currency': currency,
+          'promoter': promoter,
         },
       );
     } catch (error) {

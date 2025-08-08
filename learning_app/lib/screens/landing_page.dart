@@ -268,7 +268,7 @@ class _BuyButtonWidget extends ConsumerWidget {
                   // stripeAccountId: stripeAccountId,
                   amount: coursePrice * 100,
                   currency: currency.toLowerCase(),
-                  itemTitle: l10n.bachataCoursePrice(coursePrice, currency),
+                  itemTitle: l10n.bachataCoursePrice,
                   itemDescription: l10n.courseDescription,
                   metadata: courseMetadata,
                   l10n: l10n,

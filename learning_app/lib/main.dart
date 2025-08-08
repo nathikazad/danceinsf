@@ -11,7 +11,10 @@ import 'package:dance_shared/dance_shared.dart';
 import 'package:learning_app/utils/user_payments.dart';
 
 // Provider for managing the current locale
-final localeProvider = StateProvider<Locale>((ref) => const Locale('es'));
+final localeProvider = StateProvider<Locale>((ref) {
+  final uri = Uri.base;
+  return uri.host.contains('mx') ? const Locale('es') : const Locale('en');
+});
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseConfig.initialize();
