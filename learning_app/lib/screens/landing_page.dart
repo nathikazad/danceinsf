@@ -272,6 +272,7 @@ class _BuyButtonWidget extends ConsumerWidget {
                   itemDescription: l10n.courseDescription,
                   metadata: courseMetadata,
                   l10n: l10n,
+                  production: environment == 'production',
                 ),
               );
             }

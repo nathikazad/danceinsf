@@ -15,7 +15,15 @@ final localeProvider = StateProvider<Locale>((ref) => const Locale('es'));
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseConfig.initialize();
-  
+  // get browser url
+  final uri = Uri.base;
+  print('browser url: $uri');
+  if (uri.host.contains('mx')) {
+    site = 'mx';
+  } else {
+    site = 'us';
+  }
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -51,11 +59,21 @@ class MyApp extends ConsumerWidget {
     return GoRouter(
       initialLocation: '/',
       redirect: (context, state) async {
-        print('state: ${state.matchedLocation}');
+        print('current location: ${state.matchedLocation}');
+        if (state.matchedLocation == '/desktop-video' || state.matchedLocation == '/mobile-video') {
+          
+          if (ref.read(authProvider).user == null) {
+            print('result: / (no user)');
+            return '/';
+          } else {
+            print('result: null (user)');
+            return null;
+          }
+        }
         // Only check for redirect on the landing page
         if (state.matchedLocation == '/') {
           String? result = await _checkAuthAndRedirect(context, ref);
-          print('result: $result');
+          print('result: $result, old location: ${state.matchedLocation}');
           return result;
         } else {
           if (ref.read(authProvider).user == null) {

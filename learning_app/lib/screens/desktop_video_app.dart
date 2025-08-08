@@ -15,22 +15,39 @@ class DesktopVideoApp extends StatefulWidget {
 class _DesktopVideoAppState extends State<DesktopVideoApp> {
   List<AccordionData>? accordionData;
   bool isLoading = true;
+  String? _currentLanguageCode;
 
   @override
   void initState() {
     super.initState();
-    VideoController.getVideosFromApi().then((value) {
-      setState(() {
-        accordionData = value;
-        isLoading = false;
+    _loadVideos();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newLanguageCode = Localizations.localeOf(context).languageCode;
+    if (_currentLanguageCode != null && _currentLanguageCode != newLanguageCode) {
+      _loadVideos();
+    }
+    _currentLanguageCode = newLanguageCode;
+  }
+
+  void _loadVideos() {
+    setState(() {
+      isLoading = true;
+    });
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locale = Localizations.localeOf(context);
+      print("Loading videos for locale: ${locale.languageCode}");
+      VideoController.getVideosFromApi(language: locale.languageCode).then((value) {
+        setState(() {
+          accordionData = value;
+          isLoading = false;
+        });
       });
     });
-    // }).catchError((error) {
-    //   setState(() {
-    //     isLoading = false;
-    //   });
-    //   print('Error loading videos: $error');
-    // });
   }
 
   @override

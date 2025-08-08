@@ -14,6 +14,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
   final String itemDescription;
   final Map<String, dynamic> metadata;
   final dynamic l10n;
+  final bool production;
   const StripePaymentDialog({
     super.key,
     required this.postPaymentCallback,
@@ -25,6 +26,7 @@ class StripePaymentDialog extends ConsumerStatefulWidget {
     required this.itemDescription,
     required this.metadata,
     required this.l10n,
+    required this.production,
   });
 
   @override
@@ -71,7 +73,12 @@ class _StripePaymentDialogState extends ConsumerState<StripePaymentDialog> {
         _isLoading = true;
         _error = null;
       });
-      paymentIntentData = await StripeUtil.createPaymentIntent(amount, widget.currency, widget.metadata, widget.stripeAccountId);
+      paymentIntentData = await StripeUtil.createPaymentIntent(
+        amount: amount, 
+        currency: widget.currency, 
+        metadata: widget.metadata, 
+        stripeAccountId: widget.stripeAccountId, 
+        production: widget.production);
       _clientSecret = paymentIntentData!['client_secret'];
       debugPrint("payment data: $_clientSecret");
 

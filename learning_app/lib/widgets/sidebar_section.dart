@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/storage_service.dart';
+import '../main.dart';
 import 'sidebar_toggle_button.dart';
 
 class SidebarSection extends ConsumerStatefulWidget {
@@ -44,6 +45,14 @@ class _SidebarSectionState extends ConsumerState<SidebarSection> {
       _isSidebarVisible = newVisibility;
     });
     await StorageService.saveSidebarVisible(newVisibility);
+  }
+
+  void _toggleLanguage() {
+    final currentLocale = ref.read(localeProvider);
+    final newLocale = currentLocale.languageCode == 'en' 
+        ? const Locale('es') 
+        : const Locale('en');
+    ref.read(localeProvider.notifier).state = newLocale;
   }
 
   @override
@@ -118,6 +127,35 @@ class _SidebarSectionState extends ConsumerState<SidebarSection> {
                           ),
                         );
                       },
+                    ),
+                  ),
+                  // Language toggle button
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12, left: 12, right: 12),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: _toggleLanguage,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.language, color: Colors.white),
+                              const SizedBox(width: 12),
+                              Text(
+                                l10n.localeName == 'en' ? 'Español' : 'English',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   // Logout button

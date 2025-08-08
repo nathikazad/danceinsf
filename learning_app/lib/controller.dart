@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class VideoController {
-  static Future<List<AccordionData>> getVideosFromApi() async {
+  static Future<List<AccordionData>> getVideosFromApi({String language = "en"}) async {
     // try {
       final response = await http.get(Uri.parse('https://sfdn.cc/video-links'));
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(response.body);  
         final List<AccordionData> accordionDataList = [];
         
-        jsonData.forEach((key, value) {
+        jsonData[language].forEach((key, value) {
           final Map<String, dynamic> sectionData = value as Map<String, dynamic>;
           final List<dynamic> videosData = sectionData['videos'] as List<dynamic>;
           

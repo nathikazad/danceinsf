@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StripeUtil {
-  static Future<Map<String, dynamic>> createPaymentIntent(int amount, String currency, Map<String, dynamic> metadata, String? stripeAccountId) async {
+  static Future<Map<String, dynamic>> createPaymentIntent(
+    {required int amount, 
+    required String currency, 
+    required Map<String, dynamic> metadata, 
+    String? stripeAccountId, 
+    required bool production}) async {
     try {
       // Get the current user
       final user = Supabase.instance.client.auth.currentUser;
@@ -22,6 +27,7 @@ class StripeUtil {
             'user_id': user.id,
           },
           'stripe_account_id': stripeAccountId,
+          'production': production,
         },
       );
 
