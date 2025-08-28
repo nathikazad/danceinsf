@@ -153,6 +153,41 @@ class EventInstanceController {
     }
   }
 
+  static Future<void> createEventInstance(EventInstance instance) async {
+    try {
+      // Convert TimeOfDay to string format
+      final startTimeStr = '${instance.startTime.hour.toString().padLeft(2, '0')}:${instance.startTime.minute.toString().padLeft(2, '0')}';
+      final endTimeStr = '${instance.endTime.hour.toString().padLeft(2, '0')}:${instance.endTime.minute.toString().padLeft(2, '0')}';
+
+      final instanceData = {
+        'event_id': instance.event.eventId,
+        'instance_date': instance.date.toIso8601String().split('T')[0],
+        'description': instance.description,
+        'start_time': startTimeStr,
+        'end_time': endTimeStr,
+        'cost': instance.cost,
+        'venue_name': instance.venueName,
+        'city': instance.city,
+        'google_maps_link': instance.url,
+        'ticket_link': instance.linkToEvents.isNotEmpty ? instance.linkToEvents.join(',') : null,
+        'flyer_url': instance.flyerUrl,
+      };
+
+      final response = await supabase
+          .from('event_instances')
+          .insert(instanceData)
+          .select()
+          .single();
+
+      print('response: ${response['instance_id']}');
+      
+    } catch (error, stackTrace) {
+      print('Error creating event instance: $error');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
   static Future<void> changeExcitedUser(String eventInstanceId, String userId, bool isExcited) async {
     try {
       final user = supabase.auth.currentUser;
@@ -207,6 +242,58 @@ class EventInstanceController {
       print('Error fetching previous event: $error');
       print('Stack trace: $stackTrace');
       rethrow;
+    }
+  }
+
+  static Future<bool> deleteEventInstance(String eventInstanceId) async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('User not logged in');
+
+      // First, check if the event instance exists and get its event_id
+      final instanceResponse = await supabase
+          .from('event_instances')
+          .select('event_id')
+          .eq('instance_id', eventInstanceId)
+          .single();
+
+      final eventId = instanceResponse['event_id'];
+
+      // Check if user is the owner of the event (either creator or organizer)
+      final eventResponse = await supabase
+          .from('events')
+          .select('creator_id, organizer_id')
+          .eq('event_id', eventId)
+          .single();
+
+      if (eventResponse['creator_id'] != user.id && eventResponse['organizer_id'] != user.id) {
+        throw Exception('User is not authorized to delete this event instance');
+      }
+
+      // Delete related data first (foreign key constraints)
+      // Delete instance ratings
+      await supabase
+          .from('instance_ratings')
+          .delete()
+          .eq('instance_id', eventInstanceId);
+
+      // Delete instance proposals
+      await supabase
+          .from('proposals')
+          .delete()
+          .eq('event_instance_id', eventInstanceId);
+
+      // Finally, delete the event instance
+      await supabase
+          .from('event_instances')
+          .delete()
+          .eq('instance_id', eventInstanceId);
+
+      return true;
+    } catch (error, stackTrace) {
+      print('Error deleting event instance: $error');
+      print('Stack trace: $stackTrace');
+      return false;
     }
   }
 } 

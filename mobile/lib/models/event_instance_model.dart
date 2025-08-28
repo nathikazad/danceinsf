@@ -97,6 +97,15 @@ class EventInstance {
         canBuyTickets = true;
       }
     }
+
+    Map<String, String>? description;
+    if(instance['description'] != null && instance['description'] is Map) {
+      final descMap = instance['description'] as Map;
+      description = {};
+      if (descMap['en'] != null) description['en'] = descMap['en'].toString();
+      if (descMap['es'] != null) description['es'] = descMap['es'].toString();
+    }
+
     return EventInstance(
       eventInstanceId: instance['instance_id'],
       event: event,
@@ -111,7 +120,7 @@ class EventInstance {
       startTime: parseTimeOfDay(instance['start_time']) ?? event.startTime,
       endTime: parseTimeOfDay(instance['end_time']) ?? event.endTime,
       cost: cost ?? instance['cost'] ?? event.cost,
-      description: instance['description'],
+      description: description,
       ratings: ratings,
       isCancelled: instance['is_cancelled'] == true,
       proposals: proposals,

@@ -70,9 +70,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
       try {
         _event = _event.copyWith(name: _nameController.text);
         final differences = Event.getDifferences(_oldEvent, _event);
-        if (_event.organizerId == Supabase.instance.client.auth.currentUser?.id ||
-        _event.creatorId == Supabase.instance.client.auth.currentUser?.id ||
-        Supabase.instance.client.auth.currentUser?.id == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6') {
+        if (Supabase.instance.client.auth.currentUser?.id != null && _event.isAuthorized(Supabase.instance.client.auth.currentUser!.id)) {
           await EventController.updateEvent(_event);
         } else {
           await ProposalController.createProposal(

@@ -15,7 +15,7 @@ import '../models/event_model.dart';
 import '../widgets/view_event_widgets/event_detail_row.dart';
 import '../widgets/view_event_widgets/event_rating_summary.dart';
 import '../widgets/view_event_widgets/top_box.dart';
-import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
+// import '../widgets/view_event_widgets/event_proposals/event_proposals.dart';
 import '../widgets/view_event_widgets/excitement_widget.dart';
 import '../widgets/view_event_widgets/previous_event_link.dart';
 import 'package:share_plus/share_plus.dart';
@@ -137,9 +137,7 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
         ),
         actions: [
           if (currentUserId != null && 
-           (currentUserId == eventInstance.event.organizerId
-           || currentUserId == eventInstance.event.creatorId
-           || currentUserId == 'b0ffdf47-a4e3-43e9-b85e-15c8af0a1bd6'))
+           (eventInstance.event.isAuthorized(currentUserId)))
             IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(10),
@@ -196,6 +194,12 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Add button to create another event instance for one-time events when user is admin
+            if (event.frequency == Frequency.once && 
+                currentUserId != null && 
+                event.isAuthorized(currentUserId)) ...[
+              AddEventInstanceButton(eventInstance: eventInstance),
+            ],
             TopBox(event: event, eventInstance: eventInstance),
             const SizedBox(height: 24),
             EventDetailRow(
@@ -267,12 +271,12 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
               currentDate: eventInstance.date,
             ),
             const SizedBox(height: 32),
-            ProposalsWidget(
-                eventInstance: eventInstance,
-                onEditClicked: () {
-                  _showEditOptions(context, eventInstance);
-                }),
-            const SizedBox(height: 32),
+            // ProposalsWidget(
+            //     eventInstance: eventInstance,
+            //     onEditClicked: () {
+            //       _showEditOptions(context, eventInstance);
+            //     }),
+            // const SizedBox(height: 32),
             if (eventInstance.ratings.isNotEmpty)
               RatingsSection(occurrence: eventInstance),
           ],
@@ -332,5 +336,51 @@ class _ViewEventScreenState extends State<ViewEventScreen> {
     if (dayOfWeek == null) return '';
     final names = l10n.weekdayNames.split(',');
     return names[dayOfWeek.index].trim().capitalize;
+  }
+
+
+}
+
+
+class AddEventInstanceButton extends StatelessWidget {
+  final EventInstance eventInstance;
+  const AddEventInstanceButton({super.key, required this.eventInstance});
+
+  void _createAnotherEventInstance(BuildContext context) {
+    // Navigate to add event instance screen with the event ID
+    context.push('/add-event-instance/${eventInstance.event.eventId}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => _createAnotherEventInstance(context),
+            icon: Icon(
+              Icons.add_circle_outline,
+              size: 20,
+            ),
+            label: Text(
+              'Create Another ${eventInstance.event.name}',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
   }
 }

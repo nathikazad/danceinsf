@@ -5,7 +5,7 @@ import 'package:dance_sf/models/event_sub_models.dart';
 import 'package:dance_sf/models/schedule_model.dart';
 import 'package:dance_sf/models/proposal_model.dart';
 import 'package:dance_sf/utils/string.dart';
-
+import 'package:dance_sf/constants.dart';
 export 'package:dance_sf/models/event_instance_model.dart';
 export 'package:dance_sf/models/schedule_model.dart';
 export 'package:dance_sf/models/event_sub_models.dart';
@@ -219,6 +219,10 @@ class Event {
       } : null,
       'extras': extras,
     };
+  }
+
+  bool isAuthorized(String userId) {
+    return userId == creatorId || userId == organizerId || isAdmin(userId);
   }
 
   static Map<DateTime, List<EventInstance>> groupEventInstancesByDate(List<EventInstance> eventInstances) {

@@ -10,6 +10,7 @@ import 'package:dance_sf/screens/view_event_screen.dart' deferred as view_event;
 import 'utils/app_storage.dart';
 import 'screens/edit_event_screen.dart' deferred as edit_event;
 import 'screens/edit_event_instance_screen.dart' deferred as edit_event_instance;
+import 'screens/add_event_instance_screen.dart' deferred as add_event_instance;
 import 'screens/help_screen.dart' deferred as help;
 import 'package:dance_sf/utils/app_scaffold/app_scaffold.dart';
 import 'package:dance_sf/models/event_model.dart';
@@ -156,6 +157,17 @@ final routerProvider = Provider<GoRouter>((ref) {
             loadLibrary: edit_event_instance.loadLibrary,
             buildScreen: () => edit_event_instance.EditEventInstanceScreen(
               eventInstanceId: state.pathParameters['instanceId']!,
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/add-event-instance/:eventId',
+        builder: (context, state) => AppScaffold(
+          child: DeferredScreen(
+            loadLibrary: add_event_instance.loadLibrary,
+            buildScreen: () => add_event_instance.AddEventInstanceScreen(
+              eventId: state.pathParameters['eventId']!,
             ),
           ),
         ),
