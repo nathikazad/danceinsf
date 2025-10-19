@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/l10n/app_localizations.dart';
 class FeaturesGrid extends StatelessWidget {
   final bool isDesktop;
   const FeaturesGrid({required this.isDesktop});

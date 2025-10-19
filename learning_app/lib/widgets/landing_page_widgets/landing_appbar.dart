@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dance_shared/auth/auth_service.dart';
 import 'package:dance_shared/login_dialog.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/l10n/app_localizations.dart';
 import 'package:learning_app/main.dart';
 
 class LandingAppBar extends ConsumerWidget {

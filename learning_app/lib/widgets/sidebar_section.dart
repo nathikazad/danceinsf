@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dance_shared/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/l10n/app_localizations.dart';
 import '../services/storage_service.dart';
 import '../main.dart';
 import 'sidebar_toggle_button.dart';

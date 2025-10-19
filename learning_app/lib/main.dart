@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/l10n/app_localizations.dart';
 import 'package:learning_app/constants.dart';
 import 'package:learning_app/screens/landing_page.dart';
 import 'package:learning_app/screens/desktop_video_app.dart';

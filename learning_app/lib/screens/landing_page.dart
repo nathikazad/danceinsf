@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dance_shared/stripe/stripe_dialog.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/l10n/app_localizations.dart';
 import 'package:learning_app/constants.dart';
 import 'package:learning_app/utils/user_payments.dart';
 import 'package:learning_app/utils/browser_detection.dart';
@@ -106,12 +106,44 @@ class _VideoPreview extends StatefulWidget {
 
 class _VideoPreviewState extends State<_VideoPreview> {
   bool _isPlaying = false;
-  final String _videoUrl = 'https://stream.mux.com/KU3YwYdm015GdVuFIwgz00VV3tS01EVUOzOymBlVdAOh02U.m3u8';
-
+  final String _videoUrlEn = 'https://stream.mux.com/Ix2ygjWSkqz6YL3Ncj102uNKnkYU1ci027GweL01Zf6imY.m3u8';
+  final String _videoUrlEs = 'https://stream.mux.com/6CplJeeKw00tdLTgyWywB9nM1MpxLBSuvMDzhHyvxKLM.m3u8';
+  
+  // Thumbnail URLs for different languages
+  final String _thumbnailUrlEn = 'https://image.mux.com/Ix2ygjWSkqz6YL3Ncj102uNKnkYU1ci027GweL01Zf6imY/thumbnail.jpg?width=640&height=360&fit_mode=smartcrop';
+  final String _thumbnailUrlEs = 'https://image.mux.com/6CplJeeKw00tdLTgyWywB9nM1MpxLBSuvMDzhHyvxKLM/thumbnail.jpg?width=640&height=360&fit_mode=smartcrop';
+  
+  String? _currentLanguageCode;
+  
+  String get _currentVideoUrl {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'es' ? _videoUrlEs : _videoUrlEn;
+  }
+  
+  String get _currentThumbnailUrl {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'es' ? _thumbnailUrlEs : _thumbnailUrlEn;
+  }
+  
   void _onPlayButtonPressed() {
     setState(() {
       _isPlaying = true;
     });
+  }
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newLanguageCode = Localizations.localeOf(context).languageCode;
+    if (_currentLanguageCode != null && _currentLanguageCode != newLanguageCode) {
+      // Language changed, reset video player
+      setState(() {
+        _isPlaying = false;
+        _currentLanguageCode = newLanguageCode;
+      });
+    } else {
+      _currentLanguageCode = newLanguageCode;
+    }
   }
 
   @override
@@ -131,26 +163,41 @@ class _VideoPreviewState extends State<_VideoPreview> {
                 ? _buildVideoPlayer()
                 : GestureDetector(
                     onTap: _onPlayButtonPressed,
-                    child: Container(
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.play_circle_fill,
-                              size: 64,
-                              color: Colors.black38,
-                            ),
-                            // const SizedBox(height: 8),
-                            // Text(
-                            //   '${l10n.watchFreePreview}\n${l10n.introLesson}',
-                            //   textAlign: TextAlign.center,
-                            //   style: const TextStyle(fontSize: 16, color: Colors.black54),
-                            // ),
-                          ],
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Thumbnail image
+                        Image.network(
+                          _currentThumbnailUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: Icon(
+                                  Icons.video_library,
+                                  size: 64,
+                                  color: Colors.black38,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
+                        // Play button overlay
+                        Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.6),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.play_circle_fill,
+                              size: 80,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
           ),
@@ -163,13 +210,13 @@ class _VideoPreviewState extends State<_VideoPreview> {
     // Use Safari video player for Safari on Mac, Chewie for everything else
     if (BrowserDetection.isSafariOnMac()) {
       return SafariVideoPlayer(
-        videoUrl: _videoUrl,
+        videoUrl: _currentVideoUrl,
         aspectRatio: 16 / 9,
         maxHeight: 400,
       );
     } else {
       return ChewieVideoPlayer(
-        videoUrl: _videoUrl,
+        videoUrl: _currentVideoUrl,
         aspectRatio: 16 / 9,
         maxHeight: 400,
       );

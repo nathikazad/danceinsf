@@ -7,7 +7,7 @@ import '../services/storage_service.dart';
 import '../widgets/accordion_widget.dart';
 import '../widgets/video_player_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:learning_app/l10n/app_localizations.dart';
 
 class MobileVideoApp extends ConsumerStatefulWidget {
   const MobileVideoApp({super.key});
